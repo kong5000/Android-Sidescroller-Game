@@ -1,0 +1,187 @@
+
+game_sprites.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+minotaur_attack_slow
+  rotate: false
+  xy: 0, 561
+  size: 980, 79
+  orig: 980, 79
+  offset: 0, 0
+  index: -1
+minotaur_attack_slow_damaged
+  rotate: false
+  xy: 0, 482
+  size: 980, 79
+  orig: 980, 79
+  offset: 0, 0
+  index: -1
+minotaur_attack_fast
+  rotate: false
+  xy: 0, 403
+  size: 882, 79
+  orig: 882, 79
+  offset: 0, 0
+  index: -1
+player_fall
+  rotate: false
+  xy: 882, 443
+  size: 104, 39
+  orig: 104, 39
+  offset: 0, 0
+  index: -1
+minotaur_die
+  rotate: false
+  xy: 0, 326
+  size: 768, 77
+  orig: 768, 77
+  offset: 0, 0
+  index: -1
+player_air_attack1
+  rotate: false
+  xy: 768, 364
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+player_flip
+  rotate: false
+  xy: 768, 325
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+minotaur_run
+  rotate: false
+  xy: 0, 247
+  size: 588, 79
+  orig: 588, 79
+  offset: 0, 0
+  index: -1
+player_hurt
+  rotate: false
+  xy: 588, 287
+  size: 156, 39
+  orig: 156, 39
+  offset: 0, 0
+  index: -1
+fire_elemental_idle
+  rotate: false
+  xy: 744, 282
+  size: 248, 43
+  orig: 248, 43
+  offset: 0, 0
+  index: -1
+slime_die
+  rotate: false
+  xy: 588, 260
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+fire_elemental_run
+  rotate: false
+  xy: 724, 239
+  size: 248, 43
+  orig: 248, 43
+  offset: 0, 0
+  index: -1
+slime_hurt
+  rotate: false
+  xy: 588, 233
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+player_attack1
+  rotate: false
+  xy: 724, 200
+  size: 260, 39
+  orig: 260, 39
+  offset: 0, 0
+  index: -1
+minotaur_idle
+  rotate: false
+  xy: 0, 168
+  size: 490, 79
+  orig: 490, 79
+  offset: 0, 0
+  index: -1
+player_idle1
+  rotate: false
+  xy: 490, 194
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+player_jump
+  rotate: false
+  xy: 698, 161
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+fire_elemental_hurt
+  rotate: false
+  xy: 490, 151
+  size: 186, 43
+  orig: 186, 43
+  offset: 0, 0
+  index: -1
+player_run
+  rotate: false
+  xy: 676, 122
+  size: 312, 39
+  orig: 312, 39
+  offset: 0, 0
+  index: -1
+minotaur_hurt
+  rotate: false
+  xy: 0, 89
+  size: 392, 79
+  orig: 392, 79
+  offset: 0, 0
+  index: -1
+slime_attack
+  rotate: false
+  xy: 392, 124
+  size: 170, 27
+  orig: 170, 27
+  offset: 0, 0
+  index: -1
+slime_move
+  rotate: false
+  xy: 392, 97
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+minotaur_jump
+  rotate: false
+  xy: 528, 43
+  size: 392, 79
+  orig: 392, 79
+  offset: 0, 0
+  index: -1
+fire_elemental_attack
+  rotate: false
+  xy: 0, 0
+  size: 620, 43
+  orig: 620, 43
+  offset: 0, 0
+  index: -1
+fire_elemental_die
+  rotate: false
+  xy: 0, 46
+  size: 496, 43
+  orig: 496, 43
+  offset: 0, 0
+  index: -1
+player_die
+  rotate: false
+  xy: 620, 4
+  size: 364, 39
+  orig: 364, 39
+  offset: 0, 0
+  index: -1
