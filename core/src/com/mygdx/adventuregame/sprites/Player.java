@@ -68,6 +68,10 @@ public class Player extends Sprite {
 
     private Fixture swordFixture;
 
+    private int health;
+    private static final int FULL_HEALTH = 20;
+    public static float movementSpeed = 1f;
+
 
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
@@ -75,11 +79,13 @@ public class Player extends Sprite {
         textureAtlas = screen.getAtlas();
         currentState = State.STANDING;
         previousState = State.STANDING;
+        hurtTimer = -1f;
         stateTimer = 0;
         attackTimer = ATTACK_TIME;
         flipTimer = FLIP_TIME;
         flipEnabled = true;
         runningRight = true;
+        health = FULL_HEALTH;
 
         playerRun = generateAnimation(textureAtlas.findRegion("player_run"), 6, 52, 39, 0.1f);
         playerIdle = generateAnimation(textureAtlas.findRegion("player_idle1"), 3, 52, 39, 0.2f);
@@ -108,6 +114,7 @@ public class Player extends Sprite {
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.ENEMY_HEAD_BIT
                 | AdventureGame.ENEMY_ATTACK_BIT
+                | AdventureGame.ENEMY_PROJECTILE_BIT
         ;
         CircleShape shape = new CircleShape();
         shape.setRadius(12 / AdventureGame.PPM);
@@ -247,6 +254,7 @@ public class Player extends Sprite {
 
     public void hurt() {
         hurtTimer = HURT_TIME;
+        health -= 1;
     }
 
     public void jump() {
@@ -316,4 +324,11 @@ public class Player extends Sprite {
         swordFixture.setUserData(this);
     }
 
+    public int getHealth(){
+        return health;
+    }
+
+    public boolean notInvincible(){
+        return hurtTimer < 0;
+    }
 }

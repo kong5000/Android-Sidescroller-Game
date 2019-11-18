@@ -7,9 +7,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.Player;
-
-import jdk.nashorn.tools.Shell;
 
 public class WorldContactListener implements ContactListener {
     @Override
@@ -40,21 +39,33 @@ public class WorldContactListener implements ContactListener {
             case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
                 if(fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT){
                     if (((Player) fixA.getUserData()).isSwinging()) {
-                        if(((Enemy)fixB.getUserData()).notHurt()){
-                            ((Enemy)fixB.getUserData()).hurt();
+                        if(((Enemy)fixB.getUserData()).notDamagedRecently()){
+                            ((Enemy)fixB.getUserData()).damage();
                         }
                     }
 
                 }else {
                     if (((Player) fixB.getUserData()).isSwinging()) {
-                        if(((Enemy)fixA.getUserData()).notHurt()){
-                            ((Enemy)fixA.getUserData()).hurt();
+                        if(((Enemy)fixA.getUserData()).notDamagedRecently()){
+                            ((Enemy)fixA.getUserData()).damage();
                         }
                     }
 
                 }
                 break;
-
+            case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.PLAYER_BIT:
+                if(fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT){
+                        if(((Player)fixA.getUserData()).notInvincible()){
+                            ((Player)fixA.getUserData()).hurt();
+                        }
+                    ((FireBall)fixB.getUserData()).setToDestroy();
+                }else {
+                        if(((Player)fixB.getUserData()).notInvincible()){
+                            ((Player)fixB.getUserData()).hurt();
+                        }
+                    ((FireBall)fixA.getUserData()).setToDestroy();
+                }
+                break;
         }
     }
 
@@ -79,14 +90,19 @@ public class WorldContactListener implements ContactListener {
                 if(fixA.getFilterData().categoryBits == AdventureGame.ENEMY_ATTACK_BIT){
                     if (((Enemy) fixA.getUserData()).attackEnabled) {
                         contact.setEnabled(true);
-                        ((Player)fixB.getUserData()).hurt();
+                        if(((Player)fixB.getUserData()).notInvincible()){
+                            ((Player)fixB.getUserData()).hurt();
+                        }
+
                     } else {
                         contact.setEnabled(false);
                     }
                 }else {
                     if (((Enemy) fixB.getUserData()).attackEnabled) {
                         contact.setEnabled(true);
-                        ((Player)fixA.getUserData()).hurt();
+                        if(((Player)fixA.getUserData()).notInvincible()){
+                            ((Player)fixA.getUserData()).hurt();
+                        }
                     } else {
                         contact.setEnabled(false);
                     }
@@ -96,15 +112,15 @@ public class WorldContactListener implements ContactListener {
                 if(fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT){
                         contact.setEnabled(false);
                     if (((Player) fixB.getUserData()).isSwinging()) {
-                        if(((Enemy)fixA.getUserData()).notHurt()){
-                            ((Enemy)fixA.getUserData()).hurt();
+                        if(((Enemy)fixA.getUserData()).notDamagedRecently()){
+                            ((Enemy)fixA.getUserData()).damage();
                         }
                     }
                 }else {
                         contact.setEnabled(false);
                     if (((Player) fixA.getUserData()).isSwinging()) {
-                        if(((Enemy)fixB.getUserData()).notHurt()){
-                            ((Enemy)fixB.getUserData()).hurt();
+                        if(((Enemy)fixB.getUserData()).notDamagedRecently()){
+                            ((Enemy)fixB.getUserData()).damage();
                         }
                     }
                 }
@@ -125,7 +141,6 @@ public class WorldContactListener implements ContactListener {
                 }
                 break;
         }
-
     }
 
     @Override

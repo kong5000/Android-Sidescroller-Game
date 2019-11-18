@@ -29,16 +29,19 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.Player;
 import com.mygdx.adventuregame.sprites.Slime;
 import com.mygdx.adventuregame.tools.B2WorldCreator;
+import com.mygdx.adventuregame.tools.Controller;
 import com.mygdx.adventuregame.tools.WorldContactListener;
 
 import java.util.ArrayList;
 
 public class PlayScreen implements Screen {
+    Controller controller;
     private static final float PLAYER_MAX_SPEED = 1.5f;
     private AdventureGame game;
     private OrthographicCamera gameCam;
@@ -60,6 +63,10 @@ public class PlayScreen implements Screen {
 
     private Array<Enemy> enemyList;
 
+    private Array<FireBall> fireBalls;
+    private FireBall fireBall;
+
+    public Array<FireBall> projectilesToSpawn;
 
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -86,26 +93,37 @@ public class PlayScreen implements Screen {
         b2dr = new Box2DDebugRenderer();
         new B2WorldCreator(world, map);
         enemyList = new Array<>();
+        fireBalls = new Array<>();
+        projectilesToSpawn = new Array<>();
 
-        enemyList.add(new Slime(this, 1.72f, 0.32f));
-        enemyList.add(new Slime(this, 2.72f, 0.32f));
-        enemyList.add(new Slime(this, 3.72f, 0.32f));
+//        enemyList.add(new Slime(this, 1.72f, 0.32f));
+//        enemyList.add(new Slime(this, 2.72f, 0.32f));
+//        enemyList.add(new Slime(this, 3.72f, 0.32f));
         enemyList.add(new Minotaur(this, 2.25f, 2.32f));
-        enemyList.add(new FireElemental(this, 2.25f, 2.32f));
+//        enemyList.add(new FireElemental(this, 2.25f, 0.32f));
+
+        fireBall = new FireBall(this, 2.24f, 0.6f, false);
+
+        controller = new Controller(game.batch, this);
+        controller.enable();
 
     }
 
     public void update(float dt){
-        handleInupt(dt);
+        controller.handleInput();
+        controller.update();
+//        handleInupt(dt);
         world.step(1/60f, 6, 2);
         player.update(dt);
         for(Enemy enemy : enemyList){
             enemy.update(dt);
-            if(enemy.safeToRemove){
-                enemyList.removeValue(enemy, true);
-            }
         }
+        for(FireBall fireBall : fireBalls){
+            fireBall.update(dt);
+        }
+        fireBall.update(dt);
 
+        hud.setScore(player.getHealth());
 
 
         //Camera tracks player
@@ -152,7 +170,7 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         renderer.render();
 
-        b2dr.render(world, gameCam.combined);
+//        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
@@ -160,14 +178,21 @@ public class PlayScreen implements Screen {
 
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
-                if(enemy.isHurt()){
-                    game.batch.setShader(shader);
-                }else {
-                    game.batch.setShader(null);
-                }
+//                if(enemy.isHurt()){
+//                    game.batch.setShader(shader);
+//                }else {
+//                    game.batch.setShader(null);
+//                }
                 enemy.draw(game.batch);
             }
         }
+        if(fireBalls.size > 0){
+            for(FireBall fireBall : fireBalls){
+                fireBall.draw(game.batch);
+            }
+        }
+        fireBall.draw(game.batch);
+
         game.batch.setShader(null);
         game.batch.end();
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
@@ -177,13 +202,37 @@ public class PlayScreen implements Screen {
             enemyList.add(new Slime(this, 1.72f, 2.32f));
             enemyList.add(new Slime(this, 2.72f, 2.32f));
             enemyList.add(new Slime(this, 3.72f, 2.32f));
+            enemyList.add(new FireElemental(this, 3.5f, 2.32f));
+            enemyList.add(new FireElemental(this, 3.5f, 2.32f));
             enemyList.add(new Minotaur(this, 2.25f, 2.32f));
         }
+        if(!projectilesToSpawn.isEmpty()){
+            for(FireBall fireBall : projectilesToSpawn){
+                fireBalls.add(fireBall);
+                projectilesToSpawn.removeValue(fireBall, true);
+            }
+        }
+
+        for(Enemy enemy : enemyList){
+            if(enemy.safeToRemove){
+                enemyList.removeValue(enemy, true);
+            }
+        }
+
+        for(FireBall fireBall : fireBalls){
+            if(fireBall.safeToRemove){
+                fireBalls.removeValue(fireBall, true);
+            }
+        }
+
+        controller.draw();
+
     }
 
     @Override
     public void resize(int width, int height) {
         gamePort.update(width, height);
+        controller.resize(width, height);
     }
 
     @Override
@@ -208,6 +257,7 @@ public class PlayScreen implements Screen {
         world.dispose();
         b2dr.dispose();
         hud.dispose();
+        controller.dispose();
     }
 
     public TextureAtlas getAtlas(){

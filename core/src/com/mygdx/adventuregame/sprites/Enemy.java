@@ -54,8 +54,8 @@ public abstract class Enemy extends Sprite {
     protected abstract void defineEnemy();
 
     public abstract void hitOnHead();
-    public abstract void hurt();
-    public abstract boolean notHurt();
+    public abstract void damage();
+    public abstract boolean notDamagedRecently();
     public abstract void update(float dt);
     public boolean isDestroyed(){
         return destroyed;

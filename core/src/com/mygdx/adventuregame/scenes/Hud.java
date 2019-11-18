@@ -67,4 +67,9 @@ public class Hud implements Disposable {
     public void dispose() {
         stage.dispose();
     }
+
+    public void setScore(int value){
+        score = value;
+        scoreLabel.setText(String.format("%03d", score));
+    }
 }

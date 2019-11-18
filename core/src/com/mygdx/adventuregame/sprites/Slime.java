@@ -194,7 +194,7 @@ public class Slime extends Enemy {
 
 
     @Override
-    public void hurt() {
+    public void damage() {
         health -=2;
         if(currentState != State.HURT){
             if(hurtTimer < 0){
@@ -210,7 +210,7 @@ public class Slime extends Enemy {
     }
 
     @Override
-    public boolean notHurt() {
+    public boolean notDamagedRecently() {
         return (hurtTimer < 0);
     }
 }
