@@ -3,192 +3,297 @@ game_sprites.png
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-minotaur_attack_slow
+ice_shatter
   rotate: false
-  xy: 0, 567
-  size: 980, 79
-  orig: 980, 79
-  offset: 0, 0
-  index: -1
-minotaur_attack_slow_damaged
-  rotate: false
-  xy: 0, 488
-  size: 980, 79
-  orig: 980, 79
-  offset: 0, 0
-  index: -1
-minotaur_attack_fast
-  rotate: false
-  xy: 0, 409
-  size: 882, 79
-  orig: 882, 79
-  offset: 0, 0
-  index: -1
-player_fall
-  rotate: false
-  xy: 882, 449
-  size: 104, 39
-  orig: 104, 39
-  offset: 0, 0
-  index: -1
-minotaur_die
-  rotate: false
-  xy: 0, 332
-  size: 768, 77
-  orig: 768, 77
-  offset: 0, 0
-  index: -1
-player_air_attack1
-  rotate: false
-  xy: 768, 370
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-player_flip
-  rotate: false
-  xy: 768, 331
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-fire_elemental_attack
-  rotate: false
-  xy: 0, 289
-  size: 620, 43
-  orig: 620, 43
-  offset: 0, 0
-  index: -1
-player_die
-  rotate: false
-  xy: 620, 292
-  size: 364, 39
-  orig: 364, 39
-  offset: 0, 0
-  index: -1
-player_run
-  rotate: false
-  xy: 620, 253
-  size: 312, 39
-  orig: 312, 39
-  offset: 0, 0
-  index: -1
-minotaur_run
-  rotate: false
-  xy: 0, 210
-  size: 588, 79
-  orig: 588, 79
-  offset: 0, 0
-  index: -1
-minotaur_hurt
-  rotate: false
-  xy: 588, 174
-  size: 392, 79
-  orig: 392, 79
-  offset: 0, 0
-  index: -1
-fire_elemental_die
-  rotate: false
-  xy: 0, 167
-  size: 496, 43
-  orig: 496, 43
-  offset: 0, 0
-  index: -1
-minotaur_idle
-  rotate: false
-  xy: 496, 95
-  size: 490, 79
-  orig: 490, 79
-  offset: 0, 0
-  index: -1
-minotaur_jump
-  rotate: false
-  xy: 0, 16
-  size: 392, 79
-  orig: 392, 79
-  offset: 0, 0
-  index: -1
-projectile_animation
-  rotate: false
-  xy: 0, 0
-  size: 128, 16
-  orig: 128, 16
+  xy: 0, 298
+  size: 4704, 96
+  orig: 4704, 96
   offset: 0, 0
   index: -1
 fire_elemental_idle
   rotate: false
-  xy: 0, 124
+  xy: 4704, 351
   size: 248, 43
   orig: 248, 43
   offset: 0, 0
   index: -1
 fire_elemental_run
   rotate: false
-  xy: 248, 124
+  xy: 4704, 308
   size: 248, 43
   orig: 248, 43
   offset: 0, 0
   index: -1
-slime_attack
+player_air_attack1
   rotate: false
-  xy: 0, 97
-  size: 170, 27
-  orig: 170, 27
+  xy: 4704, 269
+  size: 208, 39
+  orig: 208, 39
   offset: 0, 0
   index: -1
-slime_die
+explosion
   rotate: false
-  xy: 170, 97
-  size: 136, 27
-  orig: 136, 27
+  xy: 0, 202
+  size: 4224, 96
+  orig: 4224, 96
   offset: 0, 0
   index: -1
-slime_hurt
+kobold_run
   rotate: false
-  xy: 306, 97
-  size: 136, 27
-  orig: 136, 27
+  xy: 4224, 263
+  size: 408, 35
+  orig: 408, 35
   offset: 0, 0
   index: -1
-fire_elemental_hurt
+player_run
   rotate: false
-  xy: 392, 52
-  size: 186, 43
-  orig: 186, 43
+  xy: 4632, 230
+  size: 312, 39
+  orig: 312, 39
+  offset: 0, 0
+  index: -1
+minotaur_hurt
+  rotate: false
+  xy: 4224, 184
+  size: 392, 79
+  orig: 392, 79
+  offset: 0, 0
+  index: -1
+kobold_idle
+  rotate: false
+  xy: 4616, 195
+  size: 272, 35
+  orig: 272, 35
   offset: 0, 0
   index: -1
 player_attack1
   rotate: false
-  xy: 392, 13
+  xy: 4616, 156
   size: 260, 39
   orig: 260, 39
   offset: 0, 0
   index: -1
+minotaur_attack_slow
+  rotate: false
+  xy: 0, 123
+  size: 980, 79
+  orig: 980, 79
+  offset: 0, 0
+  index: -1
+minotaur_attack_slow_bright
+  rotate: false
+  xy: 980, 123
+  size: 980, 79
+  orig: 980, 79
+  offset: 0, 0
+  index: -1
+minotaur_attack_fast
+  rotate: false
+  xy: 1960, 123
+  size: 882, 79
+  orig: 882, 79
+  offset: 0, 0
+  index: -1
+fire_burst
+  rotate: false
+  xy: 2842, 92
+  size: 1856, 64
+  orig: 1856, 64
+  offset: 0, 0
+  index: -1
+fire_elemental_attack
+  rotate: false
+  xy: 2842, 159
+  size: 620, 43
+  orig: 620, 43
+  offset: 0, 0
+  index: -1
+fire_elemental_die
+  rotate: false
+  xy: 3462, 159
+  size: 496, 43
+  orig: 496, 43
+  offset: 0, 0
+  index: -1
+fire_elemental_hurt
+  rotate: false
+  xy: 3958, 159
+  size: 186, 43
+  orig: 186, 43
+  offset: 0, 0
+  index: -1
+minotaur_attack_fast_bright
+  rotate: false
+  xy: 0, 44
+  size: 882, 79
+  orig: 882, 79
+  offset: 0, 0
+  index: -1
+minotaur_run
+  rotate: false
+  xy: 882, 44
+  size: 588, 79
+  orig: 588, 79
+  offset: 0, 0
+  index: -1
+minotaur_run_bright
+  rotate: false
+  xy: 1470, 44
+  size: 588, 79
+  orig: 588, 79
+  offset: 0, 0
+  index: -1
+minotaur_die
+  rotate: false
+  xy: 2058, 46
+  size: 768, 77
+  orig: 768, 77
+  offset: 0, 0
+  index: -1
+minotaur_idle
+  rotate: false
+  xy: 2826, 13
+  size: 490, 79
+  orig: 490, 79
+  offset: 0, 0
+  index: -1
+player_die
+  rotate: false
+  xy: 2058, 7
+  size: 364, 39
+  orig: 364, 39
+  offset: 0, 0
+  index: -1
+kobold_attack
+  rotate: false
+  xy: 2422, 11
+  size: 340, 35
+  orig: 340, 35
+  offset: 0, 0
+  index: -1
+minotaur_idle_bright
+  rotate: false
+  xy: 3316, 13
+  size: 490, 79
+  orig: 490, 79
+  offset: 0, 0
+  index: -1
+minotaur_hurt_bright
+  rotate: false
+  xy: 3806, 13
+  size: 392, 79
+  orig: 392, 79
+  offset: 0, 0
+  index: -1
+minotaur_jump
+  rotate: false
+  xy: 4198, 13
+  size: 392, 79
+  orig: 392, 79
+  offset: 0, 0
+  index: -1
+kobold_die
+  rotate: false
+  xy: 0, 9
+  size: 476, 35
+  orig: 476, 35
+  offset: 0, 0
+  index: -1
+player_cast
+  rotate: false
+  xy: 4698, 117
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+player_flip
+  rotate: false
+  xy: 4698, 78
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+player_fall
+  rotate: false
+  xy: 4590, 53
+  size: 104, 39
+  orig: 104, 39
+  offset: 0, 0
+  index: -1
+fire_elemental_hurt_bright
+  rotate: false
+  xy: 4694, 35
+  size: 186, 43
+  orig: 186, 43
+  offset: 0, 0
+  index: -1
+kobold_hurt
+  rotate: false
+  xy: 4590, 0
+  size: 204, 35
+  orig: 204, 35
+  offset: 0, 0
+  index: -1
+slime_attack
+  rotate: false
+  xy: 4144, 157
+  size: 170, 27
+  orig: 170, 27
+  offset: 0, 0
+  index: -1
 player_idle1
   rotate: false
-  xy: 578, 56
+  xy: 476, 5
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
 player_jump
   rotate: false
-  xy: 786, 56
+  xy: 684, 5
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
 player_hurt
   rotate: false
-  xy: 652, 17
+  xy: 892, 5
   size: 156, 39
   orig: 156, 39
   offset: 0, 0
   index: -1
-slime_move
+slime_die
   rotate: false
-  xy: 808, 29
+  xy: 4794, 8
   size: 136, 27
   orig: 136, 27
+  offset: 0, 0
+  index: -1
+slime_hurt
+  rotate: false
+  xy: 4314, 157
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+slime_move
+  rotate: false
+  xy: 4450, 157
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+kobold_hurt_bright
+  rotate: false
+  xy: 1048, 9
+  size: 204, 35
+  orig: 204, 35
+  offset: 0, 0
+  index: -1
+projectile_animation
+  rotate: false
+  xy: 1252, 28
+  size: 128, 16
+  orig: 128, 16
   offset: 0, 0
   index: -1

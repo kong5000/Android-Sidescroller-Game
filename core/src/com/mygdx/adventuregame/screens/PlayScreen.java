@@ -29,8 +29,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
+import com.mygdx.adventuregame.sprites.Kobold;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.Player;
 import com.mygdx.adventuregame.sprites.Slime;
@@ -67,6 +69,7 @@ public class PlayScreen implements Screen {
     private FireBall fireBall;
 
     public Array<FireBall> projectilesToSpawn;
+    public Array<Explosion> explosions;
 
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -87,7 +90,7 @@ public class PlayScreen implements Screen {
 
         //Creating collision bodies for the map
         //The vector2 is for gravity
-        world = new World(new Vector2(0, -10), true);
+        world = new World(new Vector2(0, -8), true);
         player = new Player(world, this);
         world.setContactListener(new WorldContactListener());
         b2dr = new Box2DDebugRenderer();
@@ -95,14 +98,15 @@ public class PlayScreen implements Screen {
         enemyList = new Array<>();
         fireBalls = new Array<>();
         projectilesToSpawn = new Array<>();
+        explosions = new Array<>();
 
 //        enemyList.add(new Slime(this, 1.72f, 0.32f));
 //        enemyList.add(new Slime(this, 2.72f, 0.32f));
 //        enemyList.add(new Slime(this, 3.72f, 0.32f));
-        enemyList.add(new Minotaur(this, 2.25f, 2.32f));
+//        enemyList.add(new Minotaur(this, 2.25f, 2.32f));
+
 //        enemyList.add(new FireElemental(this, 2.25f, 0.32f));
 
-        fireBall = new FireBall(this, 2.24f, 0.6f, false);
 
         controller = new Controller(game.batch, this);
         controller.enable();
@@ -121,7 +125,9 @@ public class PlayScreen implements Screen {
         for(FireBall fireBall : fireBalls){
             fireBall.update(dt);
         }
-        fireBall.update(dt);
+        for(Explosion explosion : explosions){
+            explosion.update(dt);
+        }
 
         hud.setScore(player.getHealth());
 
@@ -174,7 +180,7 @@ public class PlayScreen implements Screen {
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
-        player.draw(game.batch);
+
 
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
@@ -191,7 +197,10 @@ public class PlayScreen implements Screen {
                 fireBall.draw(game.batch);
             }
         }
-        fireBall.draw(game.batch);
+        for (Explosion explosion : explosions){
+            explosion.draw(game.batch);
+        }
+        player.draw(game.batch);
 
         game.batch.setShader(null);
         game.batch.end();
@@ -199,12 +208,16 @@ public class PlayScreen implements Screen {
         hud.stage.draw();
 
         if(enemyList.isEmpty()){
-            enemyList.add(new Slime(this, 1.72f, 2.32f));
-            enemyList.add(new Slime(this, 2.72f, 2.32f));
-            enemyList.add(new Slime(this, 3.72f, 2.32f));
+//            enemyList.add(new Slime(this, 1.72f, 2.32f));
+//            enemyList.add(new Slime(this, 2.72f, 2.32f));
             enemyList.add(new FireElemental(this, 3.5f, 2.32f));
-            enemyList.add(new FireElemental(this, 3.5f, 2.32f));
+
             enemyList.add(new Minotaur(this, 2.25f, 2.32f));
+            enemyList.add(new Kobold(this, 1.85f, 2.32f));
+            enemyList.add(new Kobold(this, 2.05f, 2.32f));
+//            enemyList.add(new Kobold(this, 2.9f, 2.32f));
+
+
         }
         if(!projectilesToSpawn.isEmpty()){
             for(FireBall fireBall : projectilesToSpawn){
@@ -275,6 +288,10 @@ public class PlayScreen implements Screen {
         return player;
     }
 
+    public Array<Explosion> getExplosions(){
+        return explosions;
+    }
+
     String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
             + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
@@ -303,4 +320,6 @@ public class PlayScreen implements Screen {
             + "}";
 
     ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
+
+
 }

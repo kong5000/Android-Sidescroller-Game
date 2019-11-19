@@ -23,6 +23,7 @@ public class AdventureGame extends Game {
 	public static final short PLAYER_SWORD_BIT = 16;
 	public static final short ENEMY_ATTACK_BIT = 32;
 	public static final short ENEMY_PROJECTILE_BIT = 64;
+	public static final short PLAYER_PROJECTILE_BIT = 128;
 
 	@Override
 	public void create () {

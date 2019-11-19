@@ -31,12 +31,14 @@ public class FireBall extends Sprite {
     private static final float TIME_ALIVE = 200f;
     private static final int WIDTH_PIXELS = 32;
     private static final int HEIGHT_PIXELS = 16;
+    private boolean isFriendly;
 
     private Animation<TextureRegion> projectile;
-    public FireBall(PlayScreen screen, float x, float y, boolean goingRight){
+    public FireBall(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly){
         this.world = screen.getWorld();
         this.screen = screen;
         setPosition(x, y);
+        this.isFriendly = isFriendly;
         defineProjectile();
         attackEnabled = false;
         aliveTimer = TIME_ALIVE;
@@ -45,6 +47,9 @@ public class FireBall extends Sprite {
         ,4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
+        if(isFriendly){
+            setScale(1.25f);
+        }
     }
 
     public void update(float dt){
@@ -100,11 +105,14 @@ public class FireBall extends Sprite {
     }
 
     public void setGoingRight(boolean status){
-
+        float speed = 1f;
         if(status){
-            b2body.setLinearVelocity(new Vector2(1f, 0));
+            if(isFriendly){
+                speed *= 2f;
+            }
+            b2body.setLinearVelocity(new Vector2(speed, 0));
         }else{
-            b2body.setLinearVelocity(new Vector2(-1f,0));
+            b2body.setLinearVelocity(new Vector2(-speed,0));
         }
     }
 
@@ -126,8 +134,14 @@ public class FireBall extends Sprite {
         b2body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
+        if(isFriendly){
+            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
+        }else{
+            fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
+        }
+
         CircleShape shape = new CircleShape();
         shape.setRadius(8 / AdventureGame.PPM);
 

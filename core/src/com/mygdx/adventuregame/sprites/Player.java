@@ -18,6 +18,7 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 
 public class Player extends Sprite {
     private static final float HURT_TIME = 0.5f;
+    private static final float CAST_TIME = 0.5f;
     private static final float ATTACK_TIME = 0.5f;
     private static final float FLIP_TIME = 0.4f;
     private static final float MAX_VERTICLE_SPEED = 3f;
@@ -40,7 +41,7 @@ public class Player extends Sprite {
             0f, -0.2f,
             0, 0.2f};
 
-    public enum State {FALLING, JUMPING, STANDING, RUNNING, HURT, ATTACKING, AIR_ATTACKING, FLIPING}
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, HURT, ATTACKING, AIR_ATTACKING, FLIPING, CASTING}
 
     public State currentState;
     public State previousState;
@@ -56,6 +57,7 @@ public class Player extends Sprite {
     private Animation<TextureRegion> playerAttack;
     private Animation<TextureRegion> playerAirAttack;
     private Animation<TextureRegion> playerFlip;
+    private Animation<TextureRegion> playerCast;
 
     private boolean runningRight;
     private boolean flipEnabled;
@@ -63,6 +65,12 @@ public class Player extends Sprite {
     private float hurtTimer;
     private float attackTimer;
     private float flipTimer;
+    private float castTimer;
+
+    private float castCooldown;
+    private static final float CAST_RATE = 1f;
+
+    private boolean canFireProjectile;
 
     TextureAtlas textureAtlas;
 
@@ -72,10 +80,13 @@ public class Player extends Sprite {
     private static final int FULL_HEALTH = 20;
     public static float movementSpeed = 1f;
 
+    private PlayScreen screen;
+
 
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
         this.world = world;
+        this.screen = screen;
         textureAtlas = screen.getAtlas();
         currentState = State.STANDING;
         previousState = State.STANDING;
@@ -83,9 +94,12 @@ public class Player extends Sprite {
         stateTimer = 0;
         attackTimer = ATTACK_TIME;
         flipTimer = FLIP_TIME;
+        castTimer = -1f;
         flipEnabled = true;
         runningRight = true;
         health = FULL_HEALTH;
+        canFireProjectile = true;
+        castCooldown = -1;
 
         playerRun = generateAnimation(textureAtlas.findRegion("player_run"), 6, 52, 39, 0.1f);
         playerIdle = generateAnimation(textureAtlas.findRegion("player_idle1"), 3, 52, 39, 0.2f);
@@ -96,6 +110,7 @@ public class Player extends Sprite {
         playerAttack = generateAnimation(textureAtlas.findRegion("player_attack1"), 5, 52, 39, 0.1f);
         playerAirAttack = generateAnimation(textureAtlas.findRegion("player_air_attack1"), 4, 52, 39, 0.125f);
         playerFlip = generateAnimation(textureAtlas.findRegion("player_flip"), 4, 52, 39, 0.1f);
+        playerCast = generateAnimation(textureAtlas.findRegion("player_cast"), 4, 52, 39, 0.1f);
 
         definePlayer();
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
@@ -163,6 +178,19 @@ public class Player extends Sprite {
         if (flipTimer > 0) {
             flipTimer -= dt;
         }
+
+        if (castTimer > 0) {
+            castTimer -= dt;
+        }
+        if(castCooldown > 0){
+            castCooldown -= dt;
+        }
+        if (currentState == State.CASTING) {
+            if (stateTimer > 0.1f && canFireProjectile) {
+                launchFireBall();
+                canFireProjectile = false;
+            }
+        }
     }
 
     private TextureRegion getFrame(float dt) {
@@ -170,6 +198,9 @@ public class Player extends Sprite {
 
         TextureRegion region;
         switch (currentState) {
+            case CASTING:
+                region = playerCast.getKeyFrame(stateTimer);
+                break;
             case HURT:
                 region = playerHurt.getKeyFrame(stateTimer);
                 break;
@@ -210,7 +241,10 @@ public class Player extends Sprite {
     }
 
     private State getState() {
-        if (attackTimer > 0) {
+        if (castTimer > 0) {
+            return State.CASTING;
+        }
+        else if (attackTimer > 0) {
             if (Math.abs(b2body.getLinearVelocity().y) > 0) {
                 return State.AIR_ATTACKING;
             }
@@ -277,7 +311,7 @@ public class Player extends Sprite {
     public void attack() {
         if (attackTimer < 0) {
             attackTimer = ATTACK_TIME;
-            if(swordFixture == null){
+            if (swordFixture == null) {
                 createAttack();
             }
         }
@@ -324,11 +358,30 @@ public class Player extends Sprite {
         swordFixture.setUserData(this);
     }
 
-    public int getHealth(){
+    public int getHealth() {
         return health;
     }
 
-    public boolean notInvincible(){
+    public boolean notInvincible() {
         return hurtTimer < 0;
+    }
+
+    public void castSpell() {
+        if (castCooldown < 0) {
+            castTimer = CAST_TIME;
+            castCooldown = CAST_RATE;
+            canFireProjectile = true;
+        }
+    }
+
+    private void launchFireBall() {
+        boolean ballDirectionRight;
+        if(runningRight){
+            ballDirectionRight = true;
+        }else
+        {
+            ballDirectionRight = false;
+        }
+        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth()/ 2, getY() + getHeight() / 2, ballDirectionRight, true));
     }
 }

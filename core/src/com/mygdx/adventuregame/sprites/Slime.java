@@ -156,7 +156,9 @@ public class Slime extends Enemy {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
+                | AdventureGame.PLAYER_SWORD_BIT
+                | AdventureGame.PLAYER_PROJECTILE_BIT;
         PolygonShape shape = new PolygonShape();
         shape.set(SLIME_HITBOX);
 //        CircleShape shape = new CircleShape();
@@ -194,8 +196,8 @@ public class Slime extends Enemy {
 
 
     @Override
-    public void damage() {
-        health -=2;
+    public void damage(int amount) {
+        health -= amount;
         if(currentState != State.HURT){
             if(hurtTimer < 0){
                 hurtTimer = HURT_RATE;

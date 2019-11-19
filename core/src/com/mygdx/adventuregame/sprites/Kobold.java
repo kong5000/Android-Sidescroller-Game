@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -13,41 +12,39 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
 
-
-
-
-public class FireElemental extends Enemy {
-    private static final float[] MINOTAUR_HITBOX = {
-            -0.15f, 0.1f,
-            -0.15f, -0.35f,
-            0.15f, -0.35f,
+public class Kobold extends Enemy {
+    private static final float[] KOBOLD_HITBOX = {
+            -0.17f, 0.1f,
+            -0.17f, -0.15f,
+            0.15f, -0.15f,
             0.15f, 0.1f};
-    private static final float[] SWORD_HITBOX_RIGHT = {
-            0.4f, -0.4f,
-            0.4f, 0.1f,
-            0.1f, -0.4f,
-            -0.2f, 0.3f};
-    private static final float[] SWORD_HITBOX_LEFT = {
-            -0.4f, -0.4f,
-            -0.4f, 0.1f,
-            -0.1f, -0.4f,
-            0.2f, 0.3f};
-
+    private static final float[] SPEAR_HITBOX_RIGHT = {
+            0.3f, -0.1f,
+            0.3f, 0.00f,
+            0.1f, -0.1f,
+            0.1f, 0.00f};
+    private static final float[] SPEAR_HITBOX_LEFT = {
+            -0.3f, -0.1f,
+            -0.3f, 0.00f,
+            -0.1f, -0.1f,
+            -0.1f, 0.00f};
+    private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.5f;
 
-    private static final int WIDTH_PIXELS = 62;
-    private static final int HEIGHT_PIXELS = 43;
+    private static final int WIDTH_PIXELS = 68;
+    private static final int HEIGHT_PIXELS = 35;
 
-    private static final float CORPSE_EXISTS_TIME = 1.1f;
+    private static final float CORPSE_EXISTS_TIME = 1.5f;
     private static final float INVINCIBILITY_TIME = 0.7f;
     private static final float FLASH_RED_TIME = 0.4f;
-    private static final float HURT_TIME = 0.3f;
+
 
     private float hurtTimer = -1f;
     private float attackTimer;
     private float invincibilityTimer;
 
-    private float attackCooldown;
+    private float dyingTimer = -1f;
+    private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> deathAnimation;
@@ -57,36 +54,38 @@ public class FireElemental extends Enemy {
     private Animation<TextureRegion> idleAnimation;
 
     private boolean setToDestroy;
-    private boolean canFireProjectile = true;
+    private boolean setToDie = false;
 
     private int health = 3;
     private boolean runningRight;
     private Fixture attackFixture;
 
 
-    public FireElemental(PlayScreen screen, float x, float y) {
+
+    public Kobold(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_run"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_die"),
-                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_attack"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_hurt"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_run"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_die"),
+                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_attack"),
+                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("fire_elemental_hurt_bright"),
+        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("kobold_hurt_bright"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_idle"),
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
-        attackCooldown = -1f;
+
         stateTimer = 0;
         setToDestroy = false;
         destroyed = false;
         currentState = State.IDLE;
         previousState = State.IDLE;
         attackTimer = ATTACK_RATE;
+        deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
     }
@@ -94,18 +93,29 @@ public class FireElemental extends Enemy {
     @Override
     public void update(float dt) {
         if (health <= 0) {
-            setToDestroy = true;
+            if (!setToDie) {
+                setToDie = true;
+            }
         }
+        if (currentState == State.DYING) {
+            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            }
+            deathTimer += dt;
+            if (deathTimer > CORPSE_EXISTS_TIME) {
+                setToDestroy = true;
+            }
+        }
+
         if (setToDestroy && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
-            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2 + 0.05f);
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
+            setRegion(getFrame(dt));
+            act(dt);
         }
-        setRegion(getFrame(dt));
-        act(dt);
     }
 
     private void updateStateTimers(float dt) {
@@ -120,48 +130,31 @@ public class FireElemental extends Enemy {
         }
     }
 
-    private void act(float dt){
-        if(currentState == State.ATTACKING){
-            if(attackAnimation.isAnimationFinished(stateTimer)){
-                attackTimer = -1f;
-            }
-        }
-        if(attackCooldown > 0){
-            attackCooldown -=dt;
-        }
-        if(currentState != State.ATTACKING){
-            canFireProjectile = true;
-        }
+    private void act(float dt) {
         if (currentState == State.CHASING) {
             chasePlayer();
-        }
-        if(currentState == State.IDLE){
             if (playerInAttackRange()) {
-                if(attackCooldownOver()){
-                    goIntoAttackState();
-                    attackCooldown = ATTACK_RATE;
-                }
+                goIntoAttackState();
+                lungeAtPlayer();
             }
         }
         if (currentState == State.ATTACKING) {
-            if(stateTimer > 0.7f && canFireProjectile){
-                launchFireBall();
-                canFireProjectile = false;
+            if (currentFrameIsAnAttack()) {
+                enableAttackHitBox();
+            }
+            if (attackFramesOver()) {
+                disableAttackHitBox();
             }
         }
+
         if (attackTimer > 0) {
             attackTimer -= dt;
         }
     }
 
-    private void launchFireBall() {
-        boolean playerToRight = getVectorToPlayer().x > 0;
-        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth()/ 2, getY() + getHeight() / 2, playerToRight, false));
-    }
-
     @Override
     public void draw(Batch batch) {
-        if (!destroyed || stateTimer < CORPSE_EXISTS_TIME) {
+        if (!destroyed) {
             super.draw(batch);
         } else {
             safeToRemove = true;
@@ -202,6 +195,27 @@ public class FireElemental extends Enemy {
         return texture;
     }
 
+    private void disableAttackHitBox() {
+        if (attackFixture != null) {
+            b2body.destroyFixture(attackFixture);
+            attackFixture = null;
+        }
+    }
+
+    private void enableAttackHitBox() {
+        if (attackFixture == null)
+            createAttack();
+    }
+
+
+    private void lungeAtPlayer() {
+        if (playerIsToTheRight()) {
+            jumpingAttackRight();
+        } else {
+            jumpingAttackLeft();
+        }
+    }
+
     private void chasePlayer() {
         if (playerIsToTheRight()) {
             runRight();
@@ -211,14 +225,13 @@ public class FireElemental extends Enemy {
     }
 
     private State getState() {
-        if (setToDestroy) {
+        if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 250 / AdventureGame.PPM
-        && Math.abs(getVectorToPlayer().x) > 150 / AdventureGame.PPM ) {
+        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -238,9 +251,9 @@ public class FireElemental extends Enemy {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT;;
-        CircleShape shape = new CircleShape();
-        shape.setRadius(12 / AdventureGame.PPM);
+                | AdventureGame.PLAYER_PROJECTILE_BIT;
+        PolygonShape shape = new PolygonShape();
+        shape.set(KOBOLD_HITBOX);
 
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
@@ -262,6 +275,7 @@ public class FireElemental extends Enemy {
         if (flashRedTimer < 0) {
             flashRedTimer = FLASH_RED_TIME;
         }
+
     }
 
     @Override
@@ -285,15 +299,15 @@ public class FireElemental extends Enemy {
     private float[] getAttackHitbox() {
         float[] hitbox;
         if (runningRight) {
-            hitbox = SWORD_HITBOX_RIGHT;
+            hitbox = SPEAR_HITBOX_RIGHT;
         } else {
-            hitbox = SWORD_HITBOX_LEFT;
+            hitbox = SPEAR_HITBOX_LEFT;
         }
         return hitbox;
     }
 
     private void orientTextureTowardsPlayer(TextureRegion region) {
-        if(currentState != State.DYING){
+        if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
 
@@ -319,33 +333,32 @@ public class FireElemental extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.5f, 1.5f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.5f, 1.5f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(.2f, 0), b2body.getWorldCenter(), true);
     }
-    private void goIntoAttackState(){
+
+    private void goIntoAttackState() {
         attackTimer = ATTACK_RATE;
     }
 
-    private boolean currentFrameIsAnAttack(){
+    private boolean currentFrameIsAnAttack() {
         return (currentState == State.ATTACKING && stateTimer > 0.5f);
     }
 
-    private boolean attackFramesOver(){
-        if(currentState == State.ATTACKING){
+    private boolean attackFramesOver() {
+        if (currentState == State.ATTACKING) {
             return stateTimer > 0.7f;
         }
         return false;
     }
 
-    private boolean attackCooldownOver(){
-        return attackCooldown < 0;
-    }
+
 
 }

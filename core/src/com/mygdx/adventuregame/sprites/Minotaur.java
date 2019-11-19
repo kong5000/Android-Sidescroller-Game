@@ -35,27 +35,30 @@ public class Minotaur extends Enemy {
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
     private static final float INVINCIBILITY_TIME = 0.7f;
-    private static final float FLASH_RED_TIME = 0.2f;
+    private static final float FLASH_RED_TIME = 0.3f;
 
-    private float stateTimer;
     private float hurtTimer = -1f;
     private float attackTimer;
     private float invincibilityTimer;
-    private float flashRedTimer;
+
     private float dyingTimer = -1f;
     private float deathTimer;
 
+
     private Animation<TextureRegion> walkAnimation;
+    private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> attackAnimation;
     private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> hurtAnimation;
+    private Animation<TextureRegion> hurtAnimationDamaged;
     private Animation<TextureRegion> idleAnimation;
+    private Animation<TextureRegion> idleAnimationDamaged;
 
     private boolean setToDestroy;
     private boolean setToDie = false;
 
-    private int health = 3;
+    private int health = 10;
     private boolean runningRight;
     private Fixture attackFixture;
 
@@ -64,15 +67,23 @@ public class Minotaur extends Enemy {
         super(screen, x, y);
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_run_bright"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         deathAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_die"),
                 8, 96, HEIGHT_PIXELS, 0.1f);
         attackAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow"),
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow_damaged"),
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow_bright"),
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         hurtAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_hurt"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_hurt_bright"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_idle"),
+                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_idle_bright"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
@@ -86,20 +97,21 @@ public class Minotaur extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
+
     }
 
     @Override
     public void update(float dt) {
         if (health <= 0) {
-            if(!setToDie){
+            if (!setToDie) {
                 setToDie = true;
             }
         }
-        if(currentState == State.DYING){
-            if(deathAnimation.isAnimationFinished(stateTimer)){
+        if (currentState == State.DYING) {
+            if (deathAnimation.isAnimationFinished(stateTimer)) {
             }
             deathTimer += dt;
-            if(deathTimer > CORPSE_EXISTS_TIME){
+            if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
             }
         }
@@ -128,7 +140,7 @@ public class Minotaur extends Enemy {
         }
     }
 
-    private void act(float dt){
+    private void act(float dt) {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
@@ -169,25 +181,21 @@ public class Minotaur extends Enemy {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                if (flashRedTimer > 0) {
-                    texture = attackAnimationDamaged.getKeyFrame(stateTimer);
-                } else {
-                    texture = attackAnimation.getKeyFrame(stateTimer);
-                }
+                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = hurtAnimation.getKeyFrame(stateTimer);
+                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
+                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
+                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
                 break;
         }
         orientTextureTowardsPlayer(texture);
@@ -251,7 +259,9 @@ public class Minotaur extends Enemy {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
+                | AdventureGame.PLAYER_SWORD_BIT
+                | AdventureGame.PLAYER_PROJECTILE_BIT;
         PolygonShape shape = new PolygonShape();
         shape.set(MINOTAUR_HITBOX);
 
@@ -260,15 +270,21 @@ public class Minotaur extends Enemy {
     }
 
     @Override
+    public void hitByFire(){
+        screen.getExplosions().add(new Explosion(screen, getX(), getY()));
+
+    }
+
+    @Override
     public void hitOnHead() {
-        damage();
+        damage(2);
     }
 
 
     @Override
-    public void damage() {
+    public void damage(int amount) {
         if (invincibilityTimer < 0) {
-            health -= 1;
+            health -= amount;
             invincibilityTimer = INVINCIBILITY_TIME;
         }
         if (flashRedTimer < 0) {
@@ -305,16 +321,16 @@ public class Minotaur extends Enemy {
     }
 
     private void orientTextureTowardsPlayer(TextureRegion region) {
-        if(currentState != State.DYING){
-        Vector2 vectorToPlayer = getVectorToPlayer();
-        runningRight = vectorToPlayer.x > 0;
+        if (currentState != State.DYING) {
+            Vector2 vectorToPlayer = getVectorToPlayer();
+            runningRight = vectorToPlayer.x > 0;
 
-        if (!runningRight && region.isFlipX()) {
-            region.flip(true, false);
-        }
-        if (runningRight && !region.isFlipX()) {
-            region.flip(true, false);
-        }
+            if (!runningRight && region.isFlipX()) {
+                region.flip(true, false);
+            }
+            if (runningRight && !region.isFlipX()) {
+                region.flip(true, false);
+            }
         }
     }
 
@@ -341,16 +357,17 @@ public class Minotaur extends Enemy {
     private void jumpingAttackRight() {
         b2body.applyLinearImpulse(new Vector2(.5f, 1.5f), b2body.getWorldCenter(), true);
     }
-    private void goIntoAttackState(){
+
+    private void goIntoAttackState() {
         attackTimer = ATTACK_RATE;
     }
 
-    private boolean currentFrameIsAnAttack(){
+    private boolean currentFrameIsAnAttack() {
         return (currentState == State.ATTACKING && stateTimer > 0.5f);
     }
 
-    private boolean attackFramesOver(){
-        if(currentState == State.ATTACKING){
+    private boolean attackFramesOver() {
+        if (currentState == State.ATTACKING) {
             return stateTimer > 0.7f;
         }
         return false;

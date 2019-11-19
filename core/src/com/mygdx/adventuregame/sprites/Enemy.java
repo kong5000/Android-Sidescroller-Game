@@ -23,6 +23,12 @@ public abstract class Enemy extends Sprite {
     protected boolean destroyed;
     public boolean safeToRemove = false;
 
+    protected float flashRedTimer;
+    protected float stateTimer;
+    private int flashCount = 0;
+    private boolean flashFrame = true;
+
+
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
         this.screen = screen;
@@ -54,7 +60,7 @@ public abstract class Enemy extends Sprite {
     protected abstract void defineEnemy();
 
     public abstract void hitOnHead();
-    public abstract void damage();
+    public abstract void damage(int amount);
     public abstract boolean notDamagedRecently();
     public abstract void update(float dt);
     public boolean isDestroyed(){
@@ -69,6 +75,34 @@ public abstract class Enemy extends Sprite {
 
     public boolean isHurt(){
         return currentState == State.HURT;
+    }
+
+    protected TextureRegion selectBrightFrameOrRegularFrame(Animation<TextureRegion> animation, Animation<TextureRegion> brightAnimation){
+        TextureRegion textureRegion;
+        if (flashRedTimer > 0) {
+            if (flashFrame) {
+                flashCount++;
+                if (flashCount > 2) {
+                    flashFrame = false;
+                    flashCount = 0;
+                }
+                textureRegion = brightAnimation.getKeyFrame(stateTimer);
+            } else {
+                flashCount++;
+                if (flashCount > 2) {
+                    flashFrame = true;
+                    flashCount = 0;
+                }
+                textureRegion = animation.getKeyFrame(stateTimer);
+            }
+        }else {
+            textureRegion = animation.getKeyFrame(stateTimer);
+        }
+        return textureRegion;
+    }
+
+    public void hitByFire(){
+        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
     }
 }
 
