@@ -185,6 +185,13 @@ kobold_idle
   orig: 272, 35
   offset: 0, 0
   index: -1
+bar_border
+  rotate: false
+  xy: 2388, 485
+  size: 200, 100
+  orig: 200, 100
+  offset: 0, 0
+  index: -1
 player_attack1
   rotate: false
   xy: 1496, 20
@@ -194,154 +201,161 @@ player_attack1
   index: -1
 fire_elemental_idle
   rotate: false
-  xy: 2388, 542
+  xy: 2856, 914
   size: 248, 43
   orig: 248, 43
   offset: 0, 0
   index: -1
 fire_elemental_run
   rotate: false
-  xy: 2388, 499
+  xy: 3104, 914
   size: 248, 43
   orig: 248, 43
   offset: 0, 0
   index: -1
+green_bar
+  rotate: false
+  xy: 2780, 814
+  size: 200, 100
+  orig: 200, 100
+  offset: 0, 0
+  index: -1
+red_bar
+  rotate: false
+  xy: 2980, 814
+  size: 200, 100
+  orig: 200, 100
+  offset: 0, 0
+  index: -1
 player_air_attack1
   rotate: false
-  xy: 2388, 460
+  xy: 2780, 775
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
 player_cast
   rotate: false
-  xy: 2856, 918
+  xy: 2988, 775
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
+kobold_hurt
+  rotate: false
+  xy: 2388, 450
+  size: 204, 35
+  orig: 204, 35
+  offset: 0, 0
+  index: -1
 player_flip
   rotate: false
-  xy: 3064, 918
+  xy: 4196, 955
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
 player_idle1
   rotate: false
-  xy: 3272, 918
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-player_jump
-  rotate: false
-  xy: 3480, 926
+  xy: 1800, 107
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
 fire_elemental_hurt
   rotate: false
-  xy: 3688, 922
+  xy: 2008, 103
   size: 186, 43
   orig: 186, 43
   offset: 0, 0
   index: -1
-kobold_hurt
+player_jump
   rotate: false
-  xy: 3874, 926
-  size: 204, 35
-  orig: 204, 35
-  offset: 0, 0
-  index: -1
-kobold_hurt_bright
-  rotate: false
-  xy: 4196, 959
-  size: 204, 35
-  orig: 204, 35
+  xy: 3476, 926
+  size: 208, 39
+  orig: 208, 39
   offset: 0, 0
   index: -1
 fire_elemental_hurt_bright
   rotate: false
-  xy: 1800, 103
+  xy: 3684, 922
   size: 186, 43
   orig: 186, 43
   offset: 0, 0
   index: -1
+kobold_hurt_bright
+  rotate: false
+  xy: 3870, 926
+  size: 204, 35
+  orig: 204, 35
+  offset: 0, 0
+  index: -1
 slime_attack
   rotate: false
-  xy: 1986, 119
+  xy: 3180, 887
   size: 170, 27
   orig: 170, 27
   offset: 0, 0
   index: -1
 player_hurt
   rotate: false
-  xy: 4400, 955
+  xy: 3180, 848
   size: 156, 39
   orig: 156, 39
   offset: 0, 0
   index: -1
 slime_die
   rotate: false
-  xy: 1986, 92
+  xy: 4404, 967
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+slime_hurt
+  rotate: false
+  xy: 3180, 821
   size: 136, 27
   orig: 136, 27
   offset: 0, 0
   index: -1
 1
   rotate: false
-  xy: 2682, 703
+  xy: 4616, 1072
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 2
   rotate: false
-  xy: 2192, 229
+  xy: 2682, 703
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 3
   rotate: false
-  xy: 4616, 1072
+  xy: 2290, 387
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 4
   rotate: false
-  xy: 2290, 387
+  xy: 2192, 229
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 5
   rotate: false
-  xy: 2780, 861
+  xy: 2682, 628
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
-slime_hurt
-  rotate: false
-  xy: 2855, 891
-  size: 136, 27
-  orig: 136, 27
-  offset: 0, 0
-  index: -1
-slime_move
-  rotate: false
-  xy: 2855, 864
-  size: 136, 27
-  orig: 136, 27
-  offset: 0, 0
-  index: -1
 6
   rotate: false
-  xy: 2682, 628
+  xy: 2290, 312
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
@@ -353,16 +367,16 @@ slime_move
   orig: 75, 75
   offset: 0, 0
   index: -1
-8
+slime_move
   rotate: false
-  xy: 2290, 312
-  size: 75, 75
-  orig: 75, 75
+  xy: 4404, 940
+  size: 136, 27
+  orig: 136, 27
   offset: 0, 0
   index: -1
-9
+8
   rotate: false
-  xy: 2780, 786
+  xy: 2588, 510
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
@@ -376,8 +390,15 @@ projectile_animation
   index: -1
 player_fall
   rotate: false
-  xy: 2991, 879
+  xy: 3352, 918
   size: 104, 39
   orig: 104, 39
+  offset: 0, 0
+  index: -1
+9
+  rotate: false
+  xy: 2757, 700
+  size: 75, 75
+  orig: 75, 75
   offset: 0, 0
   index: -1

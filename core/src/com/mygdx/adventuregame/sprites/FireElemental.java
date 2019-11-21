@@ -59,7 +59,6 @@ public class FireElemental extends Enemy {
     private boolean setToDestroy;
     private boolean canFireProjectile = true;
 
-    private int health = 3;
     private boolean runningRight;
     private Fixture attackFixture;
 
@@ -89,6 +88,7 @@ public class FireElemental extends Enemy {
         attackTimer = ATTACK_RATE;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
+        int health = 3;
     }
 
     @Override

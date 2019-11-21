@@ -21,6 +21,7 @@ public class DamageNumber extends Sprite {
         this.screen = screen;
         setPosition(x, y);
         setRegion(screen.getAtlas().findRegion(Integer.toString(damage)));
+        setRegion(screen.getAtlas().findRegion(Integer.toString(damage)));
         setBounds(getX(), getY(), 75 / AdventureGame.PPM, 75 / AdventureGame.PPM);
         setScale(0.11f);
         if(damage > 3){

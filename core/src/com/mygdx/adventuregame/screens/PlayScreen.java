@@ -27,6 +27,7 @@ import com.mygdx.adventuregame.sprites.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
 import com.mygdx.adventuregame.sprites.FireSpell;
+import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Kobold;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.Player;
@@ -69,9 +70,12 @@ public class PlayScreen implements Screen {
     public Array<FireSpell> spells;
     public Array<DamageNumber> damageNumbersToAdd;
     public Array<DamageNumber> damageNumbers;
+    public Array<HealthBar> healthBarsToAdd;
+    public Array<HealthBar> healthBars;
 
     private Stage stage;
     private DamageNumber damageNumber;
+    private HealthBar healthBar;
 
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -107,13 +111,9 @@ public class PlayScreen implements Screen {
 
         damageNumbers = new Array<>();
         damageNumbersToAdd = new Array<>();
-//        enemyList.add(new Slime(this, 1.72f, 0.32f));
-//        enemyList.add(new Slime(this, 2.72f, 0.32f));
-//        enemyList.add(new Slime(this, 3.72f, 0.32f));
-//        enemyList.add(new Minotaur(this, 2.25f, 2.32f));
 
-//        enemyList.add(new FireElemental(this, 2.25f, 0.32f));
-
+        healthBars = new Array<>();
+        healthBarsToAdd = new Array<>();
 
         controller = new Controller(game.batch, this);
         controller.enable();
@@ -139,6 +139,9 @@ public class PlayScreen implements Screen {
         for(DamageNumber number : damageNumbers){
             number.update(dt);
         }
+        for(HealthBar bar : healthBars){
+            bar.update(dt);
+        }
         for(Explosion explosion : explosions){
             explosion.update(dt);
         }
@@ -160,6 +163,7 @@ public class PlayScreen implements Screen {
             gameCam.position.y = 0.6117f;
         }
         gameCam.update();
+
         renderer.setView(gameCam);
     }
 
@@ -226,10 +230,14 @@ public class PlayScreen implements Screen {
             number.draw(game.batch);
             game.batch.setShader(null);
         }
+        for(HealthBar bar : healthBars){
+            bar.draw(game.batch);
+        }
 //        game.batch.setShader(shader);
 //        game.batch.setShader(null);
-
         player.draw(game.batch);
+
+
 
         for (Explosion explosion : explosions){
             explosion.draw(game.batch);
@@ -256,9 +264,11 @@ public class PlayScreen implements Screen {
             enemyList.add(new Slime(this, 3.72f, 2.32f));
             enemyList.add(new Slime(this, 3.2f, 2.32f));
             enemyList.add(new Slime(this, 3.3f, 2.32f));
-            enemyList.add(new FireElemental(this, 3.5f, 2.32f));
-
-            enemyList.add(new Minotaur(this, 2.25f, 2.32f));
+            enemyList.add(new FireElemental(this, 3f, 2.32f));
+            enemyList.add(new FireElemental(this, 2f, 2.32f));
+            Minotaur minotaur = new Minotaur(this, 2.25f, 2.32f);
+            healthBarsToAdd.add(new HealthBar(this, 0, 0, 2, minotaur));
+            enemyList.add(minotaur);
             enemyList.add(new Kobold(this, 1.85f, 2.32f));
             enemyList.add(new Kobold(this, 2.05f, 2.32f));
             enemyList.add(new Kobold(this, 2.9f, 2.32f));
@@ -284,6 +294,13 @@ public class PlayScreen implements Screen {
             }
         }
 
+        if(!healthBarsToAdd.isEmpty()){
+            for(HealthBar bar : healthBarsToAdd){
+                healthBars.add(bar);
+                healthBarsToAdd.removeValue(bar, true);
+            }
+        }
+
         for(Enemy enemy : enemyList){
             if(enemy.safeToRemove){
                 enemyList.removeValue(enemy, true);
@@ -303,6 +320,12 @@ public class PlayScreen implements Screen {
         for(DamageNumber number : damageNumbers){
             if(number.safeToRemove){
                 damageNumbers.removeValue(number, true);
+            }
+        }
+
+        for(HealthBar bar: healthBars){
+            if(bar.safeToRemove){
+                healthBars.removeValue(bar, true);
             }
         }
 

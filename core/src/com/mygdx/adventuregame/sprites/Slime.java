@@ -27,7 +27,6 @@ public class Slime extends Enemy {
     private Animation<TextureRegion> hurtAnimation;
     private boolean setToDestroy;
 
-    private int health = 2;
 
 
     public Slime(PlayScreen screen, float x, float y) {
@@ -48,6 +47,7 @@ public class Slime extends Enemy {
         previousState = State.WALKING;
         attackRateTimer = ATTACK_RATE;
         attackDamage = 1;
+        health = 2;
     }
 
     @Override

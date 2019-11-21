@@ -2,6 +2,7 @@ package com.mygdx.adventuregame.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -58,7 +59,7 @@ public class Minotaur extends Enemy {
     private boolean setToDestroy;
     private boolean setToDie = false;
 
-    private int health = 7;
+
     private boolean runningRight;
     private Fixture attackFixture;
 
@@ -98,7 +99,7 @@ public class Minotaur extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 5;
-
+        health = 7;
     }
 
     @Override
@@ -295,6 +296,7 @@ public class Minotaur extends Enemy {
         }
         screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
                 , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+        showHealthBar = true;
     }
 
     @Override

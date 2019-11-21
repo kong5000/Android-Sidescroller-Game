@@ -56,7 +56,6 @@ public class Kobold extends Enemy {
     private boolean setToDestroy;
     private boolean setToDie = false;
 
-    private int health = 3;
     private boolean runningRight;
     private Fixture attackFixture;
 
@@ -88,6 +87,7 @@ public class Kobold extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
+        health = 3;
     }
 
     @Override

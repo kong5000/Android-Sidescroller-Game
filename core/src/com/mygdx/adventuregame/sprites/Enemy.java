@@ -27,6 +27,8 @@ public abstract class Enemy extends Sprite {
     protected float stateTimer;
     private int flashCount = 0;
     private boolean flashFrame = true;
+    protected int health;
+    protected boolean showHealthBar = false;
 
     protected float affectedBySpellTimer = -1f;
     protected static final float SPELL_EFFECT_TIME = 1f;
@@ -113,6 +115,15 @@ public abstract class Enemy extends Sprite {
     }
     public int getDamage(){
         return attackDamage;
+    }
+
+    public int getHealth(){ return health;}
+    public boolean isAlive(){
+        return health > 0;
+    }
+
+    public boolean showHealthBar(){
+        return showHealthBar;
     }
 }
 

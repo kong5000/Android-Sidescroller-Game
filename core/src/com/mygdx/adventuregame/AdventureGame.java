@@ -14,6 +14,8 @@ public class AdventureGame extends Game {
 	public static final float PPM = 100;
 	//Memory intensive, made public so different screen can have access
 	public SpriteBatch batch;
+	public static final int HEALTHBAR_WIDTH = 225;
+	public static final int HEALTHBAR_HEIGHT = 36;
 
 
 	public static final short GROUND_BIT = 1;
