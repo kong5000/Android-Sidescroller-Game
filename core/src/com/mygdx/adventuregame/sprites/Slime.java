@@ -47,32 +47,34 @@ public class Slime extends Enemy {
         currentState = State.WALKING;
         previousState = State.WALKING;
         attackRateTimer = ATTACK_RATE;
+        attackDamage = 1;
     }
 
     @Override
-    public void update(float dt){
-        if(health <= 0){
+    public void update(float dt) {
+        if (health <= 0) {
             setToDestroy = true;
         }
-        if(setToDestroy && !destroyed){
+        if (setToDestroy && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
-        }else if(!destroyed){
-            setPosition(b2body.getPosition().x - getWidth()/ 2, b2body.getPosition().y - getHeight() / 2);
-            if(hurtTimer > 0){
-                hurtTimer -=dt;
+        } else if (!destroyed) {
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+            if (hurtTimer > 0) {
+                hurtTimer -= dt;
             }
         }
 
         setRegion(getFrame(dt));
 
     }
+
     @Override
-    public void draw(Batch batch){
-        if(!destroyed || stateTimer < CORPSE_TIME){
+    public void draw(Batch batch) {
+        if (!destroyed || stateTimer < CORPSE_TIME) {
             super.draw(batch);
-        }else{
+        } else {
             safeToRemove = true;
         }
 
@@ -82,16 +84,16 @@ public class Slime extends Enemy {
         currentState = getState();
 
         TextureRegion region;
-        switch (currentState){
+        switch (currentState) {
             case DYING:
                 attackEnabled = false;
                 region = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                if(attackAnimation.isAnimationFinished(stateTimer)){
+                if (attackAnimation.isAnimationFinished(stateTimer)) {
                     region = walkAnimation.getKeyFrame(stateTimer, true);
                     attackEnabled = false;
-                }else{
+                } else {
                     region = attackAnimation.getKeyFrame(stateTimer);
                     attackEnabled = true;
                 }
@@ -108,20 +110,20 @@ public class Slime extends Enemy {
         }
 
         Vector2 vectorToPlayer = getVectorToPlayer();
-        if((vectorToPlayer.x < 0) && region.isFlipX()){
+        if ((vectorToPlayer.x < 0) && region.isFlipX()) {
             region.flip(true, false);
         }
-        if((vectorToPlayer.x > 0) && !region.isFlipX()){
+        if ((vectorToPlayer.x > 0) && !region.isFlipX()) {
             region.flip(true, false);
         }
 
         attackRateTimer -= dt;
-        if(currentState == State.ATTACKING && attackRateTimer < 0){
+        if (currentState == State.ATTACKING && attackRateTimer < 0) {
             attackRateTimer = ATTACK_RATE;
             stateTimer = 0; //To reset attack animation (otherwise will just use walking animation during attacks after first attack)
-            if(vectorToPlayer.x < 0){
+            if (vectorToPlayer.x < 0) {
                 b2body.applyLinearImpulse(new Vector2(-1.5f, 1.5f), b2body.getWorldCenter(), true);
-            }else{
+            } else {
                 b2body.applyLinearImpulse(new Vector2(1.5f, 1.5f), b2body.getWorldCenter(), true);
             }
         }
@@ -132,17 +134,14 @@ public class Slime extends Enemy {
     }
 
     private State getState() {
-        if(setToDestroy){
+        if (setToDestroy) {
             return State.DYING;
-        }
-        else if(hurtTimer > 0){
+        } else if (hurtTimer > 0) {
             return State.HURT;
-        }
-        else if(Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM){
+        } else if (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM) {
             return State.ATTACKING;
 
-        }
-        else{
+        } else {
             return State.WALKING;
         }
     }
@@ -158,7 +157,8 @@ public class Slime extends Enemy {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT;
+                | AdventureGame.PLAYER_PROJECTILE_BIT
+                | AdventureGame.FIRE_SPELL_BIT;
         PolygonShape shape = new PolygonShape();
         shape.set(SLIME_HITBOX);
 //        CircleShape shape = new CircleShape();
@@ -189,26 +189,27 @@ public class Slime extends Enemy {
     }
 
     @Override
-    public void hitOnHead(){
+    public void hitOnHead() {
         setToDestroy = true;
     }
-
 
 
     @Override
     public void damage(int amount) {
         health -= amount;
-        if(currentState != State.HURT){
-            if(hurtTimer < 0){
+        if (currentState != State.HURT) {
+            if (hurtTimer < 0) {
                 hurtTimer = HURT_RATE;
             }
-            if(getVectorToPlayer().x < 0){
-                b2body.applyLinearImpulse(new Vector2(1f, 1f),b2body.getWorldCenter(),true);
-            }else{
-                b2body.applyLinearImpulse(new Vector2(-1f, 1f),b2body.getWorldCenter(),true);
+            if (getVectorToPlayer().x < 0) {
+                b2body.applyLinearImpulse(new Vector2(1f, 1f), b2body.getWorldCenter(), true);
+            } else {
+                b2body.applyLinearImpulse(new Vector2(-1f, 1f), b2body.getWorldCenter(), true);
             }
 
         }
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
     }
 
     @Override

@@ -28,6 +28,9 @@ public abstract class Enemy extends Sprite {
     private int flashCount = 0;
     private boolean flashFrame = true;
 
+    protected float affectedBySpellTimer = -1f;
+    protected static final float SPELL_EFFECT_TIME = 1f;
+    protected int attackDamage = 1;
 
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -102,7 +105,14 @@ public abstract class Enemy extends Sprite {
     }
 
     public void hitByFire(){
-        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
+//        if(affectedBySpellTimer < 0){
+            screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
+//
+//            affectedBySpellTimer = SPELL_EFFECT_TIME;
+//        }
+    }
+    public int getDamage(){
+        return attackDamage;
     }
 }
 

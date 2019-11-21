@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.FireBall;
+import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.Player;
 
 public class WorldContactListener implements ContactListener {
@@ -37,35 +38,26 @@ public class WorldContactListener implements ContactListener {
                 }
                 break;
             case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
+                int swordDamage;
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT) {
                     if (((Player) fixA.getUserData()).isSwinging()) {
+                        swordDamage = ((Player) fixA.getUserData()).getSwordDamage();
                         if (((Enemy) fixB.getUserData()).notDamagedRecently()) {
-                            ((Enemy) fixB.getUserData()).damage(1);
+                            ((Enemy) fixB.getUserData()).damage(swordDamage);
                         }
                     }
 
                 } else {
+                    swordDamage = ((Player) fixB.getUserData()).getSwordDamage();
                     if (((Player) fixB.getUserData()).isSwinging()) {
                         if (((Enemy) fixA.getUserData()).notDamagedRecently()) {
-                            ((Enemy) fixA.getUserData()).damage(1);
+                            ((Enemy) fixA.getUserData()).damage(swordDamage);
                         }
                     }
 
                 }
                 break;
-            case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.PLAYER_BIT:
-                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
-                    if (((Player) fixA.getUserData()).notInvincible()) {
-                        ((Player) fixA.getUserData()).hurt();
-                    }
-                    ((FireBall) fixB.getUserData()).setToDestroy();
-                } else {
-                    if (((Player) fixB.getUserData()).notInvincible()) {
-                        ((Player) fixB.getUserData()).hurt();
-                    }
-                    ((FireBall) fixA.getUserData()).setToDestroy();
-                }
-                break;
+
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
                     ((Enemy) fixA.getUserData()).damage(4);
@@ -80,8 +72,10 @@ public class WorldContactListener implements ContactListener {
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_PROJECTILE_BIT) {
                     ((FireBall) fixA.getUserData()).setToDestroy();
+                    ((FireBall) fixA.getUserData()).explode();
                 } else {
                     ((FireBall) fixB.getUserData()).setToDestroy();
+                    ((FireBall) fixB.getUserData()).explode();
                 }
                 break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
@@ -91,6 +85,19 @@ public class WorldContactListener implements ContactListener {
                     ((FireBall) fixB.getUserData()).setToDestroy();
                 }
                 break;
+            case AdventureGame.FIRE_SPELL_BIT | AdventureGame.ENEMY_BIT:
+                int damage = 0;
+                if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
+                    damage = ((FireSpell) fixB.getUserData()).getDamage();
+                    ((Enemy) fixA.getUserData()).hitByFire();
+                    ((Enemy) fixA.getUserData()).damage(damage);
+                } else {
+                    damage = ((FireSpell) fixA.getUserData()).getDamage();
+                    ((Enemy) fixB.getUserData()).hitByFire();
+                    ((Enemy) fixB.getUserData()).damage(damage);
+                }
+                break;
+
         }
     }
 
@@ -114,9 +121,9 @@ public class WorldContactListener implements ContactListener {
             case AdventureGame.ENEMY_ATTACK_BIT | AdventureGame.PLAYER_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_ATTACK_BIT) {
                     if (((Enemy) fixA.getUserData()).attackEnabled) {
-                        contact.setEnabled(true);
+                        contact.setEnabled(false);
                         if (((Player) fixB.getUserData()).notInvincible()) {
-                            ((Player) fixB.getUserData()).hurt();
+                            ((Player) fixB.getUserData()).hurt(((Enemy) fixA.getUserData()).getDamage());
                         }
 
                     } else {
@@ -126,7 +133,7 @@ public class WorldContactListener implements ContactListener {
                     if (((Enemy) fixB.getUserData()).attackEnabled) {
                         contact.setEnabled(true);
                         if (((Player) fixA.getUserData()).notInvincible()) {
-                            ((Player) fixA.getUserData()).hurt();
+                            ((Player) fixA.getUserData()).hurt(((Enemy) fixB.getUserData()).getDamage());
                         }
                     } else {
                         contact.setEnabled(false);
@@ -163,6 +170,23 @@ public class WorldContactListener implements ContactListener {
                     } else {
                         contact.setEnabled(false);
                     }
+                }
+                break;
+            case AdventureGame.FIRE_SPELL_BIT | AdventureGame.ENEMY_BIT:
+                contact.setEnabled(false);
+                break;
+            case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.PLAYER_BIT:
+                contact.setEnabled(false);
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
+                    if (((Player) fixA.getUserData()).notInvincible()) {
+                        ((Player) fixA.getUserData()).hurt(3);
+                    }
+                    ((FireBall) fixB.getUserData()).setToDestroy();
+                } else {
+                    if (((Player) fixB.getUserData()).notInvincible()) {
+                        ((Player) fixB.getUserData()).hurt(3);
+                    }
+                    ((FireBall) fixA.getUserData()).setToDestroy();
                 }
                 break;
         }

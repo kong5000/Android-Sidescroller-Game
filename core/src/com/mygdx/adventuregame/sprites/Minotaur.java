@@ -58,7 +58,7 @@ public class Minotaur extends Enemy {
     private boolean setToDestroy;
     private boolean setToDie = false;
 
-    private int health = 10;
+    private int health = 7;
     private boolean runningRight;
     private Fixture attackFixture;
 
@@ -97,6 +97,7 @@ public class Minotaur extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
+        attackDamage = 5;
 
     }
 
@@ -261,7 +262,8 @@ public class Minotaur extends Enemy {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT;
+                | AdventureGame.PLAYER_PROJECTILE_BIT
+                | AdventureGame.FIRE_SPELL_BIT;
         PolygonShape shape = new PolygonShape();
         shape.set(MINOTAUR_HITBOX);
 
@@ -278,6 +280,7 @@ public class Minotaur extends Enemy {
     @Override
     public void hitOnHead() {
         damage(2);
+
     }
 
 
@@ -290,6 +293,8 @@ public class Minotaur extends Enemy {
         if (flashRedTimer < 0) {
             flashRedTimer = FLASH_RED_TIME;
         }
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
     }
 
     @Override

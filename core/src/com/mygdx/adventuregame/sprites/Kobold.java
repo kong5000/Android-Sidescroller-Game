@@ -114,7 +114,7 @@ public class Kobold extends Enemy {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act(dt);
+            act();
         }
     }
 
@@ -128,9 +128,16 @@ public class Kobold extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
+
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+        }
+        if(affectedBySpellTimer > 0){
+            affectedBySpellTimer -=dt;
+        }
     }
 
-    private void act(float dt) {
+    private void act() {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
@@ -145,10 +152,6 @@ public class Kobold extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
-        }
-
-        if (attackTimer > 0) {
-            attackTimer -= dt;
         }
     }
 
@@ -251,7 +254,8 @@ public class Kobold extends Enemy {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT;
+                | AdventureGame.PLAYER_PROJECTILE_BIT
+        |AdventureGame.FIRE_SPELL_BIT;
         PolygonShape shape = new PolygonShape();
         shape.set(KOBOLD_HITBOX);
 
@@ -275,7 +279,8 @@ public class Kobold extends Enemy {
         if (flashRedTimer < 0) {
             flashRedTimer = FLASH_RED_TIME;
         }
-
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
     }
 
     @Override

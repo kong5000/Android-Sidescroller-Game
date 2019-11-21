@@ -6,32 +6,27 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.scenes.Hud;
+import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
+import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.Kobold;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.Player;
@@ -40,7 +35,7 @@ import com.mygdx.adventuregame.tools.B2WorldCreator;
 import com.mygdx.adventuregame.tools.Controller;
 import com.mygdx.adventuregame.tools.WorldContactListener;
 
-import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class PlayScreen implements Screen {
     Controller controller;
@@ -70,6 +65,13 @@ public class PlayScreen implements Screen {
 
     public Array<FireBall> projectilesToSpawn;
     public Array<Explosion> explosions;
+    public Array<FireSpell> spellsToSpawn;
+    public Array<FireSpell> spells;
+    public Array<DamageNumber> damageNumbersToAdd;
+    public Array<DamageNumber> damageNumbers;
+
+    private Stage stage;
+    private DamageNumber damageNumber;
 
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -86,7 +88,7 @@ public class PlayScreen implements Screen {
         map = mapLoader.load("forest_level.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, 1 / AdventureGame.PPM);
         gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
-
+        stage = new Stage(gamePort, game.batch);
 
         //Creating collision bodies for the map
         //The vector2 is for gravity
@@ -99,7 +101,12 @@ public class PlayScreen implements Screen {
         fireBalls = new Array<>();
         projectilesToSpawn = new Array<>();
         explosions = new Array<>();
+        spellsToSpawn = new Array<>();
+        spells = new Array<>();
 
+
+        damageNumbers = new Array<>();
+        damageNumbersToAdd = new Array<>();
 //        enemyList.add(new Slime(this, 1.72f, 0.32f));
 //        enemyList.add(new Slime(this, 2.72f, 0.32f));
 //        enemyList.add(new Slime(this, 3.72f, 0.32f));
@@ -110,6 +117,7 @@ public class PlayScreen implements Screen {
 
         controller = new Controller(game.batch, this);
         controller.enable();
+
 
     }
 
@@ -125,6 +133,12 @@ public class PlayScreen implements Screen {
         for(FireBall fireBall : fireBalls){
             fireBall.update(dt);
         }
+        for (FireSpell spell : spells){
+            spell.update(dt);
+        }
+        for(DamageNumber number : damageNumbers){
+            number.update(dt);
+        }
         for(Explosion explosion : explosions){
             explosion.update(dt);
         }
@@ -133,7 +147,11 @@ public class PlayScreen implements Screen {
 
 
         //Camera tracks player
-
+        //Todo camera tracking hysteris
+        // track the maximum x position of player      ------|-x-|----
+        // if player goes backwards                    ------|x--|----
+        // dont update camera position until it passes ------x|-------
+        // set a new camera threshold                  ----|-x-|------
         gameCam.position.x = player.b2body.getPosition().x;
         float ypos = player.b2body.getPosition().y;
         if(ypos > 1f || ypos < -1f){
@@ -141,7 +159,6 @@ public class PlayScreen implements Screen {
         }else{
             gameCam.position.y = 0.6117f;
         }
-
         gameCam.update();
         renderer.setView(gameCam);
     }
@@ -179,7 +196,11 @@ public class PlayScreen implements Screen {
 //        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
+
+
         game.batch.begin();
+
+
 
 
         if(enemyList.size > 0){
@@ -197,25 +218,50 @@ public class PlayScreen implements Screen {
                 fireBall.draw(game.batch);
             }
         }
+
+        for(DamageNumber number : damageNumbers){
+            if(!number.isForPlayer()){
+                game.batch.setShader(shader);
+            }
+            number.draw(game.batch);
+            game.batch.setShader(null);
+        }
+//        game.batch.setShader(shader);
+//        game.batch.setShader(null);
+
+        player.draw(game.batch);
+
         for (Explosion explosion : explosions){
             explosion.draw(game.batch);
         }
-        player.draw(game.batch);
+        for(FireSpell spell : spells){
+            spell.draw(game.batch);
+        }
 
         game.batch.setShader(null);
         game.batch.end();
+
+
+
+
+
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+
+        stage.draw();
+
         hud.stage.draw();
 
+
         if(enemyList.isEmpty()){
-//            enemyList.add(new Slime(this, 1.72f, 2.32f));
-//            enemyList.add(new Slime(this, 2.72f, 2.32f));
+            enemyList.add(new Slime(this, 3.72f, 2.32f));
+            enemyList.add(new Slime(this, 3.2f, 2.32f));
+            enemyList.add(new Slime(this, 3.3f, 2.32f));
             enemyList.add(new FireElemental(this, 3.5f, 2.32f));
 
             enemyList.add(new Minotaur(this, 2.25f, 2.32f));
             enemyList.add(new Kobold(this, 1.85f, 2.32f));
             enemyList.add(new Kobold(this, 2.05f, 2.32f));
-//            enemyList.add(new Kobold(this, 2.9f, 2.32f));
+            enemyList.add(new Kobold(this, 2.9f, 2.32f));
 
 
         }
@@ -223,6 +269,18 @@ public class PlayScreen implements Screen {
             for(FireBall fireBall : projectilesToSpawn){
                 fireBalls.add(fireBall);
                 projectilesToSpawn.removeValue(fireBall, true);
+            }
+        }
+        if(!spellsToSpawn.isEmpty()){
+            for(FireSpell spell : spellsToSpawn){
+                spells.add(spell);
+                spellsToSpawn.removeValue(spell, true);
+            }
+        }
+        if(!damageNumbersToAdd.isEmpty()){
+            for(DamageNumber number : damageNumbersToAdd){
+                damageNumbers.add(number);
+                damageNumbersToAdd.removeValue(number, true);
             }
         }
 
@@ -237,9 +295,18 @@ public class PlayScreen implements Screen {
                 fireBalls.removeValue(fireBall, true);
             }
         }
+        for(FireSpell fireSpell : spells){
+            if(fireSpell.safeToRemove){
+                spells.removeValue(fireSpell, true);
+            }
+        }
+        for(DamageNumber number : damageNumbers){
+            if(number.safeToRemove){
+                damageNumbers.removeValue(number, true);
+            }
+        }
 
         controller.draw();
-
     }
 
     @Override
@@ -291,6 +358,9 @@ public class PlayScreen implements Screen {
     public Array<Explosion> getExplosions(){
         return explosions;
     }
+    public Array<DamageNumber> getDamageNumbersToAdd(){
+        return damageNumbersToAdd;
+    }
 
     String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
             + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
@@ -321,5 +391,7 @@ public class PlayScreen implements Screen {
 
     ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
 
-
+    public Array<FireSpell> getSpells(){
+        return spells;
+    }
 }

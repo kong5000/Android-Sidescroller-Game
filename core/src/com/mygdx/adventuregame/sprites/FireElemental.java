@@ -105,7 +105,7 @@ public class FireElemental extends Enemy {
             updateStateTimers(dt);
         }
         setRegion(getFrame(dt));
-        act(dt);
+        act();
     }
 
     private void updateStateTimers(float dt) {
@@ -118,16 +118,19 @@ public class FireElemental extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+        }
+        if(attackCooldown > 0){
+            attackCooldown -=dt;
+        }
     }
 
-    private void act(float dt){
+    private void act(){
         if(currentState == State.ATTACKING){
             if(attackAnimation.isAnimationFinished(stateTimer)){
                 attackTimer = -1f;
             }
-        }
-        if(attackCooldown > 0){
-            attackCooldown -=dt;
         }
         if(currentState != State.ATTACKING){
             canFireProjectile = true;
@@ -148,9 +151,6 @@ public class FireElemental extends Enemy {
                 launchFireBall();
                 canFireProjectile = false;
             }
-        }
-        if (attackTimer > 0) {
-            attackTimer -= dt;
         }
     }
 
@@ -238,7 +238,8 @@ public class FireElemental extends Enemy {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT;;
+                | AdventureGame.PLAYER_PROJECTILE_BIT
+                | AdventureGame.FIRE_SPELL_BIT;
         CircleShape shape = new CircleShape();
         shape.setRadius(12 / AdventureGame.PPM);
 
@@ -262,6 +263,8 @@ public class FireElemental extends Enemy {
         if (flashRedTimer < 0) {
             flashRedTimer = FLASH_RED_TIME;
         }
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
     }
 
     @Override

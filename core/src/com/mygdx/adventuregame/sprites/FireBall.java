@@ -106,10 +106,10 @@ public class FireBall extends Sprite {
 
     public void setGoingRight(boolean status){
         float speed = 1f;
+        if(isFriendly){
+            speed *= 2.5f;
+        }
         if(status){
-            if(isFriendly){
-                speed *= 2f;
-            }
             b2body.setLinearVelocity(new Vector2(speed, 0));
         }else{
             b2body.setLinearVelocity(new Vector2(-speed,0));
@@ -172,5 +172,10 @@ public class FireBall extends Sprite {
         }
         Animation<TextureRegion> animation = new Animation<TextureRegion>(secondsPerFrame, frames);
         return animation;
+    }
+
+    public void explode(){
+        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
+        ,getY() - getHeight() / 2 -0.05f));
     }
 }

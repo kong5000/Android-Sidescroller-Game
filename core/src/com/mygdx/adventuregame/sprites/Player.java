@@ -1,6 +1,7 @@
 package com.mygdx.adventuregame.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -15,6 +16,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+
+import java.util.Random;
 
 public class Player extends Sprite {
     private static final float HURT_TIME = 0.5f;
@@ -42,7 +45,8 @@ public class Player extends Sprite {
             0, 0.2f};
 
     public enum State {FALLING, JUMPING, STANDING, RUNNING, HURT, ATTACKING, AIR_ATTACKING, FLIPING, CASTING}
-
+    public enum Spell {FIREBALL, SHIELD}
+    private Spell equipedSpell = Spell.FIREBALL;
     public State currentState;
     public State previousState;
     public World world;
@@ -59,14 +63,16 @@ public class Player extends Sprite {
     private Animation<TextureRegion> playerFlip;
     private Animation<TextureRegion> playerCast;
 
-    private boolean runningRight;
+    public boolean chargingSpell = false;
+    public boolean runningRight;
     private boolean flipEnabled;
     private float stateTimer;
     private float hurtTimer;
     private float attackTimer;
     private float flipTimer;
     private float castTimer;
-
+    private float shieldTimer;
+    public static final float SHIELD_TIME = 3.5f;
     private float castCooldown;
     private static final float CAST_RATE = 1f;
 
@@ -82,6 +88,8 @@ public class Player extends Sprite {
 
     private PlayScreen screen;
 
+    private MagicShield magicShield;
+    private FireSpell fireSpell;
 
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
@@ -116,6 +124,9 @@ public class Player extends Sprite {
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
         setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
         setRegion(playerStand);
+
+        magicShield = new MagicShield(screen, b2body.getPosition().x, b2body.getPosition().y, this);
+        magicShield.setAlpha(0);
     }
 
     private void definePlayer() {
@@ -185,12 +196,33 @@ public class Player extends Sprite {
         if(castCooldown > 0){
             castCooldown -= dt;
         }
+        if(shieldTimer > 0){
+            shieldTimer -= dt;
+        }
+        if(shieldTimer < 0){
+            magicShield.setAlpha(0);
+        }
         if (currentState == State.CASTING) {
             if (stateTimer > 0.1f && canFireProjectile) {
-                launchFireBall();
+                castFireSpell();
+//                launchFireBall();
                 canFireProjectile = false;
             }
         }
+        magicShield.update(dt);
+
+    }
+
+    private void castFireSpell() {
+
+        screen.spellsToSpawn.add( new FireSpell(screen, getX() - getWidth() / 2 , getY() - getHeight()/ 2, runningRight, this));
+    }
+
+    @Override
+    public void draw(Batch batch) {
+
+        super.draw(batch);
+        magicShield.draw(batch);
     }
 
     private TextureRegion getFrame(float dt) {
@@ -199,7 +231,7 @@ public class Player extends Sprite {
         TextureRegion region;
         switch (currentState) {
             case CASTING:
-                region = playerCast.getKeyFrame(stateTimer);
+                region = playerCast.getKeyFrame(stateTimer, true);
                 break;
             case HURT:
                 region = playerHurt.getKeyFrame(stateTimer);
@@ -228,12 +260,12 @@ public class Player extends Sprite {
                 break;
         }
 
-        if ((b2body.getLinearVelocity().x < 0 || !runningRight) && !region.isFlipX()) {
+        if ((!runningRight) && !region.isFlipX()) {
             region.flip(true, false);
-            runningRight = false;
-        } else if ((b2body.getLinearVelocity().x > 0 || runningRight) && region.isFlipX()) {
+//            runningRight = false;
+        } else if ( runningRight && region.isFlipX()) {
             region.flip(true, false);
-            runningRight = true;
+//            runningRight = true;
         }
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
@@ -241,7 +273,7 @@ public class Player extends Sprite {
     }
 
     private State getState() {
-        if (castTimer > 0) {
+        if (castTimer > 0 || chargingSpell) {
             return State.CASTING;
         }
         else if (attackTimer > 0) {
@@ -286,9 +318,11 @@ public class Player extends Sprite {
         return animation;
     }
 
-    public void hurt() {
+    public void hurt(int damage) {
         hurtTimer = HURT_TIME;
-        health -= 1;
+        health -= damage;
+        endChargingSpell();
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2, true, damage));
     }
 
     public void jump() {
@@ -367,11 +401,21 @@ public class Player extends Sprite {
     }
 
     public void castSpell() {
-        if (castCooldown < 0) {
-            castTimer = CAST_TIME;
-            castCooldown = CAST_RATE;
-            canFireProjectile = true;
+        if(equipedSpell == Spell.FIREBALL){
+            if (castCooldown < 0) {
+                castTimer = CAST_TIME;
+                castCooldown = CAST_RATE;
+                canFireProjectile = true;
+            }
+        }else{
+            if (castCooldown < 0) {
+                castTimer = CAST_TIME;
+                castCooldown = CAST_RATE;
+                shieldTimer = SHIELD_TIME;
+                magicShield.setAlpha(1);
+            }
         }
+
     }
 
     private void launchFireBall() {
@@ -383,5 +427,40 @@ public class Player extends Sprite {
             ballDirectionRight = false;
         }
         screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth()/ 2, getY() + getHeight() / 2, ballDirectionRight, true));
+    }
+    public void switchSpell(){
+        if(equipedSpell == Spell.FIREBALL){
+            equipedSpell = Spell.SHIELD;
+        }else{
+            equipedSpell = Spell.FIREBALL;
+        }
+    }
+
+    public Spell getEquipedSpell(){
+        return equipedSpell;
+    }
+
+    public void setChargingSpell(){
+        chargingSpell = true;
+    }
+
+    public void endChargingSpell(){
+        chargingSpell = false;
+    }
+
+    public void stopChargingAnimation(){
+        playerCast.setFrameDuration(4f);
+    }
+    public void startChargingAnimation(){
+        playerCast.setFrameDuration(0.1f);
+    }
+    public void setRunningRight(boolean state){
+        runningRight = state;
+    }
+
+    public int getSwordDamage(){
+        Random random = new Random();
+        int damage = random.nextInt(3) + 1;
+        return damage;
     }
 }
