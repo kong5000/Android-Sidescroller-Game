@@ -18,11 +18,12 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
 import java.util.Random;
+import java.util.UUID;
 
 public class Player extends Sprite {
     private static final float HURT_TIME = 0.5f;
     private static final float CAST_TIME = 0.5f;
-    private static final float ATTACK_TIME = 0.5f;
+    private static final float ATTACK_TIME = 0.35f;
     private static final float FLIP_TIME = 0.4f;
     private static final float MAX_VERTICLE_SPEED = 3f;
     private static final float[] SWORD_HITBOX_AIR = {
@@ -44,8 +45,11 @@ public class Player extends Sprite {
             0f, -0.2f,
             0, 0.2f};
 
-    public enum State {FALLING, JUMPING, STANDING, RUNNING, HURT, ATTACKING, AIR_ATTACKING, FLIPING, CASTING}
+
+    public enum State {FALLING, JUMPING, STANDING, RUNNING, HURT, ATTACKING, AIR_ATTACKING, FLIPPING, CASTING, DODGING}
+
     public enum Spell {FIREBALL, SHIELD}
+
     private Spell equipedSpell = Spell.FIREBALL;
     public State currentState;
     public State previousState;
@@ -59,10 +63,15 @@ public class Player extends Sprite {
     private Animation<TextureRegion> playerHurt;
     private Animation<TextureRegion> playerDie;
     private Animation<TextureRegion> playerAttack;
+    private Animation<TextureRegion> playerAttack2;
+    private Animation<TextureRegion> playerAttack3;
     private Animation<TextureRegion> playerAirAttack;
     private Animation<TextureRegion> playerFlip;
     private Animation<TextureRegion> playerCast;
+    private Animation<TextureRegion> playerDodge;
+    private Animation<TextureRegion> playerBow;
 
+    private boolean canDodge = false;
     public boolean chargingSpell = false;
     public boolean runningRight;
     private boolean flipEnabled;
@@ -72,11 +81,13 @@ public class Player extends Sprite {
     private float flipTimer;
     private float castTimer;
     private float shieldTimer;
+    private float dodgeTimer = 0;
     public static final float SHIELD_TIME = 3.5f;
     private float castCooldown;
     private static final float CAST_RATE = 1f;
 
     private boolean canFireProjectile;
+    private boolean passThroughFloor = false;
 
     TextureAtlas textureAtlas;
 
@@ -91,10 +102,16 @@ public class Player extends Sprite {
     private MagicShield magicShield;
     private FireSpell fireSpell;
 
+    private float comboTimer;
+    private int attackNumber = 0;
+    private UUID currentAttackId;
+
+    //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
         this.world = world;
         this.screen = screen;
+
         textureAtlas = screen.getAtlas();
         currentState = State.STANDING;
         previousState = State.STANDING;
@@ -108,6 +125,7 @@ public class Player extends Sprite {
         health = FULL_HEALTH;
         canFireProjectile = true;
         castCooldown = -1;
+        comboTimer = 0;
 
         playerRun = generateAnimation(textureAtlas.findRegion("player_run"), 6, 52, 39, 0.1f);
         playerIdle = generateAnimation(textureAtlas.findRegion("player_idle1"), 3, 52, 39, 0.2f);
@@ -115,10 +133,13 @@ public class Player extends Sprite {
         playerJump = generateAnimation(textureAtlas.findRegion("player_jump"), 4, 52, 39, 0.1f);
         playerHurt = generateAnimation(textureAtlas.findRegion("player_hurt"), 3, 52, 39, 0.1f);
         playerDie = generateAnimation(textureAtlas.findRegion("player_die"), 7, 52, 39, 0.1f);
-        playerAttack = generateAnimation(textureAtlas.findRegion("player_attack1"), 5, 52, 39, 0.1f);
+        playerAttack = generateAnimation(textureAtlas.findRegion("player_attack1"), 5, 52, 39, 0.07f);
+        playerAttack2 = generateAnimation(textureAtlas.findRegion("player_attack2"), 6, 50, 37, 0.0575f);
+        playerAttack3 = generateAnimation(textureAtlas.findRegion("player_attack3"), 6, 50, 37, 0.0575f);
         playerAirAttack = generateAnimation(textureAtlas.findRegion("player_air_attack1"), 4, 52, 39, 0.125f);
         playerFlip = generateAnimation(textureAtlas.findRegion("player_flip"), 4, 52, 39, 0.1f);
         playerCast = generateAnimation(textureAtlas.findRegion("player_cast"), 4, 52, 39, 0.1f);
+        playerDodge = generateAnimation(textureAtlas.findRegion("player_dodge"), 5, 50, 37, 0.07f);
 
         definePlayer();
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
@@ -131,7 +152,7 @@ public class Player extends Sprite {
 
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(32 / AdventureGame.PPM, 62 / AdventureGame.PPM);
+        bodyDef.position.set(50 / AdventureGame.PPM, 450 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
@@ -141,11 +162,13 @@ public class Player extends Sprite {
                 | AdventureGame.ENEMY_HEAD_BIT
                 | AdventureGame.ENEMY_ATTACK_BIT
                 | AdventureGame.ENEMY_PROJECTILE_BIT
+                | AdventureGame.PLATFORM_BIT
         ;
         CircleShape shape = new CircleShape();
         shape.setRadius(12 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
+        fixtureDef.friction = 0.5f;
         b2body.createFixture(fixtureDef).setUserData(this);
 
 
@@ -193,15 +216,27 @@ public class Player extends Sprite {
         if (castTimer > 0) {
             castTimer -= dt;
         }
-        if(castCooldown > 0){
+        if (castCooldown > 0) {
             castCooldown -= dt;
         }
-        if(shieldTimer > 0){
+        if (shieldTimer > 0) {
             shieldTimer -= dt;
         }
-        if(shieldTimer < 0){
+        if (comboTimer > 0) {
+            comboTimer -= dt;
+        } else {
+            attackNumber = 0;
+        }
+        if (shieldTimer < 0) {
             magicShield.setAlpha(0);
         }
+        if (dodgeTimer > 0) {
+            passThroughFloor = true;
+            dodgeTimer -= dt;
+        } else {
+            passThroughFloor = false;
+        }
+
         if (currentState == State.CASTING) {
             if (stateTimer > 0.1f && canFireProjectile) {
                 castFireSpell();
@@ -215,7 +250,7 @@ public class Player extends Sprite {
 
     private void castFireSpell() {
 
-        screen.spellsToSpawn.add( new FireSpell(screen, getX() - getWidth() / 2 , getY() - getHeight()/ 2, runningRight, this));
+        screen.spellsToSpawn.add(new FireSpell(screen, getX() - getWidth() / 2, getY() - getHeight() / 2, runningRight, this));
     }
 
     @Override
@@ -230,6 +265,9 @@ public class Player extends Sprite {
 
         TextureRegion region;
         switch (currentState) {
+            case DODGING:
+                region = playerDodge.getKeyFrame(stateTimer);
+                break;
             case CASTING:
                 region = playerCast.getKeyFrame(stateTimer, true);
                 break;
@@ -237,12 +275,19 @@ public class Player extends Sprite {
                 region = playerHurt.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                region = playerAttack.getKeyFrame(stateTimer);
+                if (attackNumber == 0) {
+                    region = playerAttack.getKeyFrame(stateTimer);
+                } else if (attackNumber == 1) {
+                    region = playerAttack2.getKeyFrame(stateTimer);
+                } else {
+                    region = playerAttack3.getKeyFrame(stateTimer);
+                }
+
                 break;
             case AIR_ATTACKING:
                 region = playerAirAttack.getKeyFrame(stateTimer);
                 break;
-            case FLIPING:
+            case FLIPPING:
                 region = playerFlip.getKeyFrame(stateTimer);
                 break;
             case JUMPING:
@@ -263,10 +308,15 @@ public class Player extends Sprite {
         if ((!runningRight) && !region.isFlipX()) {
             region.flip(true, false);
 //            runningRight = false;
-        } else if ( runningRight && region.isFlipX()) {
+        } else if (runningRight && region.isFlipX()) {
             region.flip(true, false);
 //            runningRight = true;
         }
+        if (currentState == State.AIR_ATTACKING) {
+            attackNumber = 0;
+            comboTimer = -1;
+        }
+
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
         return region;
@@ -275,8 +325,25 @@ public class Player extends Sprite {
     private State getState() {
         if (castTimer > 0 || chargingSpell) {
             return State.CASTING;
-        }
-        else if (attackTimer > 0) {
+        } else if (attackTimer > 0) {
+            if (currentState == State.ATTACKING) {
+                if (attackNumber == 0) {
+                    if (playerAttack.isAnimationFinished(stateTimer)) {
+                        return State.RUNNING;
+                    }
+                }
+                if (attackNumber == 1) {
+                    if (playerAttack2.isAnimationFinished(stateTimer)) {
+                        return State.RUNNING;
+                    }
+                }
+                if (attackNumber == 2) {
+                    if (playerAttack3.isAnimationFinished(stateTimer)) {
+                        return State.RUNNING;
+                    }
+                }
+
+            }
             if (Math.abs(b2body.getLinearVelocity().y) > 0) {
                 return State.AIR_ATTACKING;
             }
@@ -284,11 +351,13 @@ public class Player extends Sprite {
         } else if (hurtTimer > 0) {
             return State.HURT;
         } else if (flipTimer > 0) {
-            return State.FLIPING;
+            return State.FLIPPING;
         } else if (b2body.getLinearVelocity().y > 0) {
             return State.JUMPING;
         } else if (b2body.getLinearVelocity().y < 0) {
             return State.FALLING;
+        } else if (dodgeTimer > 0) {
+            return State.DODGING;
         } else if (b2body.getLinearVelocity().x != 0) {
             flipEnabled = true;
             return State.RUNNING;
@@ -322,11 +391,11 @@ public class Player extends Sprite {
         hurtTimer = HURT_TIME;
         health -= damage;
         endChargingSpell();
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2, true, damage));
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2, true, damage));
     }
 
     public void jump() {
-        if (currentState == State.JUMPING || currentState == State.FALLING || currentState == State.FLIPING || currentState == State.AIR_ATTACKING) {
+        if (currentState == State.JUMPING || currentState == State.FALLING || currentState == State.FLIPPING || currentState == State.AIR_ATTACKING) {
             if (flipEnabled) {
                 flipTimer = FLIP_TIME;
                 flipEnabled = false;
@@ -337,18 +406,38 @@ public class Player extends Sprite {
 
             }
         } else if (currentState != State.JUMPING && currentState != State.FALLING) {
-            b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
-
+            if (canDodge) {
+                dodge();
+            } else {
+                b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
+            }
         }
     }
 
     public void attack() {
+        b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+
         if (attackTimer < 0) {
+
             attackTimer = ATTACK_TIME;
             if (swordFixture == null) {
                 createAttack();
             }
+            if (attackNumber == 1) {
+                if (runningRight) {
+                    b2body.applyLinearImpulse(new Vector2(1f, 0), b2body.getWorldCenter(), true);
+                } else {
+                    b2body.applyLinearImpulse(new Vector2(-1f, 0), b2body.getWorldCenter(), true);
+                }
+            }
+            if (comboTimer > 0) {
+                attackNumber++;
+                if (attackNumber > 2) {
+                    attackNumber = 0;
+                }
+            }
         }
+        comboTimer = 0.9f;
         b2body.setAwake(true);
     }
 
@@ -372,7 +461,7 @@ public class Player extends Sprite {
         float[] hitbox;
         switch (currentState) {
             case JUMPING:
-            case FLIPING:
+            case FLIPPING:
             case AIR_ATTACKING:
             case FALLING:
                 hitbox = SWORD_HITBOX_AIR;
@@ -385,11 +474,15 @@ public class Player extends Sprite {
                 }
                 break;
         }
+        if (attackNumber == 1) {
+            hitbox = SWORD_HITBOX_AIR;
+        }
         polygonShape.set(hitbox);
         fixtureDef.shape = polygonShape;
         fixtureDef.isSensor = false;
         swordFixture = b2body.createFixture(fixtureDef);
         swordFixture.setUserData(this);
+        currentAttackId = UUID.randomUUID();
     }
 
     public int getHealth() {
@@ -401,13 +494,13 @@ public class Player extends Sprite {
     }
 
     public void castSpell() {
-        if(equipedSpell == Spell.FIREBALL){
+        if (equipedSpell == Spell.FIREBALL) {
             if (castCooldown < 0) {
                 castTimer = CAST_TIME;
                 castCooldown = CAST_RATE;
                 canFireProjectile = true;
             }
-        }else{
+        } else {
             if (castCooldown < 0) {
                 castTimer = CAST_TIME;
                 castCooldown = CAST_RATE;
@@ -420,47 +513,86 @@ public class Player extends Sprite {
 
     private void launchFireBall() {
         boolean ballDirectionRight;
-        if(runningRight){
+        if (runningRight) {
             ballDirectionRight = true;
-        }else
-        {
+        } else {
             ballDirectionRight = false;
         }
-        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth()/ 2, getY() + getHeight() / 2, ballDirectionRight, true));
+        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true));
     }
-    public void switchSpell(){
-        if(equipedSpell == Spell.FIREBALL){
+
+    public void switchSpell() {
+        if (equipedSpell == Spell.FIREBALL) {
             equipedSpell = Spell.SHIELD;
-        }else{
+        } else {
             equipedSpell = Spell.FIREBALL;
         }
     }
 
-    public Spell getEquipedSpell(){
+    public Spell getEquipedSpell() {
         return equipedSpell;
     }
 
-    public void setChargingSpell(){
+    public void setChargingSpell() {
         chargingSpell = true;
     }
 
-    public void endChargingSpell(){
+    public void endChargingSpell() {
         chargingSpell = false;
     }
 
-    public void stopChargingAnimation(){
+    public void stopChargingAnimation() {
         playerCast.setFrameDuration(4f);
     }
-    public void startChargingAnimation(){
+
+    public void startChargingAnimation() {
         playerCast.setFrameDuration(0.1f);
     }
-    public void setRunningRight(boolean state){
+
+    public void setRunningRight(boolean state) {
         runningRight = state;
     }
 
-    public int getSwordDamage(){
+    public int getSwordDamage() {
         Random random = new Random();
-        int damage = random.nextInt(3) + 1;
+        int damage = random.nextInt(2) + 2;
+        if (attackNumber == 2) {
+            damage = 5;
+        }
         return damage;
+    }
+
+    public UUID getAttackId() {
+        return currentAttackId;
+    }
+
+    public boolean canPassFloor() {
+        return passThroughFloor;
+    }
+
+    public void setCanPassFloor(boolean state) {
+        passThroughFloor = true;
+//        passThroughFloor = state;
+    }
+
+    public void dodge() {
+        if (b2body.getLinearVelocity().y == 0) {
+            dodgeTimer = 0.35f;
+            if (runningRight) {
+                b2body.applyLinearImpulse(new Vector2(2f, 0), b2body.getWorldCenter(), true);
+            } else {
+                b2body.applyLinearImpulse(new Vector2(-2f, 0), b2body.getWorldCenter(), true);
+
+            }
+        }
+
+    }
+
+    public void dodgeEnable(boolean state) {
+        canDodge = state;
+    }
+
+    public void dropThroughFloor(){
+        b2body.setLinearVelocity(0,b2body.getLinearVelocity().y);
     }
 }

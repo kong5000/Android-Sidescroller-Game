@@ -29,13 +29,13 @@ public class Minotaur extends Enemy {
             -0.1f, -0.4f,
             0.2f, 0.3f};
 
-    private static final float ATTACK_RATE = 1.5f;
+    private static final float ATTACK_RATE = 2f;
 
     private static final int WIDTH_PIXELS = 98;
     private static final int HEIGHT_PIXELS = 79;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.7f;
+    private static final float INVINCIBILITY_TIME = 0.4f;
     private static final float FLASH_RED_TIME = 0.3f;
 
     private float hurtTimer = -1f;
@@ -99,11 +99,18 @@ public class Minotaur extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 5;
-        health = 7;
+        health = 15;
+        barYOffset = 0.02f;
+
     }
 
     @Override
     public void update(float dt) {
+        if(runningRight){
+            barXOffset = -0.2f;
+        }else {
+            barXOffset = -0.05f;
+        }
         if (health <= 0) {
             if (!setToDie) {
                 setToDie = true;
@@ -287,16 +294,19 @@ public class Minotaur extends Enemy {
 
     @Override
     public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
+        if(isAlive()){
+            if (invincibilityTimer < 0) {
+                health -= amount;
+                invincibilityTimer = INVINCIBILITY_TIME;
+            }
+            if (flashRedTimer < 0) {
+                flashRedTimer = FLASH_RED_TIME;
+            }
+            screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+            showHealthBar = true;
+            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
         }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
     }
 
     @Override
@@ -346,11 +356,11 @@ public class Minotaur extends Enemy {
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1f, 0f);
+        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1f, 0f);
+        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
     }
 
     private boolean playerInAttackRange() {

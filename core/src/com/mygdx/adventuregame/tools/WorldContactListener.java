@@ -37,26 +37,23 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
-            case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
-                int swordDamage;
-                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT) {
-                    if (((Player) fixA.getUserData()).isSwinging()) {
-                        swordDamage = ((Player) fixA.getUserData()).getSwordDamage();
-                        if (((Enemy) fixB.getUserData()).notDamagedRecently()) {
-                            ((Enemy) fixB.getUserData()).damage(swordDamage);
-                        }
-                    }
-
-                } else {
-                    swordDamage = ((Player) fixB.getUserData()).getSwordDamage();
-                    if (((Player) fixB.getUserData()).isSwinging()) {
-                        if (((Enemy) fixA.getUserData()).notDamagedRecently()) {
-                            ((Enemy) fixA.getUserData()).damage(swordDamage);
-                        }
-                    }
-
-                }
-                break;
+//            case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
+//                int swordDamage;
+//                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT) {
+//                    if (((Player) fixA.getUserData()).isSwinging()) {
+//                        swordDamage = ((Player) fixA.getUserData()).getSwordDamage();
+//                            ((Enemy) fixB.getUserData()).damage(swordDamage);
+//
+//                    }
+//
+//                } else {
+//                    swordDamage = ((Player) fixB.getUserData()).getSwordDamage();
+//                    if (((Player) fixB.getUserData()).isSwinging()) {
+//                            ((Enemy) fixA.getUserData()).damage(swordDamage);
+//                    }
+//
+//                }
+//                break;
 
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
@@ -140,21 +137,26 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
-            case AdventureGame.PLAYER_SWORD_BIT | AdventureGame.ENEMY_BIT:
-                if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
-                    contact.setEnabled(false);
-                    if (((Player) fixB.getUserData()).isSwinging()) {
-                        if (((Enemy) fixA.getUserData()).notDamagedRecently()) {
-                            ((Enemy) fixA.getUserData()).damage(1);
+            case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
+                int swordDamage;
+                contact.setEnabled(false);
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT) {
+                    if (((Player) fixA.getUserData()).isSwinging()) {
+                        swordDamage = ((Player) fixA.getUserData()).getSwordDamage();
+                        if(((Enemy) fixB.getUserData()).notDamagedRecently()){
+                            ((Enemy) fixB.getUserData()).damage(swordDamage);
                         }
+
+
                     }
                 } else {
-                    contact.setEnabled(false);
-                    if (((Player) fixA.getUserData()).isSwinging()) {
-                        if (((Enemy) fixB.getUserData()).notDamagedRecently()) {
-                            ((Enemy) fixB.getUserData()).damage(1);
+                    swordDamage = ((Player) fixB.getUserData()).getSwordDamage();
+                    if (((Player) fixB.getUserData()).isSwinging()) {
+                        if(((Enemy) fixA.getUserData()).notDamagedRecently()){
+                        ((Enemy) fixA.getUserData()).damage(swordDamage);
                         }
                     }
+
                 }
                 break;
             case AdventureGame.ENEMY_HEAD_BIT | AdventureGame.PLAYER_BIT:
@@ -169,6 +171,25 @@ public class WorldContactListener implements ContactListener {
                         contact.setEnabled(true);
                     } else {
                         contact.setEnabled(false);
+                    }
+                }
+                break;
+            case AdventureGame.PLATFORM_BIT | AdventureGame.PLAYER_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
+                    if (((Player) fixA.getUserData()).b2body.getLinearVelocity().y <= 0
+                    && !((Player) fixA.getUserData()).canPassFloor()) {
+                        contact.setEnabled(true);
+                    } else {
+                        contact.setEnabled(false);
+                        ((Player) fixA.getUserData()).dropThroughFloor();
+                    }
+                } else {
+                    if (((Player) fixB.getUserData()).b2body.getLinearVelocity().y <= 0
+                            && !((Player) fixB.getUserData()).canPassFloor()) {
+                        contact.setEnabled(true);
+                    } else {
+                        contact.setEnabled(false);
+                        ((Player) fixB.getUserData()).dropThroughFloor();
                     }
                 }
                 break;

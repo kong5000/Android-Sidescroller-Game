@@ -87,11 +87,17 @@ public class Kobold extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 3;
+        health = 4;
+        barYOffset = 0.09f;
     }
 
     @Override
     public void update(float dt) {
+        if(runningRight){
+            barXOffset = -0.15f;
+        }else {
+            barXOffset = 0f;
+        }
         if (health <= 0) {
             if (!setToDie) {
                 setToDie = true;
@@ -281,6 +287,8 @@ public class Kobold extends Enemy {
         }
         screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
                 , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+        showHealthBar = true;
+        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
     }
 
     @Override
@@ -330,11 +338,11 @@ public class Kobold extends Enemy {
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1f, 0f);
+        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1f, 0f);
+        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
     }
 
     private boolean playerInAttackRange() {

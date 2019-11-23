@@ -50,7 +50,7 @@ public class Controller implements InputProcessor {
 
     private boolean buttonClicked = false;
 
-    private static final float PLAYER_MAX_SPEED = 5f;
+    private static final float PLAYER_MAX_SPEED = 1.5f;
 
     int touchStartX;
     int touchStartY;
@@ -222,16 +222,29 @@ public class Controller implements InputProcessor {
         float xVal = getTouchpadLeft().getKnobPercentX();
         if (stopSpell) {
             if (xVal > 0 && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
-                player.b2body.setLinearVelocity(1.5f, player.b2body.getLinearVelocity().y);
+                player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+
+//                player.b2body.setLinearVelocity(1.1f, player.b2body.getLinearVelocity().y);
             }
             if (xVal < 0 && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
-                player.b2body.setLinearVelocity(-1.5f, player.b2body.getLinearVelocity().y);
+                player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+
+//                player.b2body.setLinearVelocity(-1.1f, player.b2body.getLinearVelocity().y);
             }
             if (xVal == 0) {
                 player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
             }
-
         }
+        float yVal = getTouchpadLeft().getKnobPercentY();
+        if(yVal < -0.75f){
+            player.dodgeEnable(true);
+            if(player.getCurrentState() == Player.State.JUMPING){
+                player.dodge();
+            }
+        }else {
+            player.dodgeEnable(false);
+        }
+
         if(xVal > 0){
             player.setRunningRight(true);
         }else if(xVal < 0){
@@ -239,9 +252,7 @@ public class Controller implements InputProcessor {
         }
 
         if (Gdx.input.justTouched()) {
-            if (!buttonClicked) {
-                player.attack();
-            }
+
         }
 
 
@@ -279,6 +290,15 @@ public class Controller implements InputProcessor {
         if (screenX > 1200) {
             touchStartX = screenX;
             touchStartY = screenY;
+        }
+        if (!buttonClicked) {
+            if(screenX > 700){
+                if(screenY < 670){
+                    player.attack();
+                }
+
+            }
+
         }
         return false;
     }

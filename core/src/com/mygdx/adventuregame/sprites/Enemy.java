@@ -34,6 +34,9 @@ public abstract class Enemy extends Sprite {
     protected static final float SPELL_EFFECT_TIME = 1f;
     protected int attackDamage = 1;
 
+    public float barXOffset = 0;
+    public float barYOffset = 0;
+
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
         this.screen = screen;

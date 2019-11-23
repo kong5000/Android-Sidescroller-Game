@@ -33,7 +33,7 @@ public class FireElemental extends Enemy {
             -0.1f, -0.4f,
             0.2f, 0.3f};
 
-    private static final float ATTACK_RATE = 1.5f;
+    private static final float ATTACK_RATE = 2f;
 
     private static final int WIDTH_PIXELS = 62;
     private static final int HEIGHT_PIXELS = 43;
@@ -88,7 +88,9 @@ public class FireElemental extends Enemy {
         attackTimer = ATTACK_RATE;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        int health = 3;
+        health = 5;
+        barXOffset = -0.065f;
+        barYOffset = 0.075f;
     }
 
     @Override
@@ -265,6 +267,7 @@ public class FireElemental extends Enemy {
         }
         screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
                 , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+        showHealthBar = true;
     }
 
     @Override

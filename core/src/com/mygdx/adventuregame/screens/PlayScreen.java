@@ -36,8 +36,6 @@ import com.mygdx.adventuregame.tools.B2WorldCreator;
 import com.mygdx.adventuregame.tools.Controller;
 import com.mygdx.adventuregame.tools.WorldContactListener;
 
-import java.util.concurrent.TimeUnit;
-
 public class PlayScreen implements Screen {
     Controller controller;
     private static final float PLAYER_MAX_SPEED = 1.5f;
@@ -58,12 +56,8 @@ public class PlayScreen implements Screen {
     private TextureAtlas atlas;
     public AssetManager assetManager;
 
-
     private Array<Enemy> enemyList;
-
     private Array<FireBall> fireBalls;
-    private FireBall fireBall;
-
     public Array<FireBall> projectilesToSpawn;
     public Array<Explosion> explosions;
     public Array<FireSpell> spellsToSpawn;
@@ -74,8 +68,6 @@ public class PlayScreen implements Screen {
     public Array<HealthBar> healthBars;
 
     private Stage stage;
-    private DamageNumber damageNumber;
-    private HealthBar healthBar;
 
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -83,13 +75,12 @@ public class PlayScreen implements Screen {
         assetManager.finishLoading();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
 
-
         this.game = game;
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(AdventureGame.V_WIDTH / AdventureGame.PPM, AdventureGame.V_HEIGHT / AdventureGame.PPM, gameCam);
         hud = new Hud(game.batch);
         mapLoader = new TmxMapLoader();
-        map = mapLoader.load("forest_level.tmx");
+        map = mapLoader.load("forest_castle.tmx");
         renderer = new OrthogonalTiledMapRenderer(map, 1 / AdventureGame.PPM);
         gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
         stage = new Stage(gamePort, game.batch);
@@ -100,7 +91,7 @@ public class PlayScreen implements Screen {
         player = new Player(world, this);
         world.setContactListener(new WorldContactListener());
         b2dr = new Box2DDebugRenderer();
-        new B2WorldCreator(world, map);
+
         enemyList = new Array<>();
         fireBalls = new Array<>();
         projectilesToSpawn = new Array<>();
@@ -117,6 +108,8 @@ public class PlayScreen implements Screen {
 
         controller = new Controller(game.batch, this);
         controller.enable();
+
+        new B2WorldCreator(world, map, this);
 
 
     }
@@ -156,13 +149,14 @@ public class PlayScreen implements Screen {
         // dont update camera position until it passes ------x|-------
         // set a new camera threshold                  ----|-x-|------
         gameCam.position.x = player.b2body.getPosition().x;
-        float ypos = player.b2body.getPosition().y;
-        if(ypos > 1f || ypos < -1f){
-            gameCam.position.y = player.b2body.getPosition().y -  0.6117f / 2;
-        }else{
-            gameCam.position.y = 0.6117f;
-        }
-        gameCam.update();
+        gameCam.position.y = player.b2body.getPosition().y + 0.25f;
+//        float ypos = player.b2body.getPosition().y + 0.25f;
+//        if(ypos > 5){
+//            gameCam.position.y = ypos;
+//        }else{
+//            gameCam.position.y = 4.5f;
+//        }
+////        gameCam.update();
 
         renderer.setView(gameCam);
     }
@@ -182,6 +176,11 @@ public class PlayScreen implements Screen {
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
             player.attack();
         }
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+            player.setCanPassFloor(true);
+        }else {
+            player.setCanPassFloor(false);
+        }
     }
 
     @Override
@@ -193,19 +192,14 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         update(delta);
         //  Clear the screen
-        Gdx.gl.glClearColor(1, 0 , 0 , 1);
+        Gdx.gl.glClearColor(0, 0, 0 , 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         renderer.render();
 
-//        b2dr.render(world, gameCam.combined);
+        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
-
-
         game.batch.begin();
-
-
-
 
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
@@ -237,8 +231,6 @@ public class PlayScreen implements Screen {
 //        game.batch.setShader(null);
         player.draw(game.batch);
 
-
-
         for (Explosion explosion : explosions){
             explosion.draw(game.batch);
         }
@@ -246,12 +238,7 @@ public class PlayScreen implements Screen {
             spell.draw(game.batch);
         }
 
-        game.batch.setShader(null);
         game.batch.end();
-
-
-
-
 
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
 
@@ -261,17 +248,19 @@ public class PlayScreen implements Screen {
 
 
         if(enemyList.isEmpty()){
-            enemyList.add(new Slime(this, 3.72f, 2.32f));
-            enemyList.add(new Slime(this, 3.2f, 2.32f));
-            enemyList.add(new Slime(this, 3.3f, 2.32f));
-            enemyList.add(new FireElemental(this, 3f, 2.32f));
-            enemyList.add(new FireElemental(this, 2f, 2.32f));
-            Minotaur minotaur = new Minotaur(this, 2.25f, 2.32f);
-            healthBarsToAdd.add(new HealthBar(this, 0, 0, 2, minotaur));
-            enemyList.add(minotaur);
-            enemyList.add(new Kobold(this, 1.85f, 2.32f));
-            enemyList.add(new Kobold(this, 2.05f, 2.32f));
-            enemyList.add(new Kobold(this, 2.9f, 2.32f));
+//            enemyList.add(new Slime(this, 3.5f, 5f));
+//            FireElemental fireElemental = new FireElemental(this, 10f, 6f);
+//            enemyList.add(fireElemental);
+//            Minotaur minotaur = new Minotaur(this, 9, 6f);
+//            enemyList.add(new Minotaur(this, 12, 6f));
+//            enemyList.add(new Minotaur(this, 12, 6f));
+//            healthBarsToAdd.add(new HealthBar(this, 0, 0, 2, fireElemental));
+//            healthBarsToAdd.add(new HealthBar(this, 0, 0, 2, minotaur));
+//
+////            healthBarsToAdd.add(new HealthBar(this, 0, 0, 2, minotaur));
+//            enemyList.add(minotaur);
+//            enemyList.add(new Kobold(this, 12, 6f));
+//            enemyList.add(new Kobold(this, 15, 6f));
 
 
         }
@@ -298,6 +287,12 @@ public class PlayScreen implements Screen {
             for(HealthBar bar : healthBarsToAdd){
                 healthBars.add(bar);
                 healthBarsToAdd.removeValue(bar, true);
+            }
+        }
+
+        for(HealthBar healthBar : healthBars){
+            if(healthBar.safeToRemove){
+                healthBars.removeValue(healthBar, true);
             }
         }
 
@@ -416,5 +411,14 @@ public class PlayScreen implements Screen {
 
     public Array<FireSpell> getSpells(){
         return spells;
+    }
+    public Array<Enemy> getEnemyList(){
+        return enemyList;
+    }
+    public Array<HealthBar> getHealthBars(){
+        return healthBars;
+    }
+    public Array<HealthBar> getHealthBarsToAdd(){
+        return healthBarsToAdd;
     }
 }

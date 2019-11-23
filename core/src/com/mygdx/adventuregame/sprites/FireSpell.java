@@ -43,7 +43,7 @@ public class FireSpell extends Sprite {
     private static final float MAX_SIZE = 0.6f;
     private static final float MAX_ROTATION_SPEED = 40f;
     private float damage;
-    private static final float STARTING_DAMAGE = 2f;
+    private static final float STARTING_DAMAGE = 1f;
     private static final float MAX_DAMAGE = 8f;
     private Player player;
     private float xOffset = 0.2f;

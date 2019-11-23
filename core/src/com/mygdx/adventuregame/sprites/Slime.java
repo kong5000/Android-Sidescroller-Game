@@ -48,7 +48,9 @@ public class Slime extends Enemy {
         attackRateTimer = ATTACK_RATE;
         attackDamage = 1;
         health = 2;
+
     }
+
 
     @Override
     public void update(float dt) {
@@ -210,6 +212,7 @@ public class Slime extends Enemy {
         }
         screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
                 , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+    showHealthBar = true;
     }
 
     @Override
