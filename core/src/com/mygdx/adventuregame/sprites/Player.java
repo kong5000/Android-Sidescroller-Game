@@ -82,6 +82,8 @@ public class Player extends Sprite {
     private float castTimer;
     private float shieldTimer;
     private float dodgeTimer = 0;
+    private float dodgeCooldown = 0;
+    private float passThroughFloorTimer =0;
     public static final float SHIELD_TIME = 3.5f;
     private float castCooldown;
     private static final float CAST_RATE = 1f;
@@ -152,7 +154,7 @@ public class Player extends Sprite {
 
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(50 / AdventureGame.PPM, 450 / AdventureGame.PPM);
+        bodyDef.position.set(415 / AdventureGame.PPM, 450 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
@@ -170,28 +172,6 @@ public class Player extends Sprite {
         fixtureDef.shape = shape;
         fixtureDef.friction = 0.5f;
         b2body.createFixture(fixtureDef).setUserData(this);
-
-
-//        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_SWORD_BIT;
-//        fixtureDef.filter.maskBits = AdventureGame.ENEMY_BIT;
-//        PolygonShape polygonShape = new PolygonShape();
-//        polygonShape.set(SWORD_HITBOX_AIR);
-//        fixtureDef.shape = polygonShape;
-//        fixtureDef.isSensor = false;
-//        b2body.createFixture(fixtureDef).setUserData(this);
-
-
-//        EdgeShape boot = new EdgeShape();
-//        boot.set(
-//                new Vector2(-8 / AdventureGame.PPM, -17 / AdventureGame.PPM),
-//                new Vector2(8 / AdventureGame.PPM, -17 / AdventureGame.PPM)
-//        );
-//        fixtureDef.shape = boot;
-//        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BOOT_BIT;
-//        fixtureDef.filter.maskBits = AdventureGame.ENEMY_HEAD_BIT;
-//        fixtureDef.isSensor =false;
-//        b2body.createFixture(fixtureDef).setUserData(this);
-
     }
 
     public void update(float dt) {
@@ -231,10 +211,18 @@ public class Player extends Sprite {
             magicShield.setAlpha(0);
         }
         if (dodgeTimer > 0) {
-            passThroughFloor = true;
+
             dodgeTimer -= dt;
+        }
+        if(passThroughFloorTimer > 0){
+            passThroughFloorTimer -=dt;
+            passThroughFloor = true;
         } else {
             passThroughFloor = false;
+        }
+
+        if(dodgeCooldown > 0){
+            dodgeCooldown -=dt;
         }
 
         if (currentState == State.CASTING) {
@@ -490,7 +478,14 @@ public class Player extends Sprite {
     }
 
     public boolean notInvincible() {
-        return hurtTimer < 0;
+        if(currentState == State.DODGING){
+            return false;
+        }
+        if(hurtTimer < 0){
+            return true;
+        }else {
+            return false;
+        }
     }
 
     public void castSpell() {
@@ -576,23 +571,28 @@ public class Player extends Sprite {
     }
 
     public void dodge() {
-        if (b2body.getLinearVelocity().y == 0) {
-            dodgeTimer = 0.35f;
-            if (runningRight) {
-                b2body.applyLinearImpulse(new Vector2(2f, 0), b2body.getWorldCenter(), true);
-            } else {
-                b2body.applyLinearImpulse(new Vector2(-2f, 0), b2body.getWorldCenter(), true);
+        passThroughFloorTimer = 0.2f;
+        if (dodgeCooldown <= 0) {
+            dodgeCooldown = 1.25f;
+            if (b2body.getLinearVelocity().y == 0) {
+                dodgeTimer = 0.35f;
+                if (runningRight) {
+                    b2body.applyLinearImpulse(new Vector2(2f, 0), b2body.getWorldCenter(), true);
+                } else {
+                    b2body.applyLinearImpulse(new Vector2(-2f, 0), b2body.getWorldCenter(), true);
 
+                }
             }
         }
-
     }
 
     public void dodgeEnable(boolean state) {
         canDodge = state;
     }
 
-    public void dropThroughFloor(){
-        b2body.setLinearVelocity(0,b2body.getLinearVelocity().y);
+    public void dropThroughFloor() {
+        b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
     }
+
+
 }

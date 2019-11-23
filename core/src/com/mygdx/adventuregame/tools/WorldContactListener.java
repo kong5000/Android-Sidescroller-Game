@@ -201,13 +201,15 @@ public class WorldContactListener implements ContactListener {
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
                     if (((Player) fixA.getUserData()).notInvincible()) {
                         ((Player) fixA.getUserData()).hurt(3);
+                        ((FireBall) fixB.getUserData()).setToDestroy();
                     }
-                    ((FireBall) fixB.getUserData()).setToDestroy();
+
                 } else {
                     if (((Player) fixB.getUserData()).notInvincible()) {
                         ((Player) fixB.getUserData()).hurt(3);
+                        ((FireBall) fixA.getUserData()).setToDestroy();
                     }
-                    ((FireBall) fixA.getUserData()).setToDestroy();
+
                 }
                 break;
         }
