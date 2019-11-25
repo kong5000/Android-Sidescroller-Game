@@ -78,10 +78,14 @@ public class Controller implements InputProcessor {
         image.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                player.startChargingAnimation();
+
                 player.castSpell();
+                if(player.getEquipedSpell() == Player.Spell.FIREBALL){
+                    player.startChargingAnimation();
+                     player.setChargingSpell();
+                }
                 buttonClicked = true;
-                player.setChargingSpell();
+
 
                 stopSpell = false;
                 return true;
@@ -103,7 +107,9 @@ public class Controller implements InputProcessor {
         jumpButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                player.jump();
+                if(player.canMove()){
+                    player.jump();
+                }
                 buttonClicked = true;
                 return true;
             }
@@ -219,14 +225,15 @@ public class Controller implements InputProcessor {
     }
 
     public void handleInput() {
+        float yVal = getTouchpadLeft().getKnobPercentY();
         float xVal = getTouchpadLeft().getKnobPercentX();
-        if (stopSpell) {
-            if (xVal > 0 && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
+        if (stopSpell && player.canMove()) {
+            if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
                 player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
 
 //                player.b2body.setLinearVelocity(1.1f, player.b2body.getLinearVelocity().y);
             }
-            if (xVal < 0 && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
+            if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
                 player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
 
 //                player.b2body.setLinearVelocity(-1.1f, player.b2body.getLinearVelocity().y);
@@ -235,14 +242,18 @@ public class Controller implements InputProcessor {
                 player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
             }
         }
-        float yVal = getTouchpadLeft().getKnobPercentY();
+
         if(yVal < -0.75f){
+            if(Math.abs(xVal) < 0.25){
+                player.setCrouching(true);
+            }
             player.dodgeEnable(true);
             if(player.getCurrentState() == Player.State.JUMPING){
                 player.dodge();
             }
         }else {
             player.dodgeEnable(false);
+            player.setCrouching(false);
         }
 
         if(xVal > 0){
@@ -336,4 +347,6 @@ public class Controller implements InputProcessor {
     public boolean scrolled(int amount) {
         return false;
     }
+
+
 }

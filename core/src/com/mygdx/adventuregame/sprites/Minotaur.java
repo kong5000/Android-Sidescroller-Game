@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
@@ -29,7 +30,7 @@ public class Minotaur extends Enemy {
             -0.1f, -0.4f,
             0.2f, 0.3f};
 
-    private static final float ATTACK_RATE = 2f;
+    private static final float ATTACK_RATE = 1.75f;
 
     private static final int WIDTH_PIXELS = 98;
     private static final int HEIGHT_PIXELS = 79;
@@ -55,6 +56,8 @@ public class Minotaur extends Enemy {
     private Animation<TextureRegion> hurtAnimationDamaged;
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> idleAnimationDamaged;
+
+    private Array<MonsterTile> monsterTiles;
 
     private boolean setToDestroy;
     private boolean setToDie = false;
@@ -98,17 +101,18 @@ public class Minotaur extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        attackDamage = 5;
-        health = 15;
+        attackDamage = 3;
+        health = 25;
         barYOffset = 0.02f;
-
+        monsterTiles = new Array<>();
+        attachNearbyTiles();
     }
 
     @Override
     public void update(float dt) {
-        if(runningRight){
+        if (runningRight) {
             barXOffset = -0.2f;
-        }else {
+        } else {
             barXOffset = -0.05f;
         }
         if (health <= 0) {
@@ -129,6 +133,9 @@ public class Minotaur extends Enemy {
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
+            for (MonsterTile monsterTile : monsterTiles) {
+                    monsterTile.setToDestroy();
+            }
         } else if (!destroyed) {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
@@ -250,7 +257,7 @@ public class Minotaur extends Enemy {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -280,7 +287,7 @@ public class Minotaur extends Enemy {
     }
 
     @Override
-    public void hitByFire(){
+    public void hitByFire() {
         screen.getExplosions().add(new Explosion(screen, getX(), getY()));
 
     }
@@ -294,7 +301,7 @@ public class Minotaur extends Enemy {
 
     @Override
     public void damage(int amount) {
-        if(isAlive()){
+        if (isAlive()) {
             if (invincibilityTimer < 0) {
                 health -= amount;
                 invincibilityTimer = INVINCIBILITY_TIME;
@@ -302,7 +309,7 @@ public class Minotaur extends Enemy {
             if (flashRedTimer < 0) {
                 flashRedTimer = FLASH_RED_TIME;
             }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
                     , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
             showHealthBar = true;
             b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
@@ -368,11 +375,11 @@ public class Minotaur extends Enemy {
     }
 
     private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.5f, 1.5f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
     }
 
     private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.5f, 1.5f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(.5f, 2f), b2body.getWorldCenter(), true);
     }
 
     private void goIntoAttackState() {
@@ -388,6 +395,18 @@ public class Minotaur extends Enemy {
             return stateTimer > 0.7f;
         }
         return false;
+    }
+
+
+    private void attachNearbyTiles(){
+        for (MonsterTile monsterTile : screen.monsterTiles) {
+            Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
+            Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
+            float distance = enemyPosition.sub(tileVector).len();
+            if (distance < 2f) {
+                monsterTiles.add(monsterTile);
+            }
+        }
     }
 
 }

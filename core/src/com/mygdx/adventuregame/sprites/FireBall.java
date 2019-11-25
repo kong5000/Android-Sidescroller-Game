@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class FireBall extends Sprite {
+public class FireBall extends Sprite implements UpdatableSprite {
     private enum State{ARMED, IMPACT}
     private State currentState = State.ARMED;
     private State previousState = State.ARMED;
@@ -48,7 +48,7 @@ public class FireBall extends Sprite {
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
         if(isFriendly){
-            setScale(1.25f);
+            setScale(0.5f);
         }
     }
 
@@ -107,7 +107,7 @@ public class FireBall extends Sprite {
     public void setGoingRight(boolean status){
         float speed = 1f;
         if(isFriendly){
-            speed *= 2.5f;
+            speed *= 3.5f;
         }
         if(status){
             b2body.setLinearVelocity(new Vector2(speed, 0));

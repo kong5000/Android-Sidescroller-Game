@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class FireSpell extends Sprite {
+public class FireSpell extends Sprite implements UpdatableSprite{
     private enum State {ARMED, IMPACT}
 
     private State currentState = State.ARMED;
@@ -33,14 +33,14 @@ public class FireSpell extends Sprite {
     private static final int WIDTH_PIXELS = 100;
     private static final int HEIGHT_PIXELS = 100;
     private boolean isFriendly;
-    private float size = 0.25f;
+    private float size = 0.2f;
     private float rotation = 0f;
     private boolean goingRight = true;
     private boolean launched = false;
     private boolean charging = true;
     private float rotationIncrement = 0.1f;
     private Animation<TextureRegion> projectile;
-    private static final float MAX_SIZE = 0.6f;
+    private static final float MAX_SIZE = 0.65f;
     private static final float MAX_ROTATION_SPEED = 40f;
     private float damage;
     private static final float STARTING_DAMAGE = 1f;

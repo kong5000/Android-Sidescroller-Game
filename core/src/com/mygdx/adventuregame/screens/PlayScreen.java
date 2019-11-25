@@ -4,10 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -30,8 +32,10 @@ import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Kobold;
 import com.mygdx.adventuregame.sprites.Minotaur;
+import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.Player;
 import com.mygdx.adventuregame.sprites.Slime;
+import com.mygdx.adventuregame.sprites.UpdatableSprite;
 import com.mygdx.adventuregame.tools.B2WorldCreator;
 import com.mygdx.adventuregame.tools.Controller;
 import com.mygdx.adventuregame.tools.WorldContactListener;
@@ -60,14 +64,22 @@ public class PlayScreen implements Screen {
     private Array<FireBall> fireBalls;
     public Array<FireBall> projectilesToSpawn;
     public Array<Explosion> explosions;
+    public Array<Explosion> explosionsToAdd;
     public Array<FireSpell> spellsToSpawn;
     public Array<FireSpell> spells;
     public Array<DamageNumber> damageNumbersToAdd;
     public Array<DamageNumber> damageNumbers;
     public Array<HealthBar> healthBarsToAdd;
     public Array<HealthBar> healthBars;
+    public Array<MonsterTile> monsterTiles;
+
+    private Array<UpdatableSprite> spritesToAdd;
+    private Array<UpdatableSprite> sprites;
 
     private Stage stage;
+    private Color fadeScreenColor = Color.BLACK;
+    private float fadeTickTimer = 0;
+    private float fadeScreenAlpha = 0;
 
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -96,6 +108,7 @@ public class PlayScreen implements Screen {
         fireBalls = new Array<>();
         projectilesToSpawn = new Array<>();
         explosions = new Array<>();
+        explosionsToAdd = new Array<>();
         spellsToSpawn = new Array<>();
         spells = new Array<>();
 
@@ -106,10 +119,16 @@ public class PlayScreen implements Screen {
         healthBars = new Array<>();
         healthBarsToAdd = new Array<>();
 
+        monsterTiles = new Array<>();
+
         controller = new Controller(game.batch, this);
         controller.enable();
 
+        sprites = new Array<>();
+        spritesToAdd = new Array<>();
+
         new B2WorldCreator(world, map, this);
+
 
 
     }
@@ -120,6 +139,9 @@ public class PlayScreen implements Screen {
 //        handleInupt(dt);
         world.step(1/60f, 6, 2);
         player.update(dt);
+        for(UpdatableSprite sprite : sprites){
+            sprite.update(dt);
+        }
         for(Enemy enemy : enemyList){
             enemy.update(dt);
         }
@@ -137,6 +159,9 @@ public class PlayScreen implements Screen {
         }
         for(Explosion explosion : explosions){
             explosion.update(dt);
+        }
+        for(MonsterTile monsterTile : monsterTiles){
+            monsterTile.update(dt);
         }
 
         hud.setScore(player.getHealth());
@@ -196,11 +221,9 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         renderer.render();
 
-        b2dr.render(world, gameCam.combined);
-        //Set to render only what camera can see
+
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
-
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
 //                if(enemy.isHurt()){
@@ -227,9 +250,6 @@ public class PlayScreen implements Screen {
         for(HealthBar bar : healthBars){
             bar.draw(game.batch);
         }
-//        game.batch.setShader(shader);
-//        game.batch.setShader(null);
-        player.draw(game.batch);
 
         for (Explosion explosion : explosions){
             explosion.draw(game.batch);
@@ -237,6 +257,55 @@ public class PlayScreen implements Screen {
         for(FireSpell spell : spells){
             spell.draw(game.batch);
         }
+        for(MonsterTile monsterTile : monsterTiles){
+            monsterTile.draw(game.batch);
+        }
+        game.batch.end();
+
+        if(player.getCurrentState() == Player.State.DYING ){
+            fadeTickTimer += delta;
+            if(fadeTickTimer < 10000){
+                fadeTickTimer = 0;
+                if(!player.doneDying()){
+                    if(fadeScreenAlpha <= 0.993){
+                        fadeScreenAlpha += 0.007f;
+                    }
+                }else {
+                    if(fadeScreenAlpha >= 0.00701){
+                        fadeScreenAlpha -= 0.007f;
+                    }
+                }
+                fadeScreenColor.a = fadeScreenAlpha;
+            }
+        }
+
+        if(player.getCurrentState() != Player.State.DYING){
+            fadeScreenColor.a = 0f;
+            fadeScreenAlpha = 0f;
+        }
+
+
+        ShapeRenderer shapeRenderer = new ShapeRenderer();
+        // Draw the filled rectangle
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        shapeRenderer.setColor(fadeScreenColor);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.rect(0, 0, AdventureGame.V_WIDTH * AdventureGame.PPM, AdventureGame.V_HEIGHT * AdventureGame.PPM);
+        shapeRenderer.end();
+
+
+//        b2dr.render(world, gameCam.combined);
+        //Set to render only what camera can see
+        game.batch.setProjectionMatrix(gameCam.combined);
+        game.batch.begin();
+
+
+
+//        game.batch.setShader(shader);
+//        game.batch.setShader(null);
+        player.draw(game.batch);
+
 
         game.batch.end();
 
@@ -287,6 +356,13 @@ public class PlayScreen implements Screen {
             for(HealthBar bar : healthBarsToAdd){
                 healthBars.add(bar);
                 healthBarsToAdd.removeValue(bar, true);
+            }
+        }
+
+        if(!explosionsToAdd.isEmpty()){
+            for(Explosion explosion : explosionsToAdd){
+                explosions.add(explosion);
+                explosionsToAdd.removeValue(explosion, true);
             }
         }
 
@@ -421,4 +497,5 @@ public class PlayScreen implements Screen {
     public Array<HealthBar> getHealthBarsToAdd(){
         return healthBarsToAdd;
     }
+    public Array<UpdatableSprite> getSpritesToAdd(){ return spritesToAdd;}
 }

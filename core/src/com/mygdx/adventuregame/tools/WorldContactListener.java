@@ -57,12 +57,10 @@ public class WorldContactListener implements ContactListener {
 
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
-                    ((Enemy) fixA.getUserData()).damage(4);
-                    ((Enemy) fixA.getUserData()).hitByFire();
+                    ((Enemy) fixA.getUserData()).damage(2);
                     ((FireBall) fixB.getUserData()).setToDestroy();
                 } else {
-                    ((Enemy) fixB.getUserData()).damage(4);
-                    ((Enemy) fixB.getUserData()).hitByFire();
+                    ((Enemy) fixB.getUserData()).damage(2);
                     ((FireBall) fixA.getUserData()).setToDestroy();
                 }
                 break;

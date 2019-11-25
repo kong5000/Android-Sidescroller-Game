@@ -5,7 +5,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class HealthBar extends Sprite {
+public class HealthBar extends Sprite implements UpdatableSprite{
     public boolean safeToRemove = false;
     protected float stateTimer;
     private Sprite greenBar;

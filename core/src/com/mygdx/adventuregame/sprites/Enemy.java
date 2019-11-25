@@ -9,7 +9,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public abstract class Enemy extends Sprite {
+public abstract class Enemy extends Sprite implements UpdatableSprite{
 
     public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE}
 

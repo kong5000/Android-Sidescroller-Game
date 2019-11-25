@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class Explosion extends Sprite {
+public class Explosion extends Sprite implements UpdatableSprite{
     public boolean safeToRemove = false;
     protected float stateTimer;
     protected PlayScreen screen;

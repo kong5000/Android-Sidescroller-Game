@@ -13,9 +13,6 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
 
-
-
-
 public class FireElemental extends Enemy {
     private static final float[] MINOTAUR_HITBOX = {
             -0.15f, 0.1f,
@@ -123,33 +120,33 @@ public class FireElemental extends Enemy {
         if (attackTimer > 0) {
             attackTimer -= dt;
         }
-        if(attackCooldown > 0){
-            attackCooldown -=dt;
+        if (attackCooldown > 0) {
+            attackCooldown -= dt;
         }
     }
 
-    private void act(){
-        if(currentState == State.ATTACKING){
-            if(attackAnimation.isAnimationFinished(stateTimer)){
+    private void act() {
+        if (currentState == State.ATTACKING) {
+            if (attackAnimation.isAnimationFinished(stateTimer)) {
                 attackTimer = -1f;
             }
         }
-        if(currentState != State.ATTACKING){
+        if (currentState != State.ATTACKING) {
             canFireProjectile = true;
         }
         if (currentState == State.CHASING) {
             chasePlayer();
         }
-        if(currentState == State.IDLE){
+        if (currentState == State.IDLE) {
             if (playerInAttackRange()) {
-                if(attackCooldownOver()){
+                if (attackCooldownOver()) {
                     goIntoAttackState();
                     attackCooldown = ATTACK_RATE;
                 }
             }
         }
         if (currentState == State.ATTACKING) {
-            if(stateTimer > 0.7f && canFireProjectile){
+            if (stateTimer > 0.7f && canFireProjectile) {
                 launchFireBall();
                 canFireProjectile = false;
             }
@@ -158,7 +155,7 @@ public class FireElemental extends Enemy {
 
     private void launchFireBall() {
         boolean playerToRight = getVectorToPlayer().x > 0;
-        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth()/ 2, getY() + getHeight() / 2, playerToRight, false));
+        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, playerToRight, false));
     }
 
     @Override
@@ -205,10 +202,13 @@ public class FireElemental extends Enemy {
     }
 
     private void chasePlayer() {
-        if (playerIsToTheRight()) {
-            runRight();
-        } else {
-            runLeft();
+        if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM
+                && Math.abs(getVectorToPlayer().y) < 20 / AdventureGame.PPM) {
+            if (playerIsToTheRight()) {
+                runRight();
+            } else {
+                runLeft();
+            }
         }
     }
 
@@ -220,7 +220,7 @@ public class FireElemental extends Enemy {
         } else if (attackTimer > 0) {
             return State.ATTACKING;
         } else if (Math.abs(getVectorToPlayer().x) < 250 / AdventureGame.PPM
-        && Math.abs(getVectorToPlayer().x) > 150 / AdventureGame.PPM ) {
+                && Math.abs(getVectorToPlayer().x) > 150 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -265,7 +265,7 @@ public class FireElemental extends Enemy {
         if (flashRedTimer < 0) {
             flashRedTimer = FLASH_RED_TIME;
         }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
                 , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
         showHealthBar = true;
     }
@@ -299,7 +299,7 @@ public class FireElemental extends Enemy {
     }
 
     private void orientTextureTowardsPlayer(TextureRegion region) {
-        if(currentState != State.DYING){
+        if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
 
@@ -326,6 +326,7 @@ public class FireElemental extends Enemy {
 
     private boolean playerInAttackRange() {
         return (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM);
+
     }
 
     private void jumpingAttackLeft() {
@@ -335,22 +336,23 @@ public class FireElemental extends Enemy {
     private void jumpingAttackRight() {
         b2body.applyLinearImpulse(new Vector2(.5f, 1.5f), b2body.getWorldCenter(), true);
     }
-    private void goIntoAttackState(){
+
+    private void goIntoAttackState() {
         attackTimer = ATTACK_RATE;
     }
 
-    private boolean currentFrameIsAnAttack(){
+    private boolean currentFrameIsAnAttack() {
         return (currentState == State.ATTACKING && stateTimer > 0.5f);
     }
 
-    private boolean attackFramesOver(){
-        if(currentState == State.ATTACKING){
+    private boolean attackFramesOver() {
+        if (currentState == State.ATTACKING) {
             return stateTimer > 0.7f;
         }
         return false;
     }
 
-    private boolean attackCooldownOver(){
+    private boolean attackCooldownOver() {
         return attackCooldown < 0;
     }
 

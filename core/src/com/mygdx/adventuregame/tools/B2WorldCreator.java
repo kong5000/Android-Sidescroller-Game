@@ -17,6 +17,7 @@ import com.mygdx.adventuregame.sprites.FireElemental;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Kobold;
 import com.mygdx.adventuregame.sprites.Minotaur;
+import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.Slime;
 
 public class B2WorldCreator {
@@ -28,6 +29,13 @@ public class B2WorldCreator {
         FixtureDef fixtureDef =  new FixtureDef();
         Body body;
         //3 is the object layer from tmx for ground
+        for(MapObject object : map.getLayers().get(13).getObjects().getByType(RectangleMapObject.class))
+        {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            MonsterTile monsterTile  =new MonsterTile(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.monsterTiles.add(monsterTile);
+        }
+
         for(MapObject object : map.getLayers().get(12).getObjects().getByType(RectangleMapObject.class))
         {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
