@@ -130,7 +130,7 @@ public class Player extends Sprite {
 
     private float magicShieldSize = 0.1f;
 
-    private boolean playerReset =false;
+    private boolean playerReset = false;
 
 
     //Todo firespell blowsup box obstacles
@@ -195,6 +195,7 @@ public class Player extends Sprite {
                 | AdventureGame.ENEMY_ATTACK_BIT
                 | AdventureGame.ENEMY_PROJECTILE_BIT
                 | AdventureGame.PLATFORM_BIT
+                | AdventureGame.SPIKE_BIT;
         ;
 
 //        PolygonShape shape = new PolygonShape();
@@ -212,32 +213,32 @@ public class Player extends Sprite {
     public void update(float dt) {
         setPosition(getXPos(), getYPos());
         setRegion(getFrame(dt));
-        if(currentState == State.REVIVING){
-            if(playerRevive.isAnimationFinished(stateTimer)){
+        if (currentState == State.REVIVING) {
+            if (playerRevive.isAnimationFinished(stateTimer)) {
                 health = FULL_HEALTH;
             }
         }
-        if(currentState == State.DYING){
+        if (currentState == State.DYING) {
             deathTimer += dt;
-            if(deathTimer >= DEATH_SPELL_TIME){
+            if (deathTimer >= DEATH_SPELL_TIME) {
 
                 magicShield.setAlpha(1);
                 magicShield.setScale(magicShieldSize);
-                if(magicShieldSize < 1){
+                if (magicShieldSize < 1) {
                     magicShieldSize += 0.01f;
                 }
             }
-            if(deathTimer >= DEATH_TIME){
+            if (deathTimer >= DEATH_TIME) {
                 magicShieldAlpha -= 0.005;
-                if(magicShieldAlpha < 0){
+                if (magicShieldAlpha < 0) {
                     magicShieldAlpha = 0;
                 }
                 magicShield.setAlpha(magicShieldAlpha);
-                if(!playerReset){
+                if (!playerReset) {
                     resetPlayer();
                 }
             }
-            if(deathTimer >= REVIVE_TIME){
+            if (deathTimer >= REVIVE_TIME) {
                 reviveTimer = 2.2f;
                 stateTimer = 0;
                 magicShield.setAlpha(0);
@@ -266,8 +267,8 @@ public class Player extends Sprite {
                 swordFixture = null;
             }
         }
-        if(reviveTimer > 0){
-            reviveTimer -=dt;
+        if (reviveTimer > 0) {
+            reviveTimer -= dt;
         }
         if (flipTimer > 0)
             flipTimer -= dt;
@@ -303,7 +304,7 @@ public class Player extends Sprite {
             shootingTimer -= dt;
         }
 
-        if(arrowCooldown > 0){
+        if (arrowCooldown > 0) {
             arrowCooldown -= dt;
         }
 
@@ -400,10 +401,10 @@ public class Player extends Sprite {
     }
 
     private State getState() {
-        if(reviveTimer > 0){
+        if (reviveTimer > 0) {
             return State.REVIVING;
         }
-        if(health <= 0){
+        if (health <= 0) {
             return State.DYING;
         }
         if (castTimer > 0 || chargingSpell) {
@@ -591,16 +592,16 @@ public class Player extends Sprite {
                 castCooldown = CAST_COOLDOWN_TIME;
                 canFireProjectile = true;
             }
-        } else if(equipedSpell == Spell.SHIELD){
+        } else if (equipedSpell == Spell.SHIELD) {
             if (castCooldown < 0) {
                 castTimer = CAST_TIME;
                 castCooldown = CAST_COOLDOWN_TIME;
                 shieldTimer = SHIELD_TIME;
                 magicShield.setAlpha(1);
             }
-        } else if(equipedSpell == Spell.BOW){
+        } else if (equipedSpell == Spell.BOW) {
             if (shootingTimer <= 0 && currentState != State.SHOOTING) {
-                if(arrowCooldown <= 0){
+                if (arrowCooldown <= 0) {
                     arrowCooldown = ARROW_COOLDOWN_TIME;
                     arrowLaunched = false;
                     shootArrow();
@@ -621,7 +622,7 @@ public class Player extends Sprite {
     }
 
     public void switchSpell() {
-        switch (equipedSpell){
+        switch (equipedSpell) {
             case FIREBALL:
                 equipedSpell = Spell.SHIELD;
                 break;
@@ -722,20 +723,20 @@ public class Player extends Sprite {
         }
     }
 
-    private void resetPlayer(){
+    private void resetPlayer() {
         world.destroyBody(b2body);
         definePlayer();
     }
 
-    public boolean doneDying(){
-        if(currentState == State.DYING){
+    public boolean doneDying() {
+        if (currentState == State.DYING) {
             return deathTimer >= DEATH_TIME;
         }
-        return  false;
+        return false;
 
     }
 
-    public boolean canMove(){
-        return(currentState != State.DYING && currentState!= State.REVIVING);
+    public boolean canMove() {
+        return (currentState != State.DYING && currentState != State.REVIVING);
     }
 }

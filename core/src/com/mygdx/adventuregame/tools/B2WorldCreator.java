@@ -29,6 +29,7 @@ public class B2WorldCreator {
         FixtureDef fixtureDef =  new FixtureDef();
         Body body;
         //3 is the object layer from tmx for ground
+
         for(MapObject object : map.getLayers().get(13).getObjects().getByType(RectangleMapObject.class))
         {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -47,6 +48,21 @@ public class B2WorldCreator {
             fixtureDef.shape = shape;
             body.createFixture(fixtureDef);
         }
+
+        for(MapObject object : map.getLayers().get(14).getObjects().getByType(RectangleMapObject.class))
+        {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            bodyDef.type = BodyDef.BodyType.StaticBody;
+            bodyDef.position.set((rect.getX() + rect.getWidth()/2) / AdventureGame.PPM,
+                    (rect.getY() + rect.getHeight() / 2) / AdventureGame.PPM);
+            body = world.createBody(bodyDef);
+            shape.setAsBox((rect.getWidth() / 2) / AdventureGame.PPM, (rect.getHeight() / 2)/ AdventureGame.PPM);
+            fixtureDef.shape = shape;
+            fixtureDef.filter.categoryBits = AdventureGame.SPIKE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.ENEMY_BIT;
+            body.createFixture(fixtureDef);
+        }
+
 
         for(MapObject object : map.getLayers().get(11).getObjects().getByType(RectangleMapObject.class))
         {

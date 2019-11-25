@@ -28,7 +28,7 @@ public class AdventureGame extends Game {
 	public static final short PLAYER_PROJECTILE_BIT = 128;
 	public static final short FIRE_SPELL_BIT= 256;
 	public static final short PLATFORM_BIT= 512;
-	public static final short PLAYER_ARROW_BIT= 1024;
+	public static final short SPIKE_BIT= 1024;
 
 
 	@Override
