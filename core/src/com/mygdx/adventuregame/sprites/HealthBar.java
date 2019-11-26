@@ -45,4 +45,9 @@ public class HealthBar extends Sprite implements UpdatableSprite{
         super.draw(batch);
     }
 
+    @Override
+    public boolean safeToRemove() {
+        return safeToRemove;
+    }
+
 }

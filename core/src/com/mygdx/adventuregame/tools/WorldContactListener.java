@@ -9,6 +9,7 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireSpell;
+import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.Player;
 
 public class WorldContactListener implements ContactListener {
@@ -37,6 +38,18 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
+            case AdventureGame.ITEM_BIT | AdventureGame.PLAYER_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
+                        Item item = ((Item) fixB.getUserData());
+                        item.pickedUp();
+                        ((Player) fixA.getUserData()).pickupItem(item.getItemType());
+
+                } else {
+                    Item item = ((Item) fixA.getUserData());
+                    item.pickedUp();
+                    ((Player) fixB.getUserData()).pickupItem(item.getItemType());
+                }
+                break;
 //            case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
 //                int swordDamage;
 //                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT) {
@@ -57,10 +70,10 @@ public class WorldContactListener implements ContactListener {
 
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
-                    ((Enemy) fixA.getUserData()).damage(2);
+                    ((Enemy) fixA.getUserData()).damage(3);
                     ((FireBall) fixB.getUserData()).setToDestroy();
                 } else {
-                    ((Enemy) fixB.getUserData()).damage(2);
+                    ((Enemy) fixB.getUserData()).damage(3);
                     ((FireBall) fixA.getUserData()).setToDestroy();
                 }
                 break;
@@ -223,7 +236,7 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
-            case AdventureGame.SPIKE_BIT | AdventureGame.PLAYER_SWORD_BIT:
+            case AdventureGame.SPIKE_BIT | AdventureGame.ENEMY_BIT:
                 contact.setEnabled(true);
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
                     if (((Enemy) fixB.getUserData()).notDamagedRecently()) {

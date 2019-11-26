@@ -74,7 +74,7 @@ public class B2WorldCreator {
             shape.setAsBox((rect.getWidth() / 2) / AdventureGame.PPM, (rect.getHeight() / 2)/ AdventureGame.PPM);
             fixtureDef.shape = shape;
             fixtureDef.filter.categoryBits = AdventureGame.PLATFORM_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.ENEMY_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.ENEMY_BIT | AdventureGame.ITEM_BIT;
             body.createFixture(fixtureDef);
         }
 

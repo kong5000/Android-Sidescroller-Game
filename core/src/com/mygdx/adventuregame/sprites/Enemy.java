@@ -128,5 +128,9 @@ public abstract class Enemy extends Sprite implements UpdatableSprite{
     public boolean showHealthBar(){
         return showHealthBar;
     }
+    @Override
+    public boolean safeToRemove() {
+        return safeToRemove;
+    }
 }
 

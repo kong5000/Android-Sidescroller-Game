@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.scenes.Hud;
+import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Explosion;
@@ -30,6 +31,7 @@ import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;
+import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.Kobold;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.MonsterTile;
@@ -80,7 +82,7 @@ public class PlayScreen implements Screen {
     private Color fadeScreenColor = Color.BLACK;
     private float fadeTickTimer = 0;
     private float fadeScreenAlpha = 0;
-
+    private ShapeRenderer shapeRenderer;
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
         assetManager.load("game_sprites.pack", TextureAtlas.class);
@@ -129,8 +131,14 @@ public class PlayScreen implements Screen {
 
         new B2WorldCreator(world, map, this);
 
+//        sprites.add(new Item(this, 5f, 5f, 1));
 
-
+        shapeRenderer = new ShapeRenderer();
+        enemyList.add(new Chest(this, 5f, 5f, AdventureGame.BOW));
+        enemyList.add(new Chest(this, 4f, 5f, AdventureGame.FIRE_SPELLBOOK));
+        sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
+        sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
+        sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
     }
 
     public void update(float dt){
@@ -239,7 +247,9 @@ public class PlayScreen implements Screen {
                 fireBall.draw(game.batch);
             }
         }
-
+        for(UpdatableSprite sprite : sprites){
+            sprite.draw(game.batch);
+        }
         for(DamageNumber number : damageNumbers){
             if(!number.isForPlayer()){
                 game.batch.setShader(shader);
@@ -259,6 +269,10 @@ public class PlayScreen implements Screen {
         }
         for(MonsterTile monsterTile : monsterTiles){
             monsterTile.draw(game.batch);
+        }
+
+        for(UpdatableSprite sprite : sprites){
+            sprite.draw(game.batch);
         }
         game.batch.end();
 
@@ -285,7 +299,7 @@ public class PlayScreen implements Screen {
         }
 
 
-        ShapeRenderer shapeRenderer = new ShapeRenderer();
+
         // Draw the filled rectangle
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -295,7 +309,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-//        b2dr.render(world, gameCam.combined);
+        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
@@ -351,6 +365,12 @@ public class PlayScreen implements Screen {
                 damageNumbersToAdd.removeValue(number, true);
             }
         }
+        if(!spritesToAdd.isEmpty()){
+            for(UpdatableSprite sprite : spritesToAdd){
+                sprites.add(sprite);
+                spritesToAdd.removeValue(sprite, true);
+            }
+        }
 
         if(!healthBarsToAdd.isEmpty()){
             for(HealthBar bar : healthBarsToAdd){
@@ -363,6 +383,11 @@ public class PlayScreen implements Screen {
             for(Explosion explosion : explosionsToAdd){
                 explosions.add(explosion);
                 explosionsToAdd.removeValue(explosion, true);
+            }
+        }
+        for(UpdatableSprite sprite : sprites){
+            if(sprite.safeToRemove()){
+                sprites.removeValue(sprite, true);
             }
         }
 
@@ -432,6 +457,7 @@ public class PlayScreen implements Screen {
         b2dr.dispose();
         hud.dispose();
         controller.dispose();
+        shapeRenderer.dispose();
     }
 
     public TextureAtlas getAtlas(){

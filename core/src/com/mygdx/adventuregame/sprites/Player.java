@@ -46,12 +46,12 @@ public class Player extends Sprite {
         RUNNING, HURT, ATTACKING,
         AIR_ATTACKING, FLIPPING,
         CASTING, DODGING, CROUCHING,
-        SHOOTING, DYING, REVIVING
+        SHOOTING, DYING, REVIVING, PICKUP
     }
 
-    public enum Spell {FIREBALL, SHIELD, BOW}
+    public enum Spell {FIREBALL, SHIELD, BOW, NONE}
 
-    private Spell equipedSpell = Spell.FIREBALL;
+    private Spell equipedSpell = Spell.NONE;
     public State currentState;
     public State previousState;
     public World world;
@@ -73,7 +73,10 @@ public class Player extends Sprite {
     private Animation<TextureRegion> playerDodge;
     private Animation<TextureRegion> playerBow;
     private Animation<TextureRegion> playerCrouch;
+    private TextureRegion playerGotItem;
 
+    public boolean hasBow = false;
+    public boolean hasFireSpell = false;
     private boolean canFireProjectile;
     private boolean passThroughFloor = false;
     private boolean isCrouching = false;
@@ -83,6 +86,7 @@ public class Player extends Sprite {
     private boolean flipEnabled;
     private boolean arrowLaunched = false;
 
+    private float itemPickupTimer;
     private float stateTimer;
     private float hurtTimer;
     private float attackTimer;
@@ -131,6 +135,8 @@ public class Player extends Sprite {
     private float magicShieldSize = 0.1f;
 
     private boolean playerReset = false;
+    private TextureRegion pickedUpItem;
+    private Sprite itemSprite;
 
 
     //Todo firespell blowsup box obstacles
@@ -138,7 +144,8 @@ public class Player extends Sprite {
         super(screen.getAtlas().findRegion("player_idle1"));
         this.world = world;
         this.screen = screen;
-
+        itemSprite = new Sprite();
+        itemSprite.setBounds(getX(), getY(), 16 / AdventureGame.PPM, 16 / AdventureGame.PPM);
         textureAtlas = screen.getAtlas();
         currentState = State.STANDING;
         previousState = State.STANDING;
@@ -153,6 +160,7 @@ public class Player extends Sprite {
         canFireProjectile = true;
         castCooldown = -1;
         comboTimer = 0;
+        itemPickupTimer = 0;
 
         playerRun = generateAnimation(textureAtlas.findRegion("player_run"), 6, 52, 39, 0.1f);
         playerIdle = generateAnimation(textureAtlas.findRegion("player_idle1"), 3, 52, 39, 0.2f);
@@ -172,7 +180,7 @@ public class Player extends Sprite {
         playerCrouch = generateAnimation(textureAtlas.findRegion("player_crouch"), 4, 50, 37, 0.1f);
         playerBow = generateAnimation(textureAtlas.findRegion("player_bow"), 5, 50, 37, 0.1f);
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
-
+        playerGotItem = new TextureRegion(screen.getAtlas().findRegion("player_got_item"), 0, 0, 50, 37);
         definePlayer();
         setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
         setRegion(playerStand);
@@ -195,8 +203,8 @@ public class Player extends Sprite {
                 | AdventureGame.ENEMY_ATTACK_BIT
                 | AdventureGame.ENEMY_PROJECTILE_BIT
                 | AdventureGame.PLATFORM_BIT
-                | AdventureGame.SPIKE_BIT;
-        ;
+                | AdventureGame.SPIKE_BIT
+                | AdventureGame.ITEM_BIT;
 
 //        PolygonShape shape = new PolygonShape();
 //        shape.set(MINOTAUR_HITBOX);
@@ -267,6 +275,9 @@ public class Player extends Sprite {
                 swordFixture = null;
             }
         }
+        if (itemPickupTimer > 0) {
+            itemPickupTimer -= dt;
+        }
         if (reviveTimer > 0) {
             reviveTimer -= dt;
         }
@@ -325,6 +336,10 @@ public class Player extends Sprite {
     @Override
     public void draw(Batch batch) {
         super.draw(batch);
+        if (itemPickupTimer > 0) {
+            itemSprite.setPosition(b2body.getPosition().x - 0.1f, b2body.getPosition().y + 0.15f);
+            itemSprite.draw(batch);
+        }
         magicShield.draw(batch);
     }
 
@@ -338,6 +353,9 @@ public class Player extends Sprite {
                 break;
             case DYING:
                 region = playerDie.getKeyFrame(stateTimer);
+                break;
+            case PICKUP:
+                region = playerGotItem;
                 break;
             case SHOOTING:
                 region = playerBow.getKeyFrame(stateTimer);
@@ -406,6 +424,9 @@ public class Player extends Sprite {
         }
         if (health <= 0) {
             return State.DYING;
+        }
+        if (itemPickupTimer > 0) {
+            return State.PICKUP;
         }
         if (castTimer > 0 || chargingSpell) {
             return State.CASTING;
@@ -624,13 +645,18 @@ public class Player extends Sprite {
     public void switchSpell() {
         switch (equipedSpell) {
             case FIREBALL:
-                equipedSpell = Spell.SHIELD;
-                break;
-            case SHIELD:
-                equipedSpell = Spell.BOW;
+                if (hasBow) {
+                    equipedSpell = Spell.BOW;
+                }
                 break;
             case BOW:
-                equipedSpell = Spell.FIREBALL;
+                if (hasFireSpell) {
+                    equipedSpell = Spell.FIREBALL;
+                }
+                break;
+            default:
+            case NONE:
+                equipedSpell = Spell.NONE;
                 break;
         }
     }
@@ -737,6 +763,58 @@ public class Player extends Sprite {
     }
 
     public boolean canMove() {
-        return (currentState != State.DYING && currentState != State.REVIVING);
+        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP);
+    }
+
+    public void pickupItem(int itemID) {
+        switch (itemID) {
+            case AdventureGame.BOW:
+                equipedSpell = Spell.BOW;
+                hasBow = true;
+                itemPickupTimer = 2f;
+                break;
+            case AdventureGame.FIRE_SPELLBOOK:
+                equipedSpell = Spell.FIREBALL;
+                hasFireSpell = true;
+                itemPickupTimer = 2f;
+                break;
+            case AdventureGame.SMALL_HEALTH:
+                if (health < FULL_HEALTH - 3) {
+                    health += 3;
+                } else {
+                    health = FULL_HEALTH;
+                }
+                break;
+            case AdventureGame.MEDIUM_HEALTH:
+                if (health < FULL_HEALTH - 8) {
+                    health += 8;
+                } else {
+                    health = FULL_HEALTH;
+                }
+                break;
+            case AdventureGame.LARGE_HEALTH:
+                health = FULL_HEALTH;
+                break;
+            default:
+                break;
+        }
+        pickedUpItem = getItemTexture(itemID);
+        itemSprite.setRegion(pickedUpItem);
+
+    }
+
+    private TextureRegion getItemTexture(int id) {
+        String itemString;
+        switch (id) {
+            case AdventureGame.BOW:
+                itemString = "bow";
+                break;
+            case AdventureGame.FIRE_SPELLBOOK:
+                itemString = "fire_spellbook";
+                break;
+            default:
+                itemString = "bow";
+        }
+        return screen.getAtlas().findRegion(itemString);
     }
 }

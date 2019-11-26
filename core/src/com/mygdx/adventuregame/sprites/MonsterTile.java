@@ -97,4 +97,8 @@ public class MonsterTile extends Sprite implements UpdatableSprite{
         screen.explosionsToAdd.add(new Explosion(screen, getX() - getWidth() / 2
                 ,getY() - getHeight() / 2 -0.05f));
     }
+    @Override
+    public boolean safeToRemove() {
+        return safeToRemove;
+    }
 }

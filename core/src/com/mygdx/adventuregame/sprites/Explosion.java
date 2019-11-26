@@ -63,5 +63,8 @@ public class Explosion extends Sprite implements UpdatableSprite{
     }
 
 
-
+    @Override
+    public boolean safeToRemove() {
+        return safeToRemove;
+    }
 }

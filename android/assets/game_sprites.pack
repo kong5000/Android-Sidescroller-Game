@@ -367,11 +367,11 @@ player_crouch
   orig: 200, 37
   offset: 0, 0
   index: -1
-slime_attack
+chest_open
   rotate: false
-  xy: 3184, 749
-  size: 170, 27
-  orig: 170, 27
+  xy: 3184, 739
+  size: 196, 37
+  orig: 196, 37
   offset: 0, 0
   index: -1
 player_hurt
@@ -379,6 +379,13 @@ player_hurt
   xy: 4464, 952
   size: 156, 39
   orig: 156, 39
+  offset: 0, 0
+  index: -1
+slime_attack
+  rotate: false
+  xy: 1770, 4
+  size: 170, 27
+  orig: 170, 27
   offset: 0, 0
   index: -1
 slime_die
@@ -393,13 +400,6 @@ ogre_fall
   xy: 2016, 69
   size: 116, 42
   orig: 116, 42
-  offset: 0, 0
-  index: -1
-slime_hurt
-  rotate: false
-  xy: 1770, 4
-  size: 136, 27
-  orig: 136, 27
   offset: 0, 0
   index: -1
 1
@@ -451,7 +451,7 @@ slime_hurt
   orig: 75, 75
   offset: 0, 0
   index: -1
-slime_move
+slime_hurt
   rotate: false
   xy: 3380, 802
   size: 136, 27
@@ -465,11 +465,25 @@ ogre_jump
   orig: 116, 42
   offset: 0, 0
   index: -1
+slime_move
+  rotate: false
+  xy: 3776, 866
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
 projectile_animation
   rotate: false
   xy: 1000, 1
   size: 128, 16
   orig: 128, 16
+  offset: 0, 0
+  index: -1
+player_fall
+  rotate: false
+  xy: 3774, 827
+  size: 104, 39
+  orig: 104, 39
   offset: 0, 0
   index: -1
 8
@@ -486,11 +500,11 @@ projectile_animation
   orig: 75, 75
   offset: 0, 0
   index: -1
-player_fall
+player_got_item
   rotate: false
-  xy: 2365, 321
-  size: 104, 39
-  orig: 104, 39
+  xy: 3516, 792
+  size: 50, 37
+  orig: 50, 37
   offset: 0, 0
   index: -1
 monster_block
@@ -498,5 +512,47 @@ monster_block
   xy: 2140, 114
   size: 32, 32
   orig: 32, 32
+  offset: 0, 0
+  index: -1
+bow
+  rotate: false
+  xy: 2660, 491
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+fire_spellbook
+  rotate: false
+  xy: 2638, 456
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+large_health
+  rotate: false
+  xy: 1768, 120
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+medium_health
+  rotate: false
+  xy: 1784, 120
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+ring_of_double_jump
+  rotate: false
+  xy: 2780, 920
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+small_health
+  rotate: false
+  xy: 3918, 941
+  size: 16, 16
+  orig: 16, 16
   offset: 0, 0
   index: -1

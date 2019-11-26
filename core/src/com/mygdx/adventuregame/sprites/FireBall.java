@@ -178,4 +178,9 @@ public class FireBall extends Sprite implements UpdatableSprite {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
         ,getY() - getHeight() / 2 -0.05f));
     }
+
+    @Override
+    public boolean safeToRemove() {
+        return safeToRemove;
+    }
 }

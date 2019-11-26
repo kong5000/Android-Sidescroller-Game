@@ -17,6 +17,12 @@ public class AdventureGame extends Game {
 	public static final int HEALTHBAR_WIDTH = 225;
 	public static final int HEALTHBAR_HEIGHT = 36;
 
+	public static final int BOW = 1;
+	public static final int FIRE_SPELLBOOK = 2;
+	public static final int RING_OF_DOUBLE_JUMP = 3;
+	public static final int SMALL_HEALTH = 4;
+	public static final int MEDIUM_HEALTH = 5;
+	public static final int LARGE_HEALTH = 6;
 
 	public static final short GROUND_BIT = 1;
 	public static final short PLAYER_BIT = 2;
@@ -29,6 +35,7 @@ public class AdventureGame extends Game {
 	public static final short FIRE_SPELL_BIT= 256;
 	public static final short PLATFORM_BIT= 512;
 	public static final short SPIKE_BIT= 1024;
+	public static final short ITEM_BIT= 2048;
 
 
 	@Override

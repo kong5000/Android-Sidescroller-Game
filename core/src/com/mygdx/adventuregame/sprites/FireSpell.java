@@ -113,7 +113,6 @@ public class FireSpell extends Sprite implements UpdatableSprite{
             if(rotationIncrement < MAX_ROTATION_SPEED){
                 rotationIncrement += 0.3f;
             }
-
         }
         else {
             if (launched == false) {
@@ -265,5 +264,10 @@ public class FireSpell extends Sprite implements UpdatableSprite{
     }
     public boolean isFullyCharged(){
         return damage >= MAX_DAMAGE;
+    }
+
+    @Override
+    public boolean safeToRemove() {
+        return safeToRemove;
     }
 }

@@ -61,11 +61,13 @@ public class Controller implements InputProcessor {
     boolean gestureStarted = false;
     private TextureRegionDrawable shield;
     private TextureRegionDrawable button;
+    private TextureRegionDrawable bow;
     private boolean stopSpell = true;
 
     public Controller(SpriteBatch batch, final PlayScreen screen) {
         this.screen = screen;
         this.player = screen.getPlayer();
+        bow = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("bow"), 0, 0, 16, 16));
         button = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("fire_elemental_idle"),
                 0, 0, 62, 43));
         shield = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("grass_shield"),
@@ -80,9 +82,9 @@ public class Controller implements InputProcessor {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
                 player.castSpell();
-                if(player.getEquipedSpell() == Player.Spell.FIREBALL){
+                if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
                     player.startChargingAnimation();
-                     player.setChargingSpell();
+                    player.setChargingSpell();
                 }
                 buttonClicked = true;
 
@@ -107,7 +109,7 @@ public class Controller implements InputProcessor {
         jumpButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if(player.canMove()){
+                if (player.canMove()) {
                     player.jump();
                 }
                 buttonClicked = true;
@@ -172,11 +174,25 @@ public class Controller implements InputProcessor {
     }
 
     public void update() {
-        if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
-            image.setDrawable(button);
-        } else {
-            image.setDrawable(shield);
+        switch (player.getEquipedSpell()) {
+            case FIREBALL:
+                image.setDrawable(button);
+                image.setScale(1f);
+                break;
+            case SHIELD:
+                image.setDrawable(shield);
+                image.setScale(1f);
+                break;
+            case BOW:
+                image.setDrawable(bow);
+                image.setScale(0.65f);
+                break;
+            case NONE:
+                image.setDrawable(null);
+                break;
         }
+
+
         if (stopSpell) {
             for (FireSpell spell : screen.spells) {
                 spell.stopCharging();
@@ -243,22 +259,22 @@ public class Controller implements InputProcessor {
             }
         }
 
-        if(yVal < -0.75f){
-            if(Math.abs(xVal) < 0.25){
+        if (yVal < -0.75f) {
+            if (Math.abs(xVal) < 0.25) {
                 player.setCrouching(true);
             }
             player.dodgeEnable(true);
-            if(player.getCurrentState() == Player.State.JUMPING){
+            if (player.getCurrentState() == Player.State.JUMPING) {
                 player.dodge();
             }
-        }else {
+        } else {
             player.dodgeEnable(false);
             player.setCrouching(false);
         }
 
-        if(xVal > 0){
+        if (xVal > 0) {
             player.setRunningRight(true);
-        }else if(xVal < 0){
+        } else if (xVal < 0) {
             player.setRunningRight(false);
         }
 
@@ -272,10 +288,12 @@ public class Controller implements InputProcessor {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
-            player.b2body.setLinearVelocity(1.5f, player.b2body.getLinearVelocity().y);        }
+            player.b2body.setLinearVelocity(1.5f, player.b2body.getLinearVelocity().y);
+        }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
-            player.b2body.setLinearVelocity(-1.5f, player.b2body.getLinearVelocity().y);        }
+            player.b2body.setLinearVelocity(-1.5f, player.b2body.getLinearVelocity().y);
+        }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.attack();
         }
@@ -303,8 +321,8 @@ public class Controller implements InputProcessor {
             touchStartY = screenY;
         }
         if (!buttonClicked) {
-            if(screenX > 700){
-                if(screenY < 670){
+            if (screenX > 700) {
+                if (screenY < 670) {
                     player.attack();
                 }
 
