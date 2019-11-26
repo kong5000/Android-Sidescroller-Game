@@ -139,6 +139,7 @@ public class PlayScreen implements Screen {
         sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
         sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
         sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
+        sprites.add(new Item(this, 4.8f, 5f, AdventureGame.RING_OF_DOUBLE_JUMP));
     }
 
     public void update(float dt){
@@ -309,7 +310,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-        b2dr.render(world, gameCam.combined);
+//        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();

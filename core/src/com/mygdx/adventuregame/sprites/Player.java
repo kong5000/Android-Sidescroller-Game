@@ -41,6 +41,7 @@ public class Player extends Sprite {
             0, 0.2f};
 
 
+
     public enum State {
         FALLING, JUMPING, STANDING,
         RUNNING, HURT, ATTACKING,
@@ -75,6 +76,7 @@ public class Player extends Sprite {
     private Animation<TextureRegion> playerCrouch;
     private TextureRegion playerGotItem;
 
+    private boolean hasDoubleJump = false;
     public boolean hasBow = false;
     public boolean hasFireSpell = false;
     private boolean canFireProjectile;
@@ -191,7 +193,10 @@ public class Player extends Sprite {
 
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(420 / AdventureGame.PPM, 460 / AdventureGame.PPM);
+        //Starting Castle
+//        bodyDef.position.set(420 / AdventureGame.PPM, 460 / AdventureGame.PPM);
+        //First minotaur
+        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
 //        bodyDef.position.set(5015 / AdventureGame.PPM, 550 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
@@ -505,12 +510,14 @@ public class Player extends Sprite {
 
     public void jump() {
         if (currentState == State.JUMPING || currentState == State.FALLING || currentState == State.FLIPPING || currentState == State.AIR_ATTACKING) {
-            if (flipEnabled) {
-                flipTimer = FLIP_TIME;
-                flipEnabled = false;
-                b2body.applyLinearImpulse(new Vector2(0, 6f), b2body.getWorldCenter(), true);
-                if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
-                    b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+            if(hasDoubleJump){
+                if (flipEnabled) {
+                    flipTimer = FLIP_TIME;
+                    flipEnabled = false;
+                    b2body.applyLinearImpulse(new Vector2(0, 6f), b2body.getWorldCenter(), true);
+                    if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+                        b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+                    }
                 }
             }
         } else if (currentState != State.JUMPING && currentState != State.FALLING) {
@@ -795,6 +802,10 @@ public class Player extends Sprite {
             case AdventureGame.LARGE_HEALTH:
                 health = FULL_HEALTH;
                 break;
+            case AdventureGame.RING_OF_DOUBLE_JUMP:
+                hasDoubleJump = true;
+                itemPickupTimer = 2f;
+                break;
             default:
                 break;
         }
@@ -804,17 +815,30 @@ public class Player extends Sprite {
     }
 
     private TextureRegion getItemTexture(int id) {
-        String itemString;
+        String assetName;
         switch (id) {
             case AdventureGame.BOW:
-                itemString = "bow";
+                assetName = "bow";
                 break;
             case AdventureGame.FIRE_SPELLBOOK:
-                itemString = "fire_spellbook";
+                assetName = "fire_spellbook";
+                break;
+            case AdventureGame.SMALL_HEALTH:
+                assetName = "small_health";
+                break;
+            case AdventureGame.MEDIUM_HEALTH:
+                assetName = "medium_health";
+                break;
+            case AdventureGame.LARGE_HEALTH:
+                assetName = "large_health";
+                break;
+            case AdventureGame.RING_OF_DOUBLE_JUMP:
+                assetName = "ring_of_double_jump";
                 break;
             default:
-                itemString = "bow";
+                assetName = "small_health";
+                break;
         }
-        return screen.getAtlas().findRegion(itemString);
+        return new TextureRegion(screen.getAtlas().findRegion(assetName), 0, 0, 16, 16);
     }
 }

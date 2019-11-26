@@ -69,6 +69,9 @@ public class Item extends Sprite implements UpdatableSprite {
             case AdventureGame.LARGE_HEALTH:
                 assetName = "large_health";
                 break;
+            case AdventureGame.RING_OF_DOUBLE_JUMP:
+                assetName = "ring_of_double_jump";
+                break;
             default:
                 assetName = "small_health";
                 break;

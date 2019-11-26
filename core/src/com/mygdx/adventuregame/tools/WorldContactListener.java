@@ -227,12 +227,12 @@ public class WorldContactListener implements ContactListener {
                 contact.setEnabled(true);
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
                     if (((Player) fixA.getUserData()).notInvincible()) {
-                        ((Player) fixA.getUserData()).hurt(9);
+                        ((Player) fixA.getUserData()).hurt(3);
                     }
 
                 } else {
                     if (((Player) fixB.getUserData()).notInvincible()) {
-                        ((Player) fixB.getUserData()).hurt(9);
+                        ((Player) fixB.getUserData()).hurt(3);
                     }
                 }
                 break;

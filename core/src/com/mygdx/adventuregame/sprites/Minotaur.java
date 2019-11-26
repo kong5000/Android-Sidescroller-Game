@@ -403,7 +403,7 @@ public class Minotaur extends Enemy {
             Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
             Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
             float distance = enemyPosition.sub(tileVector).len();
-            if (distance < 2f) {
+            if (distance < 8f) {
                 monsterTiles.add(monsterTile);
             }
         }

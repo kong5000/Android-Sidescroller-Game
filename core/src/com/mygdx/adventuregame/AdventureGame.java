@@ -37,6 +37,9 @@ public class AdventureGame extends Game {
 	public static final short SPIKE_BIT= 1024;
 	public static final short ITEM_BIT= 2048;
 
+	public static final float BOW_LOCATION = 2560f;
+	public static final float DOUBLE_JUMP_LOCATION = 5584f;
+
 
 	@Override
 	public void create () {
