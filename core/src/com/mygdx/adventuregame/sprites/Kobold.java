@@ -5,9 +5,11 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
@@ -38,12 +40,9 @@ public class Kobold extends Enemy {
     private static final float INVINCIBILITY_TIME = 0.7f;
     private static final float FLASH_RED_TIME = 0.4f;
 
-
-    private float hurtTimer = -1f;
     private float attackTimer;
-    private float invincibilityTimer;
 
-    private float dyingTimer = -1f;
+
     private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
@@ -53,10 +52,8 @@ public class Kobold extends Enemy {
     private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
 
-    private boolean setToDestroy;
     private boolean setToDie = false;
 
-    private boolean runningRight;
     private Fixture attackFixture;
 
 
@@ -250,26 +247,6 @@ public class Kobold extends Enemy {
     }
 
     @Override
-    public void defineEnemy() {
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(getX(), getY());
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bodyDef);
-
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT
-        |AdventureGame.FIRE_SPELL_BIT;
-        PolygonShape shape = new PolygonShape();
-        shape.set(KOBOLD_HITBOX);
-
-        fixtureDef.shape = shape;
-        b2body.createFixture(fixtureDef).setUserData(this);
-    }
-
-    @Override
     public void hitOnHead() {
         damage(2);
     }
@@ -372,6 +349,11 @@ public class Kobold extends Enemy {
         return false;
     }
 
-
+    @Override
+    protected Shape getHitBoxShape() {
+        PolygonShape shape = new PolygonShape();
+        shape.set(KOBOLD_HITBOX);
+        return shape;
+    }
 
 }

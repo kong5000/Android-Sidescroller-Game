@@ -9,25 +9,22 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.EdgeShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
+import java.util.Random;
+
 public class Slime extends Enemy {
     private static final float[] SLIME_HITBOX = {-0.15f, 0.02f, -0.15f, -0.1f, 0.15f, -0.1f, 0.15f, 0.02f};
-
     private static final float ATTACK_RATE = 3f;
     private static final float HURT_RATE = 0.3f;
     private static final float CORPSE_TIME = 0.25f;
-    private float stateTimer;
     private float attackRateTimer;
-    private float hurtTimer = -1f;
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> attackAnimation;
     private Animation<TextureRegion> hurtAnimation;
-    private boolean setToDestroy;
-
-
 
     public Slime(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -48,7 +45,6 @@ public class Slime extends Enemy {
         attackRateTimer = ATTACK_RATE;
         attackDamage = 1;
         health = 2;
-
     }
 
 
@@ -59,6 +55,7 @@ public class Slime extends Enemy {
         }
         if (setToDestroy && !destroyed) {
             world.destroyBody(b2body);
+            spawnLoot();
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
@@ -67,9 +64,7 @@ public class Slime extends Enemy {
                 hurtTimer -= dt;
             }
         }
-
         setRegion(getFrame(dt));
-
     }
 
     @Override
@@ -218,5 +213,26 @@ public class Slime extends Enemy {
     @Override
     public boolean notDamagedRecently() {
         return (hurtTimer < 0);
+    }
+
+    private void spawnLoot(){
+        Random random = new Random();
+        int randomDraw = random.nextInt(5);
+        if(randomDraw == 3){
+            screen.getSpritesToAdd().add(new Item(screen, getX(), getY(), AdventureGame.SMALL_HEALTH));
+        }
+        if(randomDraw == 4){
+            screen.getSpritesToAdd().add(new Item(screen, getX(), getY(), AdventureGame.LARGE_HEALTH));
+        }
+        screen.getSpritesToAdd().add(new Item(screen, getX(), getY(), AdventureGame.SMALL_HEALTH));
+
+
+    }
+
+    @Override
+    protected Shape getHitBoxShape() {
+        CircleShape shape = new CircleShape();
+        shape.setRadius(12 / AdventureGame.PPM);
+        return shape;
     }
 }

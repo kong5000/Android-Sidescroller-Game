@@ -2,87 +2,78 @@ package com.mygdx.adventuregame.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class Minotaur extends Enemy {
-    private static final float[] MINOTAUR_HITBOX = {
-            -0.15f, 0.1f,
-            -0.15f, -0.35f,
-            0.15f, -0.35f,
+
+public class Mimic extends Enemy {
+    private static final float[] KOBOLD_HITBOX = {
+            -0.17f, 0.1f,
+            -0.17f, -0.15f,
+            0.15f, -0.15f,
             0.15f, 0.1f};
-    private static final float[] SWORD_HITBOX_RIGHT = {
-            0.4f, -0.4f,
-            0.4f, 0.1f,
-            0.1f, -0.4f,
-            -0.2f, 0.3f};
-    private static final float[] SWORD_HITBOX_LEFT = {
-            -0.4f, -0.4f,
-            -0.4f, 0.1f,
-            -0.1f, -0.4f,
-            0.2f, 0.3f};
+    private static final float[] SPEAR_HITBOX_RIGHT = {
+            0.3f, -0.1f,
+            0.3f, 0.00f,
+            0.1f, -0.1f,
+            0.1f, 0.00f};
+    private static final float[] SPEAR_HITBOX_LEFT = {
+            -0.3f, -0.1f,
+            -0.3f, 0.00f,
+            -0.1f, -0.1f,
+            -0.1f, 0.00f};
+    private static final float HURT_TIME = 0.3f;
+    private static final float ATTACK_RATE = 1.5f;
 
-    private static final float ATTACK_RATE = 1.75f;
-
-    private static final int WIDTH_PIXELS = 98;
-    private static final int HEIGHT_PIXELS = 79;
+    private static final int WIDTH_PIXELS = 49;
+    private static final int HEIGHT_PIXELS = 37;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.4f;
-    private static final float FLASH_RED_TIME = 0.3f;
+    private static final float INVINCIBILITY_TIME = 0.7f;
+    private static final float FLASH_RED_TIME = 0.4f;
 
     private float attackTimer;
+
 
     private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
+    private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
-
-    private Array<MonsterTile> monsterTiles;
 
     private boolean setToDie = false;
+    private boolean hasBeenAttacked = false;
 
     private Fixture attackFixture;
 
-    public Minotaur(PlayScreen screen, float x, float y) {
+    private TextureRegion inactiveTexture;
+
+
+    public Mimic(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_run"),
+        inactiveTexture = new TextureRegion(screen.getAtlas().findRegion("mimic_transform"), 0, 0, WIDTH_PIXELS, HEIGHT_PIXELS);
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_run_bright"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_die"),
-                8, 96, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow"),
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_die"),
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow_bright"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_hurt"),
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_attack"),
+                11, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("mimic_hurt_bright"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_hurt_bright"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_idle_bright"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -95,19 +86,16 @@ public class Minotaur extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        attackDamage = 3;
-        health = 25;
-        barYOffset = 0.02f;
-        monsterTiles = new Array<>();
-        attachNearbyTiles();
+        health = 7;
+        barYOffset = 0.09f;
     }
 
     @Override
     public void update(float dt) {
-        if (runningRight) {
-            barXOffset = -0.2f;
-        } else {
-            barXOffset = -0.05f;
+        if(runningRight){
+            barXOffset = -0.15f;
+        }else {
+            barXOffset = 0f;
         }
         if (health <= 0) {
             if (!setToDie) {
@@ -127,14 +115,11 @@ public class Minotaur extends Enemy {
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
-            for (MonsterTile monsterTile : monsterTiles) {
-                    monsterTile.setToDestroy();
-            }
         } else if (!destroyed) {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act(dt);
+            act();
         }
     }
 
@@ -148,9 +133,16 @@ public class Minotaur extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
+
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+        }
+        if(affectedBySpellTimer > 0){
+            affectedBySpellTimer -=dt;
+        }
     }
 
-    private void act(float dt) {
+    private void act() {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
@@ -165,10 +157,6 @@ public class Minotaur extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
-        }
-
-        if (attackTimer > 0) {
-            attackTimer -= dt;
         }
     }
 
@@ -191,21 +179,22 @@ public class Minotaur extends Enemy {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
+                texture = attackAnimation.getKeyFrame(stateTimer);
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
+                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer, true);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
+                texture = inactiveTexture;
+//                texture = idleAnimation.getKeyFrame(stateTimer, true);
                 break;
         }
         orientTextureTowardsPlayer(texture);
@@ -247,67 +236,45 @@ public class Minotaur extends Enemy {
     private State getState() {
         if (setToDie) {
             return State.DYING;
-        } else if (hurtTimer > 0) {
+        }else if(!hasBeenAttacked){
+            return State.IDLE;
+        }
+        else if (hurtTimer > 0) {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
+            hasBeenAttacked = false;
             return State.IDLE;
         } else {
+            hasBeenAttacked = false;
             return State.IDLE;
         }
-    }
-
-//    @Override
-//    public void defineEnemy() {
-//        BodyDef bodyDef = new BodyDef();
-//        bodyDef.position.set(getX(), getY());
-//        bodyDef.type = BodyDef.BodyType.DynamicBody;
-//        b2body = world.createBody(bodyDef);
-//
-//        FixtureDef fixtureDef = new FixtureDef();
-//        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-//        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-//                | AdventureGame.PLAYER_SWORD_BIT
-//                | AdventureGame.PLAYER_PROJECTILE_BIT
-//                | AdventureGame.FIRE_SPELL_BIT;
-//        PolygonShape shape = new PolygonShape();
-//        shape.set(MINOTAUR_HITBOX);
-//
-//        fixtureDef.shape = shape;
-//        b2body.createFixture(fixtureDef).setUserData(this);
-//    }
-
-    @Override
-    public void hitByFire() {
-        screen.getExplosions().add(new Explosion(screen, getX(), getY()));
-
     }
 
     @Override
     public void hitOnHead() {
         damage(2);
-
     }
 
 
     @Override
     public void damage(int amount) {
-        if (isAlive()) {
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
+        hasBeenAttacked = true;
+        if (invincibilityTimer < 0) {
+            health -= amount;
+            invincibilityTimer = INVINCIBILITY_TIME;
+            hurtTimer = HURT_TIME;
         }
+        if (flashRedTimer < 0) {
+            flashRedTimer = FLASH_RED_TIME;
+        }
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+        showHealthBar = true;
+        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
     }
 
     @Override
@@ -331,15 +298,15 @@ public class Minotaur extends Enemy {
     private float[] getAttackHitbox() {
         float[] hitbox;
         if (runningRight) {
-            hitbox = SWORD_HITBOX_RIGHT;
+            hitbox = SPEAR_HITBOX_RIGHT;
         } else {
-            hitbox = SWORD_HITBOX_LEFT;
+            hitbox = SPEAR_HITBOX_LEFT;
         }
         return hitbox;
     }
 
     private void orientTextureTowardsPlayer(TextureRegion region) {
-        if (currentState != State.DYING) {
+        if (currentState != State.DYING && hasBeenAttacked) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
 
@@ -365,15 +332,15 @@ public class Minotaur extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.5f, 2f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void goIntoAttackState() {
@@ -391,21 +358,11 @@ public class Minotaur extends Enemy {
         return false;
     }
 
-
-    private void attachNearbyTiles(){
-        for (MonsterTile monsterTile : screen.monsterTiles) {
-            Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
-            Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
-            float distance = enemyPosition.sub(tileVector).len();
-            if (distance < 8f) {
-                monsterTiles.add(monsterTile);
-            }
-        }
-    }
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
-        shape.set(MINOTAUR_HITBOX);
+        shape.set(KOBOLD_HITBOX);
         return shape;
     }
+
 }

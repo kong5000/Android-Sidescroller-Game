@@ -17,8 +17,10 @@ import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.FireElemental;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Kobold;
+import com.mygdx.adventuregame.sprites.Mimic;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.MonsterTile;
+import com.mygdx.adventuregame.sprites.Ogre;
 import com.mygdx.adventuregame.sprites.Slime;
 
 public class B2WorldCreator {
@@ -39,6 +41,20 @@ public class B2WorldCreator {
             screen.monsterTiles.add(monsterTile);
         }
 
+        for(MapObject object : map.getLayers().get(16).getObjects().getByType(RectangleMapObject.class))
+        {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Mimic(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for(MapObject object : map.getLayers().get(17).getObjects().getByType(RectangleMapObject.class))
+        {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Ogre(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
         for(MapObject object : map.getLayers().get(12).getObjects().getByType(RectangleMapObject.class))
         {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();

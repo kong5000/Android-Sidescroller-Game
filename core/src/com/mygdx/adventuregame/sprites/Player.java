@@ -194,9 +194,9 @@ public class Player extends Sprite {
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
         //Starting Castle
-//        bodyDef.position.set(420 / AdventureGame.PPM, 460 / AdventureGame.PPM);
+        bodyDef.position.set(420 / AdventureGame.PPM, 460 / AdventureGame.PPM);
         //First minotaur
-        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
+//        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
 //        bodyDef.position.set(5015 / AdventureGame.PPM, 550 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);

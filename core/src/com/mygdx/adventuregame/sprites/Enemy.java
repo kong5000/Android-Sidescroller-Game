@@ -5,12 +5,16 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public abstract class Enemy extends Sprite implements UpdatableSprite{
-
+public abstract class Enemy extends Sprite implements UpdatableSprite {
     public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE}
 
     public State currentState;
@@ -25,6 +29,10 @@ public abstract class Enemy extends Sprite implements UpdatableSprite{
 
     protected float flashRedTimer;
     protected float stateTimer;
+    protected float invincibilityTimer;
+    protected float hurtTimer = -1f;
+    protected boolean setToDestroy;
+    protected boolean runningRight;
     private int flashCount = 0;
     private boolean flashFrame = true;
     protected int health;
@@ -65,27 +73,46 @@ public abstract class Enemy extends Sprite implements UpdatableSprite{
         return animation;
     }
 
-    protected abstract void defineEnemy();
+    protected void defineEnemy(){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(getX(), getY());
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        b2body = world.createBody(bodyDef);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
+                | AdventureGame.PLAYER_SWORD_BIT
+                | AdventureGame.PLAYER_PROJECTILE_BIT
+                | AdventureGame.FIRE_SPELL_BIT;
+        Shape hitBox = getHitBoxShape();
+        fixtureDef.shape = hitBox;
+        b2body.createFixture(fixtureDef).setUserData(this);
+    }
 
     public abstract void hitOnHead();
+
     public abstract void damage(int amount);
+
     public abstract boolean notDamagedRecently();
+
     public abstract void update(float dt);
-    public boolean isDestroyed(){
+
+    public boolean isDestroyed() {
         return destroyed;
     }
 
-    protected Vector2 getVectorToPlayer(){
+    protected Vector2 getVectorToPlayer() {
         Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
         Vector2 playerVector = new Vector2(screen.getPlayer().getX(), screen.getPlayer().getY());
         return playerVector.sub(enemyPosition);
     }
 
-    public boolean isHurt(){
+    public boolean isHurt() {
         return currentState == State.HURT;
     }
 
-    protected TextureRegion selectBrightFrameOrRegularFrame(Animation<TextureRegion> animation, Animation<TextureRegion> brightAnimation){
+    protected TextureRegion selectBrightFrameOrRegularFrame(Animation<TextureRegion> animation, Animation<TextureRegion> brightAnimation) {
         TextureRegion textureRegion;
         if (flashRedTimer > 0) {
             if (flashFrame) {
@@ -103,34 +130,41 @@ public abstract class Enemy extends Sprite implements UpdatableSprite{
                 }
                 textureRegion = animation.getKeyFrame(stateTimer);
             }
-        }else {
+        } else {
             textureRegion = animation.getKeyFrame(stateTimer);
         }
         return textureRegion;
     }
 
-    public void hitByFire(){
-//        if(affectedBySpellTimer < 0){
-            screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
-//
-//            affectedBySpellTimer = SPELL_EFFECT_TIME;
-//        }
+    public void hitByFire() {
+        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
     }
-    public int getDamage(){
+
+    public int getDamage() {
         return attackDamage;
     }
 
-    public int getHealth(){ return health;}
-    public boolean isAlive(){
+    public int getHealth() {
+        return health;
+    }
+
+    public boolean isAlive() {
         return health > 0;
     }
 
-    public boolean showHealthBar(){
+    public boolean showHealthBar() {
         return showHealthBar;
     }
+
+    protected abstract Shape getHitBoxShape();
+
     @Override
     public boolean safeToRemove() {
         return safeToRemove;
+    }
+
+    protected void initializeTimers(){
+
     }
 }
 

@@ -9,27 +9,12 @@ import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
 
 public class FireElemental extends Enemy {
-    private static final float[] MINOTAUR_HITBOX = {
-            -0.15f, 0.1f,
-            -0.15f, -0.35f,
-            0.15f, -0.35f,
-            0.15f, 0.1f};
-    private static final float[] SWORD_HITBOX_RIGHT = {
-            0.4f, -0.4f,
-            0.4f, 0.1f,
-            0.1f, -0.4f,
-            -0.2f, 0.3f};
-    private static final float[] SWORD_HITBOX_LEFT = {
-            -0.4f, -0.4f,
-            -0.4f, 0.1f,
-            -0.1f, -0.4f,
-            0.2f, 0.3f};
-
     private static final float ATTACK_RATE = 2f;
 
     private static final int WIDTH_PIXELS = 62;
@@ -40,10 +25,7 @@ public class FireElemental extends Enemy {
     private static final float FLASH_RED_TIME = 0.4f;
     private static final float HURT_TIME = 0.3f;
 
-    private float hurtTimer = -1f;
     private float attackTimer;
-    private float invincibilityTimer;
-
     private float attackCooldown;
 
     private Animation<TextureRegion> walkAnimation;
@@ -53,11 +35,9 @@ public class FireElemental extends Enemy {
     private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
 
-    private boolean setToDestroy;
     private boolean canFireProjectile = true;
 
-    private boolean runningRight;
-    private Fixture attackFixture;
+
 
 
     public FireElemental(PlayScreen screen, float x, float y) {
@@ -230,26 +210,6 @@ public class FireElemental extends Enemy {
     }
 
     @Override
-    public void defineEnemy() {
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(getX(), getY());
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bodyDef);
-
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT
-                | AdventureGame.FIRE_SPELL_BIT;
-        CircleShape shape = new CircleShape();
-        shape.setRadius(12 / AdventureGame.PPM);
-
-        fixtureDef.shape = shape;
-        b2body.createFixture(fixtureDef).setUserData(this);
-    }
-
-    @Override
     public void hitOnHead() {
         damage(2);
     }
@@ -273,29 +233,6 @@ public class FireElemental extends Enemy {
     @Override
     public boolean notDamagedRecently() {
         return (invincibilityTimer < 0);
-    }
-
-    private void createAttack() {
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_ATTACK_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
-        PolygonShape polygonShape = new PolygonShape();
-        float[] hitbox = getAttackHitbox();
-        polygonShape.set(hitbox);
-        fixtureDef.shape = polygonShape;
-        fixtureDef.isSensor = false;
-        attackFixture = b2body.createFixture(fixtureDef);
-        attackFixture.setUserData(this);
-    }
-
-    private float[] getAttackHitbox() {
-        float[] hitbox;
-        if (runningRight) {
-            hitbox = SWORD_HITBOX_RIGHT;
-        } else {
-            hitbox = SWORD_HITBOX_LEFT;
-        }
-        return hitbox;
     }
 
     private void orientTextureTowardsPlayer(TextureRegion region) {
@@ -329,31 +266,19 @@ public class FireElemental extends Enemy {
 
     }
 
-    private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.5f, 1.5f), b2body.getWorldCenter(), true);
-    }
-
-    private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.5f, 1.5f), b2body.getWorldCenter(), true);
-    }
-
     private void goIntoAttackState() {
         attackTimer = ATTACK_RATE;
     }
 
-    private boolean currentFrameIsAnAttack() {
-        return (currentState == State.ATTACKING && stateTimer > 0.5f);
-    }
-
-    private boolean attackFramesOver() {
-        if (currentState == State.ATTACKING) {
-            return stateTimer > 0.7f;
-        }
-        return false;
-    }
 
     private boolean attackCooldownOver() {
         return attackCooldown < 0;
     }
 
+    @Override
+    protected Shape getHitBoxShape() {
+        CircleShape shape = new CircleShape();
+        shape.setRadius(12 / AdventureGame.PPM);
+        return shape;
+    }
 }

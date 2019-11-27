@@ -33,8 +33,10 @@ import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.Kobold;
+import com.mygdx.adventuregame.sprites.Mimic;
 import com.mygdx.adventuregame.sprites.Minotaur;
 import com.mygdx.adventuregame.sprites.MonsterTile;
+import com.mygdx.adventuregame.sprites.Ogre;
 import com.mygdx.adventuregame.sprites.Player;
 import com.mygdx.adventuregame.sprites.Slime;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
@@ -136,6 +138,8 @@ public class PlayScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
         enemyList.add(new Chest(this, 5f, 5f, AdventureGame.BOW));
         enemyList.add(new Chest(this, 4f, 5f, AdventureGame.FIRE_SPELLBOOK));
+
+        enemyList.add(new Ogre(this, 3.75f, 5f));
         sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
         sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
         sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
@@ -183,7 +187,7 @@ public class PlayScreen implements Screen {
         // dont update camera position until it passes ------x|-------
         // set a new camera threshold                  ----|-x-|------
         gameCam.position.x = player.b2body.getPosition().x;
-        gameCam.position.y = player.b2body.getPosition().y + 0.25f;
+        gameCam.position.y = player.b2body.getPosition().y + 0.22f;
 //        float ypos = player.b2body.getPosition().y + 0.25f;
 //        if(ypos > 5){
 //            gameCam.position.y = ypos;
@@ -310,7 +314,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-//        b2dr.render(world, gameCam.combined);
+        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();

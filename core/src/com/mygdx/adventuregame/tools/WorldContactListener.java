@@ -38,18 +38,7 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
-            case AdventureGame.ITEM_BIT | AdventureGame.PLAYER_BIT:
-                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
-                        Item item = ((Item) fixB.getUserData());
-                        item.pickedUp();
-                        ((Player) fixA.getUserData()).pickupItem(item.getItemType());
 
-                } else {
-                    Item item = ((Item) fixA.getUserData());
-                    item.pickedUp();
-                    ((Player) fixB.getUserData()).pickupItem(item.getItemType());
-                }
-                break;
 //            case AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_SWORD_BIT:
 //                int swordDamage;
 //                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_SWORD_BIT) {
@@ -103,6 +92,24 @@ public class WorldContactListener implements ContactListener {
                     damage = ((FireSpell) fixA.getUserData()).getDamage();
                     ((Enemy) fixB.getUserData()).hitByFire();
                     ((Enemy) fixB.getUserData()).damage(damage);
+                }
+                break;
+            case AdventureGame.ITEM_BIT | AdventureGame.PLAYER_BIT:
+                contact.setEnabled(false);
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
+                    Item item = ((Item) fixB.getUserData());
+                    if (item.canPickup()) {
+                        item.pickedUp();
+                        ((Player) fixA.getUserData()).pickupItem(item.getItemType());
+                    }
+
+
+                } else {
+                    Item item = ((Item) fixA.getUserData());
+                    if (item.canPickup()) {
+                        item.pickedUp();
+                        ((Player) fixB.getUserData()).pickupItem(item.getItemType());
+                    }
                 }
                 break;
 

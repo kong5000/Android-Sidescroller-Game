@@ -26,6 +26,7 @@ public class Item extends Sprite implements UpdatableSprite {
     public boolean safeToRemove = false;
     private boolean setToDestroy = false;
 
+    private float dontPickupTimer = 0.1f;
     private float stateTimer;
     private static final int WIDTH_PIXELS = 16;
     private static final int HEIGHT_PIXELS = 16;
@@ -83,6 +84,9 @@ public class Item extends Sprite implements UpdatableSprite {
     public void update(float dt) {
         setRegion(itemTexture);
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+        if(dontPickupTimer > 0){
+            dontPickupTimer -= dt;
+        }
         if (setToDestroy && !destroyed) {
             explode();
             world.destroyBody(b2body);
@@ -144,5 +148,9 @@ public class Item extends Sprite implements UpdatableSprite {
 
     public int getItemType() {
         return itemType;
+    }
+
+    public boolean canPickup(){
+        return dontPickupTimer < 0;
     }
 }

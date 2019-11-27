@@ -5,8 +5,10 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
@@ -124,7 +126,7 @@ public class Chest extends Enemy implements UpdatableSprite {
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT;
 
         PolygonShape shape = new PolygonShape();
-        shape.setAsBox((49f / 2f) / AdventureGame.PPM, (37f / 2f) / AdventureGame.PPM);
+        shape.setAsBox((25f / 2f) / AdventureGame.PPM, (33f / 2f) / AdventureGame.PPM);
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() /2);
@@ -160,5 +162,12 @@ public class Chest extends Enemy implements UpdatableSprite {
     public void explode() {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
                 , getY() - getHeight() / 2 - 0.05f));
+    }
+
+    @Override
+    protected Shape getHitBoxShape() {
+        CircleShape shape = new CircleShape();
+        shape.setRadius(12 / AdventureGame.PPM);
+        return shape;
     }
 }
