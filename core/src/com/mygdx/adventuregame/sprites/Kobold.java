@@ -31,7 +31,7 @@ public class Kobold extends Enemy {
             -0.1f, -0.1f,
             -0.1f, 0.00f};
     private static final float HURT_TIME = 0.3f;
-    private static final float ATTACK_RATE = 1.5f;
+    private static final float ATTACK_RATE = 1.75f;
 
     private static final int WIDTH_PIXELS = 68;
     private static final int HEIGHT_PIXELS = 35;

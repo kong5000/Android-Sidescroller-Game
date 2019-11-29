@@ -21,24 +21,43 @@ import java.util.Random;
 import java.util.UUID;
 
 public class Player extends Sprite {
+//    private static final float[] RECTANGULAR_HITBOX = {
+//            -0.05f, 0.2f,
+//            -0.08f, 0.1f,
+//            -0.05f, 0f,
+//            0.05f, 0f,
+//            0.08f, 0.1f,
+//            0.05f, 0.2f};
+private static final float[] RECTANGULAR_HITBOX = {
+        -0.05f, 0.25f,
+        -0.08f, 0.1f,
+        -0.05f, -0.05f,
+        0.05f, -0.05f,
+        0.08f, 0.1f,
+        0.05f, 0.25f};
+    private static final float[] HEAD_HITBOX = {
+            -0.01f, 0.2f,
+            -0.01f, 0f,
+            0.01f, 0f,
+            0.01f, 0.2f};
     private static final float[] SWORD_HITBOX_AIR = {
-            -0.25f, -0.1f,
-            -0.25f, 0.1f,
-            0f, -0.2f,
-            0.25f, -0.1f,
-            0.25f, 0.1f,
-            0, 0.2f};
+            -0.25f, 0f,
+            -0.25f, 0.2f,
+            0f, -0.1f,
+            0.25f, 0f,
+            0.25f, 0.2f,
+            0, 0.3f};
 
     private static final float[] SWORD_HITBOX_RIGHT = {
-            0f, -0.2f,
-            0.25f, -0.1f,
-            0.25f, 0.1f,
-            0, 0.2f};
+            0f, -0.1f,
+            0.25f, 0f,
+            0.25f, 0.2f,
+            0, 0.3f};
     private static final float[] SWORD_HITBOX_LEFT = {
-            -0.25f, -0.1f,
-            -0.25f, 0.1f,
-            0f, -0.2f,
-            0, 0.2f};
+            -0.25f, 0f,
+            -0.25f, 0.2f,
+            0f, -0.1f,
+            0, 0.3f};
 
 
 
@@ -88,6 +107,7 @@ public class Player extends Sprite {
     private boolean flipEnabled;
     private boolean arrowLaunched = false;
 
+    private float hurtBySpikeTimer;
     private float itemPickupTimer;
     private float stateTimer;
     private float hurtTimer;
@@ -117,10 +137,11 @@ public class Player extends Sprite {
     private static final float ATTACK_TIME = 0.35f;
     private static final float FLIP_TIME = 0.4f;
     private static final float MAX_VERTICAL_SPEED = 3f;
+    private static final float MAX_HORIZONTAL_SPEED = 3f;
 
     private float magicShieldAlpha = 1f;
     private int health;
-    private static final int FULL_HEALTH = 20;
+    private static final int FULL_HEALTH = 10;
 
     TextureAtlas textureAtlas;
 
@@ -140,12 +161,16 @@ public class Player extends Sprite {
     private TextureRegion pickedUpItem;
     private Sprite itemSprite;
 
+    private int xp;
+    private float[] yVelocities = {0, 0 ,0};
+    private int yVelocityIndex = 0;
 
     //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
         this.world = world;
         this.screen = screen;
+        xp = 0;
         itemSprite = new Sprite();
         itemSprite.setBounds(getX(), getY(), 16 / AdventureGame.PPM, 16 / AdventureGame.PPM);
         textureAtlas = screen.getAtlas();
@@ -184,9 +209,9 @@ public class Player extends Sprite {
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
         playerGotItem = new TextureRegion(screen.getAtlas().findRegion("player_got_item"), 0, 0, 50, 37);
         definePlayer();
-        setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
+        setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
+//        setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
         setRegion(playerStand);
-
         magicShield = new MagicShield(screen, b2body.getPosition().x, b2body.getPosition().y, this);
         magicShield.setAlpha(0);
     }
@@ -194,7 +219,7 @@ public class Player extends Sprite {
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
         //Starting Castle
-        bodyDef.position.set(420 / AdventureGame.PPM, 460 / AdventureGame.PPM);
+        bodyDef.position.set(405 / AdventureGame.PPM, 565 / AdventureGame.PPM);
         //First minotaur
 //        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
 //        bodyDef.position.set(5015 / AdventureGame.PPM, 550 / AdventureGame.PPM);
@@ -211,21 +236,49 @@ public class Player extends Sprite {
                 | AdventureGame.SPIKE_BIT
                 | AdventureGame.ITEM_BIT;
 
-//        PolygonShape shape = new PolygonShape();
-//        shape.set(MINOTAUR_HITBOX);
 
-        CircleShape shape = new CircleShape();
-        shape.setRadius(11 / AdventureGame.PPM);
+//
+//        CircleShape shape = new CircleShape();
+//        shape.setRadius(3 / AdventureGame.PPM);
+//
+//        fixtureDef.shape = shape;
+//        fixtureDef.friction = 0.5f;
+//        b2body.createFixture(fixtureDef).setUserData(this);
 
-        fixtureDef.shape = shape;
-        fixtureDef.friction = 0.5f;
+        PolygonShape bodyShape = new PolygonShape();
+        bodyShape.set(RECTANGULAR_HITBOX);
+        fixtureDef.shape = bodyShape;
+        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
+                | AdventureGame.ENEMY_HEAD_BIT
+                | AdventureGame.ENEMY_ATTACK_BIT
+                | AdventureGame.ENEMY_PROJECTILE_BIT
+                | AdventureGame.PLATFORM_BIT
+                | AdventureGame.SPIKE_BIT
+                | AdventureGame.ITEM_BIT;
+        fixtureDef.isSensor = false;
         b2body.createFixture(fixtureDef).setUserData(this);
+
+//        bodyShape = new PolygonShape();
+//        bodyShape.set(HEAD_HITBOX);
+//        fixtureDef.shape = bodyShape;
+//        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
+//        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
+//                | AdventureGame.ENEMY_HEAD_BIT
+//                | AdventureGame.ENEMY_ATTACK_BIT
+//                | AdventureGame.ENEMY_PROJECTILE_BIT
+//                | AdventureGame.PLATFORM_BIT
+//                | AdventureGame.SPIKE_BIT
+//                | AdventureGame.ITEM_BIT;
+//        fixtureDef.isSensor = false;
+//        b2body.createFixture(fixtureDef).setUserData(this);
 
     }
 
     public void update(float dt) {
-        setPosition(getXPos(), getYPos());
+        setPosition(getXPos(), getYPos() + 0.1f);
         setRegion(getFrame(dt));
+        limitSpeed();
         if (currentState == State.REVIVING) {
             if (playerRevive.isAnimationFinished(stateTimer)) {
                 health = FULL_HEALTH;
@@ -267,6 +320,9 @@ public class Player extends Sprite {
                     arrowLaunched = true;
                 }
             }
+        }
+        if(hurtBySpikeTimer > 0){
+            hurtBySpikeTimer -= dt;
         }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
@@ -466,9 +522,15 @@ public class Player extends Sprite {
             return State.FLIPPING;
         } else if (b2body.getLinearVelocity().y > 0) {
             return State.JUMPING;
-        } else if (b2body.getLinearVelocity().y < 0) {
+        }
+//        else if (b2body.getLinearVelocity().y < 0) {
+//            return State.FALLING;
+//        }
+        else if (isFalling()) {
             return State.FALLING;
-        } else if (dodgeTimer > 0) {
+        }
+
+        else if (dodgeTimer > 0) {
             return State.DODGING;
         } else if (b2body.getLinearVelocity().x != 0) {
             flipEnabled = true;
@@ -524,7 +586,9 @@ public class Player extends Sprite {
             if (canDodge) {
                 dodge();
             } else {
-                b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
+                if(currentState != State.HURT || hurtBySpikeTimer > 0){
+                    b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
+                }
             }
         }
     }
@@ -840,5 +904,41 @@ public class Player extends Sprite {
                 break;
         }
         return new TextureRegion(screen.getAtlas().findRegion(assetName), 0, 0, 16, 16);
+    }
+
+    public void giveXP(float experiencePoints){
+        xp += experiencePoints;
+    }
+    public int geXP(){
+        return xp;
+    }
+
+    public boolean isFalling(){
+        float average = (yVelocities[0] + yVelocities[1] + yVelocities[2])/ 3f;
+        yVelocities[yVelocityIndex] = b2body.getLinearVelocity().y;
+        yVelocityIndex++;
+        if(yVelocityIndex > yVelocities.length - 1){
+            yVelocityIndex = 0;
+        }
+        if(average < -0.01){
+            return true;
+        }
+        return false;
+    }
+    public void hitBySpike(){
+        hurtBySpikeTimer = 0.15f;
+        hurt(2);
+    }
+
+    private void limitSpeed(){
+        if(b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED){
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if(b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED){
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if(b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED){
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
     }
 }

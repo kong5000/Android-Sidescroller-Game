@@ -7,10 +7,15 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -44,7 +49,11 @@ import com.mygdx.adventuregame.tools.B2WorldCreator;
 import com.mygdx.adventuregame.tools.Controller;
 import com.mygdx.adventuregame.tools.WorldContactListener;
 
+import java.util.Iterator;
+
 public class PlayScreen implements Screen {
+    private Sprite background;
+    private Sprite backgroundFar;
     Controller controller;
     private static final float PLAYER_MAX_SPEED = 1.5f;
     private AdventureGame game;
@@ -84,6 +93,7 @@ public class PlayScreen implements Screen {
     private Color fadeScreenColor = Color.BLACK;
     private float fadeTickTimer = 0;
     private float fadeScreenAlpha = 0;
+
     private ShapeRenderer shapeRenderer;
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
@@ -91,12 +101,40 @@ public class PlayScreen implements Screen {
         assetManager.finishLoading();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
 
+
+        Texture bgTexture = new Texture("BackgroundLong.png");
+        Texture bgTextureFar = new Texture("BackgroundCloud.png");
+
+        background = new Sprite(bgTexture);
+        backgroundFar = new Sprite(bgTextureFar);
+
+
         this.game = game;
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(AdventureGame.V_WIDTH / AdventureGame.PPM, AdventureGame.V_HEIGHT / AdventureGame.PPM, gameCam);
         hud = new Hud(game.batch);
         mapLoader = new TmxMapLoader();
-        map = mapLoader.load("forest_castle.tmx");
+        TmxMapLoader.Parameters params = new TmxMapLoader.Parameters();
+        params.textureMagFilter = Texture.TextureFilter.Nearest;
+        params.textureMinFilter = Texture.TextureFilter.Nearest;
+
+
+//        map = mapLoader.load("forest_castle.tmx");
+        map = mapLoader.load("forest_castle.tmx", params);
+
+
+
+        Iterator<TiledMapTileSet> iter = map.getTileSets().iterator();
+        while(iter.hasNext())
+        {
+            Iterator<TiledMapTile> iterTile = iter.next().iterator();
+
+            while(iterTile.hasNext())
+            {
+                iterTile.next().getTextureRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+            }
+        }
+
         renderer = new OrthogonalTiledMapRenderer(map, 1 / AdventureGame.PPM);
         gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
         stage = new Stage(gamePort, game.batch);
@@ -139,7 +177,8 @@ public class PlayScreen implements Screen {
         enemyList.add(new Chest(this, 5f, 5f, AdventureGame.BOW));
         enemyList.add(new Chest(this, 4f, 5f, AdventureGame.FIRE_SPELLBOOK));
 
-        enemyList.add(new Ogre(this, 3.75f, 5f));
+
+        enemyList.add(new Mimic(this, 3.75f, 5f));
         sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
         sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
         sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
@@ -152,6 +191,8 @@ public class PlayScreen implements Screen {
 //        handleInupt(dt);
         world.step(1/60f, 6, 2);
         player.update(dt);
+        background.setPosition(player.b2body.getPosition().x * -10, player.b2body.getPosition().y * - 5);
+        backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
         for(UpdatableSprite sprite : sprites){
             sprite.update(dt);
         }
@@ -178,6 +219,7 @@ public class PlayScreen implements Screen {
         }
 
         hud.setScore(player.getHealth());
+        hud.setExperience(player.geXP());
 
 
         //Camera tracks player
@@ -186,15 +228,19 @@ public class PlayScreen implements Screen {
         // if player goes backwards                    ------|x--|----
         // dont update camera position until it passes ------x|-------
         // set a new camera threshold                  ----|-x-|------
-        gameCam.position.x = player.b2body.getPosition().x;
-        gameCam.position.y = player.b2body.getPosition().y + 0.22f;
+
+//        gameCam.position.x = player.b2body.getPosition().x;
+        //        gameCam.position.y = player.b2body.getPosition().y + 0.22f;
+
+        gameCam.position.x = Math.round(player.b2body.getPosition().x * 575f) / 575f;
+        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) /575f + 0.4f;
 //        float ypos = player.b2body.getPosition().y + 0.25f;
 //        if(ypos > 5){
 //            gameCam.position.y = ypos;
 //        }else{
 //            gameCam.position.y = 4.5f;
 //        }
-////        gameCam.update();
+        gameCam.update();
 
         renderer.setView(gameCam);
     }
@@ -232,11 +278,18 @@ public class PlayScreen implements Screen {
         //  Clear the screen
         Gdx.gl.glClearColor(0, 0, 0 , 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        game.batch.begin();
+        backgroundFar.draw(game.batch);
+        background.draw(game.batch);
+
+        game.batch.end();
         renderer.render();
+
 
 
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
+
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
 //                if(enemy.isHurt()){
@@ -314,7 +367,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-        b2dr.render(world, gameCam.combined);
+//        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();

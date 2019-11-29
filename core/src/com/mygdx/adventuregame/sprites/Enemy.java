@@ -15,7 +15,7 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
 public abstract class Enemy extends Sprite implements UpdatableSprite {
-    public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE}
+    public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING}
 
     public State currentState;
     public State previousState;
@@ -44,6 +44,8 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     public float barXOffset = 0;
     public float barYOffset = 0;
+
+    protected int experiencePoints = 10;
 
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -165,6 +167,10 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     protected void initializeTimers(){
 
+    }
+
+    public int getExperiencePoints(){
+        return experiencePoints;
     }
 }
 

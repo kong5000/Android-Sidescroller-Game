@@ -72,4 +72,7 @@ public class Hud implements Disposable {
         score = value;
         scoreLabel.setText(String.format("%03d", score));
     }
+    public void setExperience(int value){
+        countdownLabel.setText(String.format("%03d", value));
+    }
 }

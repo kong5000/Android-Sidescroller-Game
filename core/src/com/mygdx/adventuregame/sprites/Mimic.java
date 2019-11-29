@@ -43,6 +43,7 @@ public class Mimic extends Enemy {
 
 
     private float deathTimer;
+    private float transformTimer;
 
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> deathAnimation;
@@ -50,6 +51,7 @@ public class Mimic extends Enemy {
     private Animation<TextureRegion> hurtAnimation;
     private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
+    private Animation<TextureRegion> transformAnimation;
 
     private boolean setToDie = false;
     private boolean hasBeenAttacked = false;
@@ -74,6 +76,8 @@ public class Mimic extends Enemy {
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        transformAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_transform"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -88,6 +92,7 @@ public class Mimic extends Enemy {
         flashRedTimer = -1f;
         health = 7;
         barYOffset = 0.09f;
+        transformTimer = 0;
     }
 
     @Override
@@ -101,6 +106,9 @@ public class Mimic extends Enemy {
             if (!setToDie) {
                 setToDie = true;
             }
+        }
+        if(transformTimer > 0){
+            transformTimer -= dt;
         }
         if (currentState == State.DYING) {
             if (deathAnimation.isAnimationFinished(stateTimer)) {
@@ -174,6 +182,10 @@ public class Mimic extends Enemy {
 
         TextureRegion texture;
         switch (currentState) {
+            case TRANSFORMING:
+                attackEnabled = false;
+                texture = transformAnimation.getKeyFrame(stateTimer);
+                break;
             case DYING:
                 attackEnabled = false;
                 texture = deathAnimation.getKeyFrame(stateTimer);
@@ -239,6 +251,9 @@ public class Mimic extends Enemy {
         }else if(!hasBeenAttacked){
             return State.IDLE;
         }
+        else if(transformTimer > 0){
+            return State.TRANSFORMING;
+        }
         else if (hurtTimer > 0) {
             return State.HURT;
         } else if (attackTimer > 0) {
@@ -262,6 +277,9 @@ public class Mimic extends Enemy {
 
     @Override
     public void damage(int amount) {
+        if(hasBeenAttacked == false){
+            transformTimer = 0.7f;
+        }
         hasBeenAttacked = true;
         if (invincibilityTimer < 0) {
             health -= amount;

@@ -51,7 +51,7 @@ public class Ogre extends Enemy {
     private Animation<TextureRegion> hurtAnimationDamaged;
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> idleAnimationDamaged;
-    
+
     private boolean setToDie = false;
 
     private Fixture attackFixture;
@@ -93,6 +93,7 @@ public class Ogre extends Enemy {
         attackDamage = 3;
         health = 10;
         barYOffset = 0.02f;
+        setScale(1.3f);
     }
 
     @Override

@@ -100,6 +100,7 @@ public class Minotaur extends Enemy {
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         attachNearbyTiles();
+        setScale(1.2f);
     }
 
     @Override

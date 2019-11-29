@@ -22,7 +22,7 @@ public class MagicShield extends Explosion {
     public void update(float dt) {
         setRegion(animation.getKeyFrame(stateTimer));
         stateTimer += dt;
-        setPosition(player.b2body.getPosition().x - getWidth() / 2, player.b2body.getPosition().y - getHeight() / 2 - 0.06f);
+        setPosition(player.b2body.getPosition().x - getWidth() / 2, player.b2body.getPosition().y - getHeight() / 2 );
 //        rotation += 3f;
 //        setRotation(rotation);
     }

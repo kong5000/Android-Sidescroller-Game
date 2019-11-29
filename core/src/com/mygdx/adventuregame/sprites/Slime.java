@@ -16,7 +16,11 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 import java.util.Random;
 
 public class Slime extends Enemy {
-    private static final float[] SLIME_HITBOX = {-0.15f, 0.02f, -0.15f, -0.1f, 0.15f, -0.1f, 0.15f, 0.02f};
+    private static final float[] SLIME_HITBOX = {
+            -0.15f, 0.02f,
+            -0.15f, -0.1f,
+            0.15f, -0.1f,
+            0.15f, 0.02f};
     private static final float ATTACK_RATE = 3f;
     private static final float HURT_RATE = 0.3f;
     private static final float CORPSE_TIME = 0.25f;
@@ -54,6 +58,7 @@ public class Slime extends Enemy {
             setToDestroy = true;
         }
         if (setToDestroy && !destroyed) {
+            screen.getPlayer().giveXP(experiencePoints);
             world.destroyBody(b2body);
             spawnLoot();
             destroyed = true;
