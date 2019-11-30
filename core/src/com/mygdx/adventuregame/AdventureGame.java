@@ -23,6 +23,9 @@ public class AdventureGame extends Game {
 	public static final int SMALL_HEALTH = 4;
 	public static final int MEDIUM_HEALTH = 5;
 	public static final int LARGE_HEALTH = 6;
+	public static final int SWORD = 7;
+	public static final int RING_OF_REGENERATION = 8;
+	public static final int RING_OF_PROTECTION = 9;
 
 	public static final short GROUND_BIT = 1;
 	public static final short PLAYER_BIT = 2;
@@ -38,7 +41,9 @@ public class AdventureGame extends Game {
 	public static final short ITEM_BIT= 2048;
 
 	public static final float BOW_LOCATION = 2560f;
-	public static final float DOUBLE_JUMP_LOCATION = 5584f;
+	public static final float RING_OF_PROTECTION_LOCATION = 2848f;
+	public static final float SWORD_LOCATION = 4224f;
+	public static final float DOUBLE_JUMP_LOCATION = 5792f;
 
 
 	@Override

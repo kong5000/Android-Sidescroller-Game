@@ -40,7 +40,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     protected float affectedBySpellTimer = -1f;
     protected static final float SPELL_EFFECT_TIME = 1f;
-    protected int attackDamage = 1;
+    protected int attackDamage = 2;
 
     public float barXOffset = 0;
     public float barYOffset = 0;

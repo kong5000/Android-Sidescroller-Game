@@ -95,7 +95,10 @@ private static final float[] RECTANGULAR_HITBOX = {
     private Animation<TextureRegion> playerCrouch;
     private TextureRegion playerGotItem;
 
-    private boolean hasDoubleJump = false;
+    private boolean hasDoubleJump = true;
+    private boolean hasRegeneration = false;
+    private boolean hasProtection = false;
+    private int swordLevel = 0;
     public boolean hasBow = false;
     public boolean hasFireSpell = false;
     private boolean canFireProjectile;
@@ -141,7 +144,7 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     private float magicShieldAlpha = 1f;
     private int health;
-    private static final int FULL_HEALTH = 10;
+    private static final int FULL_HEALTH = 40;
 
     TextureAtlas textureAtlas;
 
@@ -219,9 +222,9 @@ private static final float[] RECTANGULAR_HITBOX = {
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
         //Starting Castle
-        bodyDef.position.set(405 / AdventureGame.PPM, 565 / AdventureGame.PPM);
+//        bodyDef.position.set(405 / AdventureGame.PPM, 565 / AdventureGame.PPM);
         //First minotaur
-//        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
+        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
 //        bodyDef.position.set(5015 / AdventureGame.PPM, 550 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
@@ -565,6 +568,9 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public void hurt(int damage) {
         hurtTimer = HURT_TIME;
+        if(hasProtection){
+           damage -= 1;
+        }
         health -= damage;
         endChargingSpell();
         screen.getDamageNumbersToAdd().add(new DamageNumber(screen, getXPos(), getYPos(), true, damage));
@@ -758,7 +764,7 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public int getSwordDamage() {
         Random random = new Random();
-        int damage = random.nextInt(2) + 2;
+        int damage = random.nextInt(2) + 2 + swordLevel;
         if (attackNumber == 2) {
             damage = 5;
         }
@@ -792,6 +798,10 @@ private static final float[] RECTANGULAR_HITBOX = {
                 }
             }
         }
+    }
+
+    private void upgradeSword(){
+        swordLevel++;
     }
 
     public void dodgeEnable(boolean state) {
@@ -870,6 +880,14 @@ private static final float[] RECTANGULAR_HITBOX = {
                 hasDoubleJump = true;
                 itemPickupTimer = 2f;
                 break;
+            case AdventureGame.RING_OF_PROTECTION:
+                hasProtection = true;
+                itemPickupTimer = 2f;
+                break;
+            case AdventureGame.SWORD:
+                upgradeSword();
+                itemPickupTimer = 2f;
+                break;
             default:
                 break;
         }
@@ -898,6 +916,12 @@ private static final float[] RECTANGULAR_HITBOX = {
                 break;
             case AdventureGame.RING_OF_DOUBLE_JUMP:
                 assetName = "ring_of_double_jump";
+                break;
+            case AdventureGame.RING_OF_PROTECTION:
+                assetName = "ring_of_protection";
+                break;
+            case AdventureGame.SWORD:
+                assetName = "sword";
                 break;
             default:
                 assetName = "small_health";

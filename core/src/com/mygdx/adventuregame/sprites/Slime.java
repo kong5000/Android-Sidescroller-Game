@@ -47,7 +47,7 @@ public class Slime extends Enemy {
         currentState = State.WALKING;
         previousState = State.WALKING;
         attackRateTimer = ATTACK_RATE;
-        attackDamage = 1;
+        attackDamage = 2;
         health = 2;
     }
 

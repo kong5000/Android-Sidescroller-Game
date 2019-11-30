@@ -125,7 +125,6 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             float x = rect.getX();
             float y = rect.getY();
-//            Chest chest = new Chest(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM, chestCounter);
             Chest chest = treasureMaker(x, y);
             screen.getSpritesToAdd().add(chest);
             chestCounter++;
@@ -178,6 +177,13 @@ public class B2WorldCreator {
             treasureType = AdventureGame.BOW;
         } else if (Math.abs(x - AdventureGame.DOUBLE_JUMP_LOCATION) < 0.01f) {
             treasureType = AdventureGame.RING_OF_DOUBLE_JUMP;
+        }else if (Math.abs(x - AdventureGame.RING_OF_PROTECTION_LOCATION) < 0.01f){
+            treasureType = AdventureGame.RING_OF_PROTECTION;
+        }
+        else if (Math.abs(x - AdventureGame.RING_OF_PROTECTION_LOCATION) < 0.01f){
+            treasureType = AdventureGame.RING_OF_PROTECTION;
+        }        else if (Math.abs(x - AdventureGame.SWORD_LOCATION) < 0.01f){
+            treasureType = AdventureGame.SWORD;
         }
         return new Chest(screen, x / AdventureGame.PPM, y / AdventureGame.PPM, treasureType);
 
