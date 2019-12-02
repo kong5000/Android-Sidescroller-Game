@@ -171,22 +171,33 @@ public class B2WorldCreator {
 
     }
 
-    private Chest treasureMaker(float x, float y) {
+    private Chest treasureMaker(float chestPosition, float y) {
         int treasureType = AdventureGame.MEDIUM_HEALTH;
-        if (Math.abs(x - AdventureGame.BOW_LOCATION) < 0.01f) {
+        if (isChestAtLocation(chestPosition, AdventureGame.BOW_LOCATION)) {
             treasureType = AdventureGame.BOW;
-        } else if (Math.abs(x - AdventureGame.DOUBLE_JUMP_LOCATION) < 0.01f) {
+        } else if (isChestAtLocation(chestPosition, AdventureGame.DOUBLE_JUMP_LOCATION)) {
             treasureType = AdventureGame.RING_OF_DOUBLE_JUMP;
-        }else if (Math.abs(x - AdventureGame.RING_OF_PROTECTION_LOCATION) < 0.01f){
+        }else if (isChestAtLocation(chestPosition, AdventureGame.RING_OF_PROTECTION_LOCATION)){
             treasureType = AdventureGame.RING_OF_PROTECTION;
         }
-        else if (Math.abs(x - AdventureGame.RING_OF_PROTECTION_LOCATION) < 0.01f){
-            treasureType = AdventureGame.RING_OF_PROTECTION;
-        }        else if (Math.abs(x - AdventureGame.SWORD_LOCATION) < 0.01f){
+        else if (isChestAtLocation(chestPosition, AdventureGame.SWORD_LOCATION)){
             treasureType = AdventureGame.SWORD;
         }
-        return new Chest(screen, x / AdventureGame.PPM, y / AdventureGame.PPM, treasureType);
+        else if (isChestAtLocation(chestPosition, AdventureGame.RING_OF_REGEN_LOCATION)){
+            treasureType = AdventureGame.RING_OF_REGENERATION;
+        }
+        else if (isChestAtLocation(chestPosition, AdventureGame.SWORD_LOCATION_2)){
+            treasureType = AdventureGame.SWORD;
+        }
+        else if (isChestAtLocation(chestPosition, AdventureGame.BOW_LOCATION_2)){
+            treasureType = AdventureGame.BOW;
+        }
 
+        return new Chest(screen, chestPosition / AdventureGame.PPM, y / AdventureGame.PPM, treasureType);
+    }
+
+    private boolean isChestAtLocation(float currentChest, float location){
+        return (Math.abs(currentChest - location) < 0.01f);
     }
 
 

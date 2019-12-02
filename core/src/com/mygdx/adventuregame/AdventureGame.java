@@ -39,11 +39,16 @@ public class AdventureGame extends Game {
 	public static final short PLATFORM_BIT= 512;
 	public static final short SPIKE_BIT= 1024;
 	public static final short ITEM_BIT= 2048;
+	public static final short BOSS_PROJECTILE_BIT = -1;
 
-	public static final float BOW_LOCATION = 2560f;
+	public static final float BOW_LOCATION = 2544f;
 	public static final float RING_OF_PROTECTION_LOCATION = 2848f;
 	public static final float SWORD_LOCATION = 4224f;
 	public static final float DOUBLE_JUMP_LOCATION = 5792f;
+	public static final float RING_OF_REGEN_LOCATION = 7472f;
+	public static final float FULL_HEALTH_LOCATION_1 = 7904f;
+	public static final float SWORD_LOCATION_2 = 8656f;
+	public static final float BOW_LOCATION_2 = 8800f;
 
 
 	@Override

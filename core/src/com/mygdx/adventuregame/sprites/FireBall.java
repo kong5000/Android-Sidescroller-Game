@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class FireBall extends Sprite implements UpdatableSprite {
+public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile  {
     private enum State{ARMED, IMPACT}
     private State currentState = State.ARMED;
     private State previousState = State.ARMED;

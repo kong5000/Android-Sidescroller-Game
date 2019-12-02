@@ -26,7 +26,7 @@ public class Item extends Sprite implements UpdatableSprite {
     public boolean safeToRemove = false;
     private boolean setToDestroy = false;
 
-    private float dontPickupTimer = 0.1f;
+    private float dontPickupTimer = 0.03f;
     private float stateTimer;
     private static final int WIDTH_PIXELS = 16;
     private static final int HEIGHT_PIXELS = 16;

@@ -50,7 +50,6 @@ public class Controller implements InputProcessor {
 
     private boolean buttonClicked = false;
 
-    private static final float PLAYER_MAX_SPEED = 1.5f;
 
     int touchStartX;
     int touchStartY;
@@ -244,13 +243,13 @@ public class Controller implements InputProcessor {
         float yVal = getTouchpadLeft().getKnobPercentY();
         float xVal = getTouchpadLeft().getKnobPercentX();
         if (stopSpell && player.canMove()) {
-            if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
-                player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
+            if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.PLAYER_MAX_SPEED) {
+                player.b2body.applyLinearImpulse(new Vector2(0.15f, 0), player.b2body.getWorldCenter(), true);
 
 //                player.b2body.setLinearVelocity(1.1f, player.b2body.getLinearVelocity().y);
             }
-            if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
-                player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
+            if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
+                player.b2body.applyLinearImpulse(new Vector2(-0.15f, 0), player.b2body.getWorldCenter(), true);
 
 //                player.b2body.setLinearVelocity(-1.1f, player.b2body.getLinearVelocity().y);
             }
@@ -287,11 +286,11 @@ public class Controller implements InputProcessor {
             player.jump();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <=  player.PLAYER_MAX_SPEED) {
             player.b2body.setLinearVelocity(1.5f, player.b2body.getLinearVelocity().y);
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
             player.b2body.setLinearVelocity(-1.5f, player.b2body.getLinearVelocity().y);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {

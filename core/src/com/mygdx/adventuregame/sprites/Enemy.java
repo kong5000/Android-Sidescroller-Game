@@ -15,7 +15,7 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
 public abstract class Enemy extends Sprite implements UpdatableSprite {
-    public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING}
+    public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING, CHARGING, CAST}
 
     public State currentState;
     public State previousState;

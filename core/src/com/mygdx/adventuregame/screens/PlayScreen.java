@@ -34,7 +34,9 @@ import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
+import com.mygdx.adventuregame.sprites.FireGolem;
 import com.mygdx.adventuregame.sprites.FireSpell;
+import com.mygdx.adventuregame.sprites.Golem;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.Kobold;
@@ -179,6 +181,7 @@ public class PlayScreen implements Screen {
 
 
         enemyList.add(new Mimic(this, 3.75f, 5f));
+        enemyList.add(new FireGolem(this, 92f, 5.5f));
         sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
         sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
         sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
@@ -289,7 +292,9 @@ public class PlayScreen implements Screen {
 
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
-
+        for(UpdatableSprite sprite : sprites){
+            sprite.draw(game.batch);
+        }
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
 //                if(enemy.isHurt()){
@@ -305,9 +310,9 @@ public class PlayScreen implements Screen {
                 fireBall.draw(game.batch);
             }
         }
-        for(UpdatableSprite sprite : sprites){
-            sprite.draw(game.batch);
-        }
+//        for(UpdatableSprite sprite : sprites){
+//            sprite.draw(game.batch);
+//        }
         for(DamageNumber number : damageNumbers){
             if(!number.isForPlayer()){
                 game.batch.setShader(shader);
@@ -329,9 +334,7 @@ public class PlayScreen implements Screen {
             monsterTile.draw(game.batch);
         }
 
-        for(UpdatableSprite sprite : sprites){
-            sprite.draw(game.batch);
-        }
+
         game.batch.end();
 
         if(player.getCurrentState() == Player.State.DYING ){
@@ -535,6 +538,9 @@ public class PlayScreen implements Screen {
 
     public Array<Explosion> getExplosions(){
         return explosions;
+    }
+    public Array<Explosion> getExplosionsToAdd(){
+        return explosionsToAdd;
     }
     public Array<DamageNumber> getDamageNumbersToAdd(){
         return damageNumbersToAdd;

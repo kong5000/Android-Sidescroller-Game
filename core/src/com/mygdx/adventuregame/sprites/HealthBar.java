@@ -50,4 +50,6 @@ public class HealthBar extends Sprite implements UpdatableSprite{
         return safeToRemove;
     }
 
+
+
 }

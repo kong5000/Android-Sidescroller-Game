@@ -100,7 +100,7 @@ private static final float[] RECTANGULAR_HITBOX = {
     private boolean hasProtection = false;
     private int swordLevel = 0;
     public boolean hasBow = false;
-    public boolean hasFireSpell = false;
+    public boolean hasFireSpell = true;
     private boolean canFireProjectile;
     private boolean passThroughFloor = false;
     private boolean isCrouching = false;
@@ -110,6 +110,8 @@ private static final float[] RECTANGULAR_HITBOX = {
     private boolean flipEnabled;
     private boolean arrowLaunched = false;
 
+    private static float REGEN_TIME = 7f;
+    private float regenTimer;
     private float hurtBySpikeTimer;
     private float itemPickupTimer;
     private float stateTimer;
@@ -131,8 +133,9 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     private float reviveTimer = 0;
 
+    public static float PLAYER_MAX_SPEED = 1.35f;
     private static final float CAST_COOLDOWN_TIME = 1f;
-    private static final float ARROW_COOLDOWN_TIME = 0.8f;
+    private static float ARROW_COOLDOWN_TIME = 0.8f;
     private static final float SHOOT_ARROW_TIME = 0.5f;
     public static final float SHIELD_TIME = 3.5f;
     private static final float HURT_TIME = 0.5f;
@@ -212,11 +215,14 @@ private static final float[] RECTANGULAR_HITBOX = {
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
         playerGotItem = new TextureRegion(screen.getAtlas().findRegion("player_got_item"), 0, 0, 50, 37);
         definePlayer();
-        setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
+//        setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
+        setBounds(0, 0, 55 / AdventureGame.PPM, 41 / AdventureGame.PPM);
 //        setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
         setRegion(playerStand);
         magicShield = new MagicShield(screen, b2body.getPosition().x, b2body.getPosition().y, this);
         magicShield.setAlpha(0);
+
+        equipedSpell = Spell.FIREBALL;
     }
 
     private void definePlayer() {
@@ -224,8 +230,9 @@ private static final float[] RECTANGULAR_HITBOX = {
         //Starting Castle
 //        bodyDef.position.set(405 / AdventureGame.PPM, 565 / AdventureGame.PPM);
         //First minotaur
-        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
-//        bodyDef.position.set(5015 / AdventureGame.PPM, 550 / AdventureGame.PPM);
+//        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
+        //Boss Area
+        bodyDef.position.set(8950 / AdventureGame.PPM, 500 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
@@ -237,7 +244,8 @@ private static final float[] RECTANGULAR_HITBOX = {
                 | AdventureGame.ENEMY_PROJECTILE_BIT
                 | AdventureGame.PLATFORM_BIT
                 | AdventureGame.SPIKE_BIT
-                | AdventureGame.ITEM_BIT;
+                | AdventureGame.ITEM_BIT
+        |AdventureGame.BOSS_PROJECTILE_BIT;
 
 
 //
@@ -282,6 +290,18 @@ private static final float[] RECTANGULAR_HITBOX = {
         setPosition(getXPos(), getYPos() + 0.1f);
         setRegion(getFrame(dt));
         limitSpeed();
+        if(currentState != State.DYING){
+            if(hasRegeneration){
+                if(regenTimer > 0){
+                    regenTimer -= dt;
+                }else {
+                    regenTimer = REGEN_TIME;
+                    if(health < FULL_HEALTH){
+                        health += 1;
+                    }
+                }
+            }
+        }
         if (currentState == State.REVIVING) {
             if (playerRevive.isAnimationFinished(stateTimer)) {
                 health = FULL_HEALTH;
@@ -766,7 +786,7 @@ private static final float[] RECTANGULAR_HITBOX = {
         Random random = new Random();
         int damage = random.nextInt(2) + 2 + swordLevel;
         if (attackNumber == 2) {
-            damage = 5;
+            damage = 5 + swordLevel;
         }
         return damage;
     }
@@ -850,8 +870,12 @@ private static final float[] RECTANGULAR_HITBOX = {
     public void pickupItem(int itemID) {
         switch (itemID) {
             case AdventureGame.BOW:
-                equipedSpell = Spell.BOW;
-                hasBow = true;
+                if(hasBow){
+                   ARROW_COOLDOWN_TIME -= 0.15f;
+                }else {
+                    equipedSpell = Spell.BOW;
+                    hasBow = true;
+                }
                 itemPickupTimer = 2f;
                 break;
             case AdventureGame.FIRE_SPELLBOOK:

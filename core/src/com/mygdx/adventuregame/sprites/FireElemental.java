@@ -68,6 +68,7 @@ public class FireElemental extends Enemy {
         health = 5;
         barXOffset = -0.065f;
         barYOffset = 0.075f;
+
     }
 
     @Override
