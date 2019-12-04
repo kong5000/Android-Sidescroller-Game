@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -58,7 +57,7 @@ private static final float[] RECTANGULAR_HITBOX = {
             -0.25f, 0.2f,
             0f, -0.1f,
             0, 0.3f};
-
+    private static final float INVINCIBLE_TIME = 1f;
 
 
     public enum State {
@@ -78,29 +77,42 @@ private static final float[] RECTANGULAR_HITBOX = {
     public Body b2body;
     private TextureRegion playerStand;
     private Animation<TextureRegion> playerRun;
+    private Animation<TextureRegion> playerRunDamaged;
     private Animation<TextureRegion> playerIdle;
     private Animation<TextureRegion> playerFall;
+    private Animation<TextureRegion> playerFallDamaged;
     private Animation<TextureRegion> playerJump;
+    private Animation<TextureRegion> playerJumpDamaged;
     private Animation<TextureRegion> playerHurt;
+    private Animation<TextureRegion> playerHurtDamaged;
     private Animation<TextureRegion> playerDie;
     private Animation<TextureRegion> playerRevive;
     private Animation<TextureRegion> playerAttack;
+    private Animation<TextureRegion> playerAttackDamaged;
     private Animation<TextureRegion> playerAttack2;
+    private Animation<TextureRegion> playerAttack2Damaged;
     private Animation<TextureRegion> playerAttack3;
+    private Animation<TextureRegion> playerAttack3Damaged;
     private Animation<TextureRegion> playerAirAttack;
     private Animation<TextureRegion> playerFlip;
+    private Animation<TextureRegion> playerFlipDamaged;
     private Animation<TextureRegion> playerCast;
+    private Animation<TextureRegion> playerCastDamaged;
     private Animation<TextureRegion> playerDodge;
+    private Animation<TextureRegion> playerDodgeDamaged;
     private Animation<TextureRegion> playerBow;
+    private Animation<TextureRegion> playerBowDamaged;
     private Animation<TextureRegion> playerCrouch;
     private TextureRegion playerGotItem;
 
-    private boolean hasDoubleJump = true;
+    private static final float FLASH_RED_TIME = 1f;
+    private float invincibilityTimer =-1f;
+    private boolean hasDoubleJump = false;
     private boolean hasRegeneration = false;
     private boolean hasProtection = false;
     private int swordLevel = 0;
     public boolean hasBow = false;
-    public boolean hasFireSpell = true;
+    public boolean hasFireSpell = false;
     private boolean canFireProjectile;
     private boolean passThroughFloor = false;
     private boolean isCrouching = false;
@@ -138,7 +150,7 @@ private static final float[] RECTANGULAR_HITBOX = {
     private static float ARROW_COOLDOWN_TIME = 0.8f;
     private static final float SHOOT_ARROW_TIME = 0.5f;
     public static final float SHIELD_TIME = 3.5f;
-    private static final float HURT_TIME = 0.5f;
+    private static final float HURT_TIME = 0.66f;
     private static final float CAST_TIME = 0.5f;
     private static final float ATTACK_TIME = 0.35f;
     private static final float FLIP_TIME = 0.4f;
@@ -147,7 +159,7 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     private float magicShieldAlpha = 1f;
     private int health;
-    private static final int FULL_HEALTH = 40;
+    private static final int FULL_HEALTH = 25;
 
     TextureAtlas textureAtlas;
 
@@ -170,6 +182,10 @@ private static final float[] RECTANGULAR_HITBOX = {
     private int xp;
     private float[] yVelocities = {0, 0 ,0};
     private int yVelocityIndex = 0;
+
+    private int flashCount = 0;
+    private boolean flashFrame = true;
+    protected float flashRedTimer;
 
     //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
@@ -194,24 +210,39 @@ private static final float[] RECTANGULAR_HITBOX = {
         castCooldown = -1;
         comboTimer = 0;
         itemPickupTimer = 0;
-
+        flashRedTimer = -1f;
         playerRun = generateAnimation(textureAtlas.findRegion("player_run"), 6, 52, 39, 0.1f);
+        playerRun.setPlayMode(Animation.PlayMode.LOOP);
+        playerRunDamaged = generateAnimation(textureAtlas.findRegion("player_run_bright"), 6, 52, 39, 0.1f);
+        playerRunDamaged.setPlayMode(Animation.PlayMode.LOOP);
         playerIdle = generateAnimation(textureAtlas.findRegion("player_idle1"), 3, 52, 39, 0.2f);
         playerFall = generateAnimation(textureAtlas.findRegion("player_fall"), 2, 52, 39, 0.1f);
+        playerFallDamaged = generateAnimation(textureAtlas.findRegion("player_fall_bright"), 2, 52, 39, 0.1f);
         playerJump = generateAnimation(textureAtlas.findRegion("player_jump"), 4, 52, 39, 0.1f);
+        playerJumpDamaged = generateAnimation(textureAtlas.findRegion("player_jump_bright"), 4, 52, 39, 0.1f);
         playerHurt = generateAnimation(textureAtlas.findRegion("player_hurt"), 3, 52, 39, 0.1f);
+        playerHurtDamaged = generateAnimation(textureAtlas.findRegion("player_hurt_bright"), 3, 52, 39, 0.1f);
         playerDie = generateAnimation(textureAtlas.findRegion("player_die"), 7, 52, 39, 0.3f);
         playerRevive = generateAnimation(textureAtlas.findRegion("player_revive"), 7, 50, 37, 0.3f);
 
         playerAttack = generateAnimation(textureAtlas.findRegion("player_attack1"), 5, 52, 39, 0.07f);
+        playerAttackDamaged = generateAnimation(textureAtlas.findRegion("player_attack1_bright"), 5, 52, 39, 0.07f);
         playerAttack2 = generateAnimation(textureAtlas.findRegion("player_attack2"), 6, 50, 37, 0.0575f);
+        playerAttack2Damaged = generateAnimation(textureAtlas.findRegion("player_attack2_bright"), 6, 50, 37, 0.0575f);
         playerAttack3 = generateAnimation(textureAtlas.findRegion("player_attack3"), 6, 50, 37, 0.0575f);
+        playerAttack3Damaged = generateAnimation(textureAtlas.findRegion("player_attack3_bright"), 6, 50, 37, 0.0575f);
         playerAirAttack = generateAnimation(textureAtlas.findRegion("player_air_attack1"), 4, 52, 39, 0.125f);
         playerFlip = generateAnimation(textureAtlas.findRegion("player_flip"), 4, 52, 39, 0.1f);
+        playerFlipDamaged = generateAnimation(textureAtlas.findRegion("player_flip_bright"), 4, 52, 39, 0.1f);
         playerCast = generateAnimation(textureAtlas.findRegion("player_cast"), 4, 52, 39, 0.1f);
+        playerCast.setPlayMode(Animation.PlayMode.LOOP);
+        playerCastDamaged = generateAnimation(textureAtlas.findRegion("player_cast_bright"), 4, 52, 39, 0.1f);
+        playerCastDamaged.setPlayMode(Animation.PlayMode.LOOP);
         playerDodge = generateAnimation(textureAtlas.findRegion("player_dodge"), 5, 50, 37, 0.07f);
+        playerDodgeDamaged = generateAnimation(textureAtlas.findRegion("player_dodge_bright"), 5, 50, 37, 0.07f);
         playerCrouch = generateAnimation(textureAtlas.findRegion("player_crouch"), 4, 50, 37, 0.1f);
         playerBow = generateAnimation(textureAtlas.findRegion("player_bow"), 5, 50, 37, 0.1f);
+        playerBowDamaged = generateAnimation(textureAtlas.findRegion("player_bow_bright"), 5, 50, 37, 0.1f);
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
         playerGotItem = new TextureRegion(screen.getAtlas().findRegion("player_got_item"), 0, 0, 50, 37);
         definePlayer();
@@ -222,17 +253,16 @@ private static final float[] RECTANGULAR_HITBOX = {
         magicShield = new MagicShield(screen, b2body.getPosition().x, b2body.getPosition().y, this);
         magicShield.setAlpha(0);
 
-        equipedSpell = Spell.FIREBALL;
     }
 
     private void definePlayer() {
         BodyDef bodyDef = new BodyDef();
         //Starting Castle
-//        bodyDef.position.set(405 / AdventureGame.PPM, 565 / AdventureGame.PPM);
+        bodyDef.position.set(405 / AdventureGame.PPM, 565 / AdventureGame.PPM);
         //First minotaur
 //        bodyDef.position.set(5800 / AdventureGame.PPM, 860 / AdventureGame.PPM);
         //Boss Area
-        bodyDef.position.set(8950 / AdventureGame.PPM, 500 / AdventureGame.PPM);
+//        bodyDef.position.set(8950 / AdventureGame.PPM, 500 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
@@ -344,6 +374,12 @@ private static final float[] RECTANGULAR_HITBOX = {
                 }
             }
         }
+        if(invincibilityTimer > 0){
+            invincibilityTimer -= dt;
+        }
+        if (flashRedTimer > 0) {
+            flashRedTimer -= dt;
+        }
         if(hurtBySpikeTimer > 0){
             hurtBySpikeTimer -= dt;
         }
@@ -442,27 +478,27 @@ private static final float[] RECTANGULAR_HITBOX = {
                 region = playerGotItem;
                 break;
             case SHOOTING:
-                region = playerBow.getKeyFrame(stateTimer);
+                region = selectBrightFrameOrRegularFrame(playerBow, playerBowDamaged);
                 break;
             case CROUCHING:
                 region = playerCrouch.getKeyFrame(stateTimer);
                 break;
             case DODGING:
-                region = playerDodge.getKeyFrame(stateTimer);
+                region = selectBrightFrameOrRegularFrame(playerDodge, playerDodgeDamaged);
                 break;
             case CASTING:
-                region = playerCast.getKeyFrame(stateTimer, true);
+                region = selectBrightFrameOrRegularFrame(playerCast, playerCastDamaged);
                 break;
             case HURT:
-                region = playerHurt.getKeyFrame(stateTimer);
+                region = selectBrightFrameOrRegularFrame(playerHurt, playerHurtDamaged);
                 break;
             case ATTACKING:
                 if (attackNumber == 0) {
-                    region = playerAttack.getKeyFrame(stateTimer);
+                    region = selectBrightFrameOrRegularFrame(playerAttack, playerAttackDamaged);
                 } else if (attackNumber == 1) {
-                    region = playerAttack2.getKeyFrame(stateTimer);
+                    region = selectBrightFrameOrRegularFrame(playerAttack2, playerAttack2Damaged);
                 } else {
-                    region = playerAttack3.getKeyFrame(stateTimer);
+                    region = selectBrightFrameOrRegularFrame(playerAttack3, playerAttack3Damaged);
                 }
 
                 break;
@@ -470,16 +506,16 @@ private static final float[] RECTANGULAR_HITBOX = {
                 region = playerAirAttack.getKeyFrame(stateTimer);
                 break;
             case FLIPPING:
-                region = playerFlip.getKeyFrame(stateTimer);
+                region = selectBrightFrameOrRegularFrame(playerFlip, playerFlipDamaged);
                 break;
             case JUMPING:
-                region = playerJump.getKeyFrame(stateTimer);
+                region = selectBrightFrameOrRegularFrame(playerJump, playerJumpDamaged);
                 break;
             case RUNNING:
-                region = playerRun.getKeyFrame(stateTimer, true);
+                region = selectBrightFrameOrRegularFrame(playerRun, playerRunDamaged);
                 break;
             case FALLING:
-                region = playerFall.getKeyFrame(stateTimer, true);
+                region = selectBrightFrameOrRegularFrame(playerFall, playerFallDamaged);
                 break;
             case STANDING:
             default:
@@ -587,14 +623,20 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
 
     public void hurt(int damage) {
-        hurtTimer = HURT_TIME;
-        if(hasProtection){
-           damage -= 1;
+        if(invincibilityTimer < 0){
+            invincibilityTimer = INVINCIBLE_TIME;
+            hurtTimer = HURT_TIME;
+            if(hasProtection){
+                damage -= 1;
+            }
+            health -= damage;
+            if (flashRedTimer < 0) {
+                flashRedTimer = FLASH_RED_TIME;
+            }
+            endChargingSpell();
+            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, getXPos(), getYPos(), true, damage));
         }
-        health -= damage;
-        endChargingSpell();
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, getXPos(), getYPos(), true, damage));
-    }
+   }
 
     public void jump() {
         if (currentState == State.JUMPING || currentState == State.FALLING || currentState == State.FLIPPING || currentState == State.AIR_ATTACKING) {
@@ -784,7 +826,7 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public int getSwordDamage() {
         Random random = new Random();
-        int damage = random.nextInt(2) + 2 + swordLevel;
+        int damage = random.nextInt(2+ swordLevel) + 2 + swordLevel /2 ;
         if (attackNumber == 2) {
             damage = 5 + swordLevel;
         }
@@ -864,7 +906,7 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
 
     public boolean canMove() {
-        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP);
+        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT);
     }
 
     public void pickupItem(int itemID) {
@@ -988,5 +1030,33 @@ private static final float[] RECTANGULAR_HITBOX = {
         if(b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED){
             b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
         }
+    }
+
+    protected TextureRegion selectBrightFrameOrRegularFrame(Animation<TextureRegion> animation, Animation<TextureRegion> brightAnimation) {
+        TextureRegion textureRegion;
+        if (flashRedTimer > 0) {
+            if (flashFrame) {
+                flashCount++;
+                if (flashCount > 4) {
+                    flashFrame = false;
+                    flashCount = 0;
+                }
+                textureRegion = brightAnimation.getKeyFrame(stateTimer);
+            } else {
+                flashCount++;
+                if (flashCount > 4) {
+                    flashFrame = true;
+                    flashCount = 0;
+                }
+                textureRegion = animation.getKeyFrame(stateTimer);
+            }
+        } else {
+            textureRegion = animation.getKeyFrame(stateTimer);
+        }
+        return textureRegion;
+    }
+
+    public boolean canAct(){
+        return currentState != State.HURT;
     }
 }

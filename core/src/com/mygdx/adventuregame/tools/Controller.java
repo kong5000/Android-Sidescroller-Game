@@ -80,11 +80,14 @@ public class Controller implements InputProcessor {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 
-                player.castSpell();
-                if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
-                    player.startChargingAnimation();
-                    player.setChargingSpell();
+                if(player.canAct()){
+                    player.castSpell();
+                    if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
+                        player.startChargingAnimation();
+                        player.setChargingSpell();
+                    }
                 }
+
                 buttonClicked = true;
 
 
@@ -242,7 +245,8 @@ public class Controller implements InputProcessor {
     public void handleInput() {
         float yVal = getTouchpadLeft().getKnobPercentY();
         float xVal = getTouchpadLeft().getKnobPercentX();
-        if (stopSpell && player.canMove()) {
+        if(player.canMove()){
+        if (stopSpell ) {
             if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.PLAYER_MAX_SPEED) {
                 player.b2body.applyLinearImpulse(new Vector2(0.15f, 0), player.b2body.getWorldCenter(), true);
 
@@ -295,7 +299,7 @@ public class Controller implements InputProcessor {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.attack();
-        }
+        }}
     }
 
     @Override
@@ -319,7 +323,7 @@ public class Controller implements InputProcessor {
             touchStartX = screenX;
             touchStartY = screenY;
         }
-        if (!buttonClicked) {
+        if (!buttonClicked && player.canMove()) {
             if (screenX > 700) {
                 if (screenY < 670) {
                     player.attack();

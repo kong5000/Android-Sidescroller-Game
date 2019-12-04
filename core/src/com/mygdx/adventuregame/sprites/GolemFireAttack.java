@@ -90,7 +90,9 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
     }
 
     public void update(float dt) {
-
+        if(enemy.setToDestroy){
+            setToDestroy = true;
+        }
         angleToPlayer = getVectorToPlayer().angle();
         setRegion(getFrame(dt));
         if(b2body != null){
@@ -147,7 +149,9 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         setRotation(rotation);
 
         if ((aliveTimer < 0 || setToDestroy) && !destroyed) {
-            world.destroyBody(b2body);
+            if(b2body != null){
+                world.destroyBody(b2body);
+            }
             destroyed = true;
         }
 

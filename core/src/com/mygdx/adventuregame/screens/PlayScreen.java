@@ -181,7 +181,6 @@ public class PlayScreen implements Screen {
 
 
         enemyList.add(new Mimic(this, 3.75f, 5f));
-        enemyList.add(new FireGolem(this, 92f, 5.5f));
         sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
         sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
         sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
@@ -281,6 +280,7 @@ public class PlayScreen implements Screen {
         //  Clear the screen
         Gdx.gl.glClearColor(0, 0, 0 , 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
         game.batch.begin();
         backgroundFar.draw(game.batch);
         background.draw(game.batch);

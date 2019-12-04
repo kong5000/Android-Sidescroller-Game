@@ -37,11 +37,12 @@ public class FireElemental extends Enemy {
 
     private boolean canFireProjectile = true;
 
+    private boolean specialDrop = false;
 
 
-
-    public FireElemental(PlayScreen screen, float x, float y) {
+    public FireElemental(PlayScreen screen, float x, float y, boolean specialDrop) {
         super(screen, x, y);
+        this.specialDrop = specialDrop;
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_run"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_die"),
@@ -77,6 +78,11 @@ public class FireElemental extends Enemy {
             setToDestroy = true;
         }
         if (setToDestroy && !destroyed) {
+            if(specialDrop){
+                Chest chest = new Chest(screen, b2body.getPosition().x, b2body.getPosition().y, AdventureGame.FIRE_SPELLBOOK);
+                chest.b2body.applyLinearImpulse(new Vector2(0, 3f), chest.b2body.getWorldCenter(), true);
+                screen.getSpritesToAdd().add(chest);
+            }
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;

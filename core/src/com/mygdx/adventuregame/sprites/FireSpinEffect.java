@@ -15,6 +15,9 @@ public class FireSpinEffect extends Effects {
 
     @Override
     public void update(float dt) {
+        if(enemy.setToDestroy){
+            setToDestroy();
+        }
         stateTimer += dt;
         setPosition(enemy.b2body.getPosition().x - getWidth() / 2 - 0.5f, enemy.b2body.getPosition().y - getHeight() / 2 - 0.5f);
         setRegion(animation.getKeyFrame(stateTimer));

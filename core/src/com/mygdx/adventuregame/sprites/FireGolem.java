@@ -34,7 +34,7 @@ public class FireGolem extends Enemy {
             0.275f, -0.2f,
             0.15f, -0.35f,
             0.15f, 0.1f,
-            };
+    };
     private static final float[] SWORD_HITBOX_RIGHT = {
             0.4f, -0.4f,
             0.4f, 0.1f,
@@ -46,7 +46,7 @@ public class FireGolem extends Enemy {
             -0.1f, -0.4f,
             0.2f, 0.3f};
 
-    private static final float ATTACK_RATE = 1.75f;
+    private static final float ATTACK_RATE = 1f;
 
     private static final int WIDTH_PIXELS = 66;
     private static final int HEIGHT_PIXELS = 59;
@@ -79,11 +79,18 @@ public class FireGolem extends Enemy {
     private Fixture attackFixture;
     private Fixture fireShieldFixture;
 
+    private float attackCycleTimer = 6;
+    private boolean shieldOn = false;
+    private float shieldTimer = 5;
     private float chargingTimer = 0;
     private PlayScreen screen;
     GolemFireAttack fireAttack;
     private float angleToPlayer;
     private FireSpinEffect fireSpinEffect;
+    private float shieldDamageTick = 0.25f;
+    private float attackCooldownTimer;
+    private static final float ATTACK_COOLDOWN = 2.25f;
+    private float playerCloseTimer = 0;
 
     public FireGolem(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -122,7 +129,7 @@ public class FireGolem extends Enemy {
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
 
 //        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
-        setBounds(getX(), getY(), WIDTH_PIXELS * 1.3f / AdventureGame.PPM, HEIGHT_PIXELS * 1.3f/ AdventureGame.PPM);
+        setBounds(getX(), getY(), WIDTH_PIXELS * 1.3f / AdventureGame.PPM, HEIGHT_PIXELS * 1.3f / AdventureGame.PPM);
 
         stateTimer = 0;
         setToDestroy = false;
@@ -134,47 +141,69 @@ public class FireGolem extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 100;
+        health = 70;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         attachNearbyTiles();
 //        setScale(1.25f);
 
-        startFireAttack();
-
         angleToPlayer = getVectorToPlayer().angle();
-        startFireShield();
 
     }
 
-    private void startFireShield(){
+    private void startFireShield() {
         fireSpinEffect = new FireSpinEffect(screen, getX(), getY(), this);
-        createShieldAttack();
+//        createShieldAttack();
         screen.getSpritesToAdd().add(fireSpinEffect);
     }
 
-    private void stopFireShield(){
+    private void stopFireShield() {
         disableFireShieldHitBox();
         fireSpinEffect.setToDestroy();
+        fireSpinEffect = null;
     }
 
-    private void startFireAttack(){
+    private void startFireAttack() {
         fireAttack = new GolemFireAttack(screen, getX() - getWidth() / 2, getY() - getHeight() / 2, runningRight, this);
         screen.getSpritesToAdd().add(fireAttack);
         chargingTimer = 3f;
     }
 
 
-
     @Override
     public void update(float dt) {
+        if (attackCycleTimer > 0) {
+            attackCycleTimer -= dt;
+        } else {
+            attackCycleTimer = 7f;
+            startFireAttack();
+        }
 
-        if(chargingTimer > 0){
+        if (shieldOn) {
+
+            if (shieldDamageTick > 0) {
+                shieldDamageTick -= dt;
+            } else {
+                if (inRange()) {
+                    screen.getPlayer().hurt(3);
+                }
+                shieldDamageTick = 0.75f;
+            }
+        } else {
+            shieldDamageTick = -1;
+        }
+        if (shieldTimer > 0) {
+            shieldTimer -= dt;
+        } else if(shieldOn){
+            stopFireShield();
+            shieldOn = false;
+        }
+
+        if (chargingTimer > 0) {
             chargingTimer -= dt;
-        }else {
-            if(fireAttack != null){
+        } else {
+            if (fireAttack != null) {
                 fireAttack.stopCharging();
-                startFireAttack();
             }
         }
         if (runningRight) {
@@ -197,6 +226,13 @@ public class FireGolem extends Enemy {
         }
 
         if (setToDestroy && !destroyed) {
+            screen.getSpritesToAdd().add(new FireElemental(screen, b2body.getPosition().x, b2body.getPosition().y, true));
+//            if(fireAttack != null){
+//                fireAttack.setToDestroy();
+//            }
+//            if(fireSpinEffect != null){
+//                fireSpinEffect.setToDestroy();
+//            }
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
@@ -212,6 +248,9 @@ public class FireGolem extends Enemy {
     }
 
     private void updateStateTimers(float dt) {
+        if(attackCooldownTimer > 0){
+            attackCooldownTimer -=dt;
+        }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
         }
@@ -227,8 +266,11 @@ public class FireGolem extends Enemy {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
-                goIntoAttackState();
-                lungeAtPlayer();
+                if(attackCooldownTimer <= 0){
+                    goIntoAttackState();
+                    attackCooldownTimer = ATTACK_COOLDOWN;
+                    lungeAtPlayer();
+                }
             }
         }
         if (currentState == State.ATTACKING) {
@@ -304,10 +346,10 @@ public class FireGolem extends Enemy {
         }
     }
 
-    private void disableFireShieldHitBox(){
-        if (attackFixture != null) {
-            b2body.destroyFixture(attackFixture);
-            attackFixture = null;
+    private void disableFireShieldHitBox() {
+        if (fireShieldFixture != null) {
+            b2body.destroyFixture(fireShieldFixture);
+            fireShieldFixture = null;
         }
     }
 
@@ -333,23 +375,30 @@ public class FireGolem extends Enemy {
         }
     }
 
+
     private State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
-        } else if(chargingTimer < 0.35){
-            return State.CAST;
-        }else if(chargingTimer > 0){
+        } else if (chargingTimer > 0) {
+            if (!shieldOn) {
+                shieldTimer = 3;
+                startFireShield();
+                shieldOn = true;
+            }
+            if (chargingTimer < 0.35) {
+                return State.CAST;
+            }
             return State.CHARGING;
-        }
-        else if (attackTimer > 0) {
+        } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM && Math.abs(getVectorToPlayer().x) > 20f / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
         } else {
+            b2body.setLinearVelocity(new Vector2(0, b2body.getLinearVelocity().y));
             return State.IDLE;
         }
     }
@@ -386,6 +435,15 @@ public class FireGolem extends Enemy {
 
     }
 
+    private boolean inRange() {
+        return (getVectorToPlayer().len() < 0.45f);
+    }
+
+    protected Vector2 getVectorToPlayer() {
+        Vector2 enemyPosition = new Vector2(this.getX() + 0.22f, this.getY());
+        Vector2 playerVector = new Vector2(screen.getPlayer().getX(), screen.getPlayer().getY());
+        return playerVector.sub(enemyPosition);
+    }
 
     @Override
     public void damage(int amount) {
@@ -430,9 +488,9 @@ public class FireGolem extends Enemy {
         float[] hitbox = FIRE_SHIELD_HITBOX;
         polygonShape.set(hitbox);
         fixtureDef.shape = polygonShape;
-        fixtureDef.isSensor = false;
+        fixtureDef.isSensor = true;
         fixtureDef.density = 500f;
-        fixtureDef.restitution = 0.6f;
+        fixtureDef.restitution = 0.7f;
         fireShieldFixture = b2body.createFixture(fixtureDef);
         fireShieldFixture.setUserData(this);
     }
@@ -501,7 +559,7 @@ public class FireGolem extends Enemy {
     }
 
 
-    private void attachNearbyTiles(){
+    private void attachNearbyTiles() {
         for (MonsterTile monsterTile : screen.monsterTiles) {
             Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
             Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
@@ -511,14 +569,17 @@ public class FireGolem extends Enemy {
             }
         }
     }
+
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
         shape.set(MINOTAUR_HITBOX);
         return shape;
     }
-    public boolean isCharging(){
+
+    public boolean isCharging() {
         return chargingTimer > 0;
     }
+
 
 }
