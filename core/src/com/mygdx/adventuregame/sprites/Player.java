@@ -187,11 +187,16 @@ private static final float[] RECTANGULAR_HITBOX = {
     private boolean flashFrame = true;
     protected float flashRedTimer;
 
+    private Sprite dialogBox;
+    private TextureRegion itemDialog;
+
     //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
         this.world = world;
         this.screen = screen;
+        dialogBox = new Sprite();
+        dialogBox.setBounds(getX(), getY(), 112/ AdventureGame.PPM, 75 / AdventureGame.PPM);
         xp = 0;
         itemSprite = new Sprite();
         itemSprite.setBounds(getX(), getY(), 16 / AdventureGame.PPM, 16 / AdventureGame.PPM);
@@ -245,6 +250,9 @@ private static final float[] RECTANGULAR_HITBOX = {
         playerBowDamaged = generateAnimation(textureAtlas.findRegion("player_bow_bright"), 5, 50, 37, 0.1f);
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
         playerGotItem = new TextureRegion(screen.getAtlas().findRegion("player_got_item"), 0, 0, 50, 37);
+
+        itemDialog = new TextureRegion(screen.getAtlas().findRegion("sword_dialog"), 0, 0 , 450, 300 );
+
         definePlayer();
 //        setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
         setBounds(0, 0, 55 / AdventureGame.PPM, 41 / AdventureGame.PPM);
@@ -457,8 +465,10 @@ private static final float[] RECTANGULAR_HITBOX = {
     public void draw(Batch batch) {
         super.draw(batch);
         if (itemPickupTimer > 0) {
+            dialogBox.setPosition(b2body.getPosition().x - dialogBox.getWidth()/ 2, b2body.getPosition().y + dialogBox.getHeight() / 2 );
             itemSprite.setPosition(b2body.getPosition().x - 0.1f, b2body.getPosition().y + 0.15f);
             itemSprite.draw(batch);
+            dialogBox.draw(batch);
         }
         magicShield.draw(batch);
     }
@@ -959,6 +969,7 @@ private static final float[] RECTANGULAR_HITBOX = {
         }
         pickedUpItem = getItemTexture(itemID);
         itemSprite.setRegion(pickedUpItem);
+        dialogBox.setRegion(getItemDialog(itemID));
 
     }
 
@@ -994,6 +1005,31 @@ private static final float[] RECTANGULAR_HITBOX = {
                 break;
         }
         return new TextureRegion(screen.getAtlas().findRegion(assetName), 0, 0, 16, 16);
+    }
+
+    private TextureRegion getItemDialog(int id) {
+        String assetName;
+        switch (id) {
+            case AdventureGame.BOW:
+                assetName = "bow_dialog";
+                break;
+            case AdventureGame.FIRE_SPELLBOOK:
+                assetName = "fire_spell_dialog";
+                break;
+            case AdventureGame.RING_OF_DOUBLE_JUMP:
+                assetName = "double_jump_dialog";
+                break;
+            case AdventureGame.RING_OF_PROTECTION:
+                assetName = "protection_ring_dialog";
+                break;
+            case AdventureGame.SWORD:
+                assetName = "sword_dialog";
+                break;
+            default:
+                assetName = "sword_dialog";
+                break;
+        }
+        return new TextureRegion(screen.getAtlas().findRegion(assetName), 0, 0, 450, 300);
     }
 
     public void giveXP(float experiencePoints){
