@@ -277,9 +277,17 @@ public class Controller implements InputProcessor {
 
         if (xVal > 0) {
             player.setRunningRight(true);
+            player.setInputPositiveX(true);
+            player.setInputNegativeX(false);
         } else if (xVal < 0) {
             player.setRunningRight(false);
+            player.setInputPositiveX(false);
+            player.setInputNegativeX(true);
+        }else {
+            player.setInputPositiveX(false);
+            player.setInputNegativeX(false);
         }
+
 
         if (Gdx.input.justTouched()) {
 

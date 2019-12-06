@@ -46,6 +46,7 @@ import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.Ogre;
 import com.mygdx.adventuregame.sprites.Player;
 import com.mygdx.adventuregame.sprites.Slime;
+import com.mygdx.adventuregame.sprites.SpikeBlock;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
 import com.mygdx.adventuregame.tools.B2WorldCreator;
 import com.mygdx.adventuregame.tools.Controller;
@@ -185,6 +186,8 @@ public class PlayScreen implements Screen {
         sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
         sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
         sprites.add(new Item(this, 4.8f, 5f, AdventureGame.RING_OF_DOUBLE_JUMP));
+        sprites.add(new SpikeBlock(this, 6.8f, 5f));
+
     }
 
     public void update(float dt){
@@ -370,7 +373,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-//        b2dr.render(world, gameCam.combined);
+        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();

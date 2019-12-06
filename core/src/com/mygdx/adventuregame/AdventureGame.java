@@ -40,6 +40,9 @@ public class AdventureGame extends Game {
 	public static final short SPIKE_BIT= 1024;
 	public static final short ITEM_BIT= 2048;
 	public static final short BOSS_PROJECTILE_BIT = -1;
+	public static final short WALL_RUN_BIT = -4;
+	public static final short MOVING_BLOCK_BIT= -8;
+	public static final short MOVING_BLOCK_SENSOR= -16;
 
 	public static final float BOW_LOCATION = 2544f;
 	public static final float RING_OF_PROTECTION_LOCATION = 2848f;
