@@ -138,22 +138,23 @@ public class Controller implements InputProcessor {
 //        Gdx.input.setInputProcessor(stage);
 
         Touchpad.TouchpadStyle touchStyle = new Touchpad.TouchpadStyle();
-        padKnobTex = new Texture(Gdx.files.internal("controller_inner.png"));
+        padKnobTex = new Texture(Gdx.files.internal("controller_inner_medium.png"));
         TextureRegion padKnobReg = new TextureRegion(padKnobTex);
+
         touchStyle.knob = new TextureRegionDrawable(padKnobReg);
-        padBackTex = new Texture(Gdx.files.internal("controller_outer.png"));
+        padBackTex = new Texture(Gdx.files.internal("controller_outer_medium.png"));
         TextureRegion padBackReg = new TextureRegion(padBackTex);
         touchStyle.background = new TextureRegionDrawable(padBackReg);
-        touchpadLeft = new Touchpad(5, touchStyle);
+        touchpadLeft = new Touchpad(3, touchStyle);
         touchpadLeft.setVisible(false);
-        touchpadRight = new Touchpad(5, touchStyle);
+        touchpadRight = new Touchpad(3, touchStyle);
         touchpadRight.setVisible(false);
 
         Table table = new Table();
         table.bottom();
         table.setFillParent(true);
         table.toFront();
-        table.padLeft(5);
+        table.padLeft(25);
         table.padBottom(10);
         table.add(touchpadLeft).expandX();
         table.add().expandX();
@@ -247,25 +248,35 @@ public class Controller implements InputProcessor {
         float xVal = getTouchpadLeft().getKnobPercentX();
         if(player.canMove()){
         if (stopSpell ) {
-            if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.PLAYER_MAX_SPEED) {
-                player.b2body.applyLinearImpulse(new Vector2(0.15f, 0), player.b2body.getWorldCenter(), true);
+            if(player.currentState != Player.State.DODGING){
+                if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.PLAYER_MAX_SPEED) {
+//                player.b2body.applyLinearImpulse(new Vector2(0.15f, 0), player.b2body.getWorldCenter(), true);
+                    player.b2body.setLinearVelocity(player.currentSpeed, player.b2body.getLinearVelocity().y);
+                }
+                else if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
+//                player.b2body.applyLinearImpulse(new Vector2(-0.15f, 0), player.b2body.getWorldCenter(), true);
+                    player.b2body.setLinearVelocity(-player.currentSpeed, player.b2body.getLinearVelocity().y);
+                }
+                else  {
+                    player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
+                }
+            }else {
+                if(player.runningRight){
+                    player.b2body.setLinearVelocity(player.dodgeSpeed, player.b2body.getLinearVelocity().y);
 
-//                player.b2body.setLinearVelocity(1.1f, player.b2body.getLinearVelocity().y);
-            }
-            if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
-                player.b2body.applyLinearImpulse(new Vector2(-0.15f, 0), player.b2body.getWorldCenter(), true);
+                }else{
+                    player.b2body.setLinearVelocity(-player.dodgeSpeed, player.b2body.getLinearVelocity().y);
 
-//                player.b2body.setLinearVelocity(-1.1f, player.b2body.getLinearVelocity().y);
+                }
+
             }
-            if (xVal == 0) {
-                player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
-            }
+
         }
 
-        if (yVal < -0.75f) {
-            if (Math.abs(xVal) < 0.25) {
+        if (yVal < -0.65f) {
+
                 player.setCrouching(true);
-            }
+
             player.dodgeEnable(true);
             if (player.getCurrentState() == Player.State.JUMPING) {
                 player.dodge();
@@ -275,11 +286,11 @@ public class Controller implements InputProcessor {
             player.setCrouching(false);
         }
 
-        if (xVal > 0) {
+        if (xVal > 0 && player.currentState != Player.State.DODGING) {
             player.setRunningRight(true);
             player.setInputPositiveX(true);
             player.setInputNegativeX(false);
-        } else if (xVal < 0) {
+        } else if (xVal < 0 && player.currentState != Player.State.DODGING) {
             player.setRunningRight(false);
             player.setInputPositiveX(false);
             player.setInputNegativeX(true);

@@ -68,6 +68,9 @@ private static final float[] RECTANGULAR_HITBOX = {
     private boolean onElevator = false;
 
 
+    public float currentSpeed = 1.3f;
+    private static float MAX_RUN_SPEED = 1.3f;
+    private static float ATTACKING_RUN_SPEED = 0.65f;
     public enum State {
         FALLING, JUMPING, STANDING,
         RUNNING, HURT, ATTACKING,
@@ -116,6 +119,7 @@ private static final float[] RECTANGULAR_HITBOX = {
     private Animation<TextureRegion> playerWallClimb;
     private TextureRegion playerGotItem;
 
+    public float dodgeSpeed = 2f;
     private float wallrunTimer = -1f;
     private boolean positiveXInput = false;
     private boolean negativeXInput = false;
@@ -169,11 +173,11 @@ private static final float[] RECTANGULAR_HITBOX = {
     private static final float ATTACK_TIME = 0.35f;
     private static final float FLIP_TIME = 0.4f;
     private static final float MAX_VERTICAL_SPEED = 3f;
-    private static final float MAX_HORIZONTAL_SPEED = 3f;
+    private static final float MAX_HORIZONTAL_SPEED = 2f;
 
     private float magicShieldAlpha = 1f;
     private int health;
-    private static final int FULL_HEALTH = 25;
+    private static final int FULL_HEALTH = 40;
 
     TextureAtlas textureAtlas;
 
@@ -195,8 +199,11 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     private int xp;
     private float[] yVelocities = {0, 0 ,0};
+    private float[] xVelocities = {0, 0};
     private int yVelocityIndex = 0;
-
+    private int xVelocityIndex = 0;
+    private float averageXVelocity;
+    private float averageYVelocity;
     private int flashCount = 0;
     private boolean flashFrame = true;
     protected float flashRedTimer;
@@ -285,20 +292,20 @@ private static final float[] RECTANGULAR_HITBOX = {
         //First minotaur
 //        bodyDef.position.set(7900 / AdventureGame.PPM, 360 / AdventureGame.PPM);
         //Boss Area
-//        bodyDef.position.set(8950 / AdventureGame.PPM, 500 / AdventureGame.PPM);
+//        bodyDef.position.set(10950 / AdventureGame.PPM, 900 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         b2body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.ENEMY_HEAD_BIT
-                | AdventureGame.ENEMY_ATTACK_BIT
-                | AdventureGame.ENEMY_PROJECTILE_BIT
-                | AdventureGame.PLATFORM_BIT
-                | AdventureGame.SPIKE_BIT
-                | AdventureGame.ITEM_BIT
-        |AdventureGame.BOSS_PROJECTILE_BIT;
+//        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
+//        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
+//                | AdventureGame.ENEMY_HEAD_BIT
+//                | AdventureGame.ENEMY_ATTACK_BIT
+//                | AdventureGame.ENEMY_PROJECTILE_BIT
+//                | AdventureGame.PLATFORM_BIT
+//                | AdventureGame.SPIKE_BIT
+//                | AdventureGame.ITEM_BIT
+//        |AdventureGame.BOSS_PROJECTILE_BIT;
 
 
 //
@@ -322,6 +329,7 @@ private static final float[] RECTANGULAR_HITBOX = {
                 | AdventureGame.ITEM_BIT
                 | AdventureGame.MOVING_BLOCK_BIT;
         fixtureDef.isSensor = false;
+        fixtureDef.friction = 0;
         b2body.createFixture(fixtureDef).setUserData(this);
 
 
@@ -346,6 +354,13 @@ private static final float[] RECTANGULAR_HITBOX = {
         setPosition(getXPos(), getYPos() + 0.1f);
         setRegion(getFrame(dt));
         limitSpeed();
+        updateAverageYVelocity();
+        updateAverageXVelocity();
+        if(currentState == State.ATTACKING){
+            currentSpeed = ATTACKING_RUN_SPEED;
+        }else {
+            currentSpeed = MAX_RUN_SPEED;
+        }
         if(isCanWallRun()){
             if(positiveXInput || negativeXInput){
                 b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1.5f);
@@ -622,7 +637,7 @@ private static final float[] RECTANGULAR_HITBOX = {
             return State.HURT;
         } else if (flipTimer > 0) {
             return State.FLIPPING;
-        } else if (b2body.getLinearVelocity().y > 0 && !onElevator) {
+        } else if (isJumping() && !onElevator) {
             return State.JUMPING;
         }
 //        else if (b2body.getLinearVelocity().y < 0) {
@@ -634,7 +649,7 @@ private static final float[] RECTANGULAR_HITBOX = {
 
         else if (dodgeTimer > 0) {
             return State.DODGING;
-        } else if (b2body.getLinearVelocity().x != 0) {
+        } else if (isRunning()) {
             flipEnabled = true;
             return State.RUNNING;
         } else if (isCrouching) {
@@ -876,7 +891,7 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public int getSwordDamage() {
         Random random = new Random();
-        int damage = random.nextInt(2+ swordLevel) + 2 + swordLevel /2 ;
+        int damage = random.nextInt(3+ swordLevel) + 3 + swordLevel /2 ;
         if (attackNumber == 2) {
             damage = 5 + swordLevel;
         }
@@ -903,10 +918,12 @@ private static final float[] RECTANGULAR_HITBOX = {
             if (b2body.getLinearVelocity().y == 0) {
                 dodgeTimer = 0.35f;
                 if (runningRight) {
-                    b2body.applyLinearImpulse(new Vector2(2f, 0), b2body.getWorldCenter(), true);
-                } else {
-                    b2body.applyLinearImpulse(new Vector2(-2f, 0), b2body.getWorldCenter(), true);
+//                    b2body.applyLinearImpulse(new Vector2(2f, 0), b2body.getWorldCenter(), true);
+                    b2body.setLinearVelocity(currentSpeed, b2body.getLinearVelocity().y);
 
+                } else {
+//                    b2body.applyLinearImpulse(new Vector2(-2f, 0), b2body.getWorldCenter(), true);
+                    b2body.setLinearVelocity(-currentSpeed, b2body.getLinearVelocity().y);
                 }
             }
         }
@@ -1080,16 +1097,61 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
 
     public boolean isFalling(){
+        if(b2body.getLinearVelocity().y < 0){
+            return true;
+        }
+        if(averageYVelocity < -0.01){
+            return true;
+        }
+
+        return false;
+//        float average = (yVelocities[0] + yVelocities[1] + yVelocities[2])/ 3f;
+//        yVelocities[yVelocityIndex] = b2body.getLinearVelocity().y;
+//        yVelocityIndex++;
+//        if(yVelocityIndex > yVelocities.length - 1){
+//            yVelocityIndex = 0;
+//        }
+//        if(average < -0.75){
+//            return true;
+//        }
+//        return false;
+    }
+
+    private boolean isJumping(){
+        if(b2body.getLinearVelocity().y > 0){
+            return true;
+        }
+        if(averageYVelocity > 0.01){
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isRunning(){
+        if(Math.abs(averageXVelocity) > 0){
+            return true;
+        }
+        return false;
+    }
+    private void updateAverageYVelocity(){
         float average = (yVelocities[0] + yVelocities[1] + yVelocities[2])/ 3f;
         yVelocities[yVelocityIndex] = b2body.getLinearVelocity().y;
         yVelocityIndex++;
         if(yVelocityIndex > yVelocities.length - 1){
             yVelocityIndex = 0;
         }
-        if(average < -0.75){
-            return true;
+        averageYVelocity = average;
+    }
+
+    private void updateAverageXVelocity(){
+        float average = (xVelocities[0] + xVelocities[1] )/ 3f;
+        xVelocities[xVelocityIndex] = b2body.getLinearVelocity().x;
+        xVelocityIndex++;
+        if(xVelocityIndex > xVelocities.length - 1){
+            xVelocityIndex = 0;
         }
-        return false;
+        averageXVelocity = average;
     }
     public void hitBySpike(){
         hurtBySpikeTimer = 0.15f;
@@ -1097,14 +1159,35 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
 
     private void limitSpeed(){
-        if(b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED){
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        if(currentState != State.DODGING){
+            if(b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED){
+                b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+            }
+            if(b2body.getLinearVelocity().x > MAX_RUN_SPEED){
+                b2body.setLinearVelocity(MAX_RUN_SPEED, b2body.getLinearVelocity().y);
+            }
+            if(b2body.getLinearVelocity().x < -MAX_RUN_SPEED){
+                b2body.setLinearVelocity(-MAX_RUN_SPEED, b2body.getLinearVelocity().y);
+            }
+        }else {
+            if(b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED){
+                b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+            }
+            if(b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED){
+                b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+            }
+            if(b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED){
+                b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+            }
         }
-        if(b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED){
-            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+
+        if(currentState == State.WALLCLIMB){
+            if(b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED){
+                b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED -1.5f);
+            }
         }
-        if(b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED){
-            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        if(currentState == State.PICKUP || currentState == State.HURT){
+            b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
         }
     }
 
@@ -1136,10 +1219,13 @@ private static final float[] RECTANGULAR_HITBOX = {
         return currentState != State.HURT;
     }
     public void enableWallRun(){
-        if(wallrunTimer < 0){
-            wallrunTimer = 0.5f;
+        if(currentState == State.FALLING || currentState == State.JUMPING || currentState == State.FLIPPING){
+            if(wallrunTimer < 0){
+                wallrunTimer = 0.35f;
+            }
+            canWallRun = true;
         }
-        canWallRun = true;
+
     }
 
     public void addXMovement(float x){

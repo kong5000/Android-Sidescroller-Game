@@ -141,7 +141,7 @@ public class FireGolem extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 70;
+        health = 45;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         attachNearbyTiles();

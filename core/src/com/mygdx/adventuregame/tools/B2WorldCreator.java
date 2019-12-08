@@ -1,6 +1,5 @@
 package com.mygdx.adventuregame.tools;
 
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.PolygonMapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
@@ -78,6 +77,9 @@ public class B2WorldCreator {
         for (MapObject object : map.getLayers().get(20).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             HorizontalSpikeBlock spikeBlock = new HorizontalSpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
+            if(isAtLocation(rect.getY(), 512)){
+                spikeBlock.setTravelTime(7f);
+            }
             screen.getSpritesToAdd().add(spikeBlock);
         }
 //        for(MapObject object : map.getLayers().get(12).getObjects().getByType(RectangleMapObject.class))
@@ -192,30 +194,30 @@ public class B2WorldCreator {
 
     private Chest treasureMaker(float chestPosition, float y) {
         int treasureType = AdventureGame.MEDIUM_HEALTH;
-        if (isChestAtLocation(chestPosition, AdventureGame.BOW_LOCATION)) {
+        if (isAtLocation(chestPosition, AdventureGame.BOW_LOCATION)) {
             treasureType = AdventureGame.BOW;
-        } else if (isChestAtLocation(chestPosition, AdventureGame.DOUBLE_JUMP_LOCATION)) {
+        } else if (isAtLocation(chestPosition, AdventureGame.DOUBLE_JUMP_LOCATION)) {
             treasureType = AdventureGame.RING_OF_DOUBLE_JUMP;
-        }else if (isChestAtLocation(chestPosition, AdventureGame.RING_OF_PROTECTION_LOCATION)){
+        }else if (isAtLocation(chestPosition, AdventureGame.RING_OF_PROTECTION_LOCATION)){
             treasureType = AdventureGame.RING_OF_PROTECTION;
         }
-        else if (isChestAtLocation(chestPosition, AdventureGame.SWORD_LOCATION)){
+        else if (isAtLocation(chestPosition, AdventureGame.SWORD_LOCATION)){
             treasureType = AdventureGame.SWORD;
         }
-        else if (isChestAtLocation(chestPosition, AdventureGame.RING_OF_REGEN_LOCATION)){
+        else if (isAtLocation(chestPosition, AdventureGame.RING_OF_REGEN_LOCATION)){
             treasureType = AdventureGame.RING_OF_REGENERATION;
         }
-        else if (isChestAtLocation(chestPosition, AdventureGame.SWORD_LOCATION_2)){
+        else if (isAtLocation(chestPosition, AdventureGame.SWORD_LOCATION_2)){
             treasureType = AdventureGame.SWORD;
         }
-        else if (isChestAtLocation(chestPosition, AdventureGame.BOW_LOCATION_2)){
+        else if (isAtLocation(chestPosition, AdventureGame.BOW_LOCATION_2)){
             treasureType = AdventureGame.BOW;
         }
 
         return new Chest(screen, chestPosition / AdventureGame.PPM, y / AdventureGame.PPM, treasureType);
     }
 
-    private boolean isChestAtLocation(float currentChest, float location){
+    private boolean isAtLocation(float currentChest, float location){
         return (Math.abs(currentChest - location) < 0.01f);
     }
 

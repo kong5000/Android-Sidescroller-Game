@@ -373,7 +373,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-        b2dr.render(world, gameCam.combined);
+//        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
