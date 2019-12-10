@@ -147,7 +147,6 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         }
         rotation += rotationIncrement;
         setRotation(rotation);
-
         if ((aliveTimer < 0 || setToDestroy) && !destroyed) {
             if(b2body != null){
                 world.destroyBody(b2body);

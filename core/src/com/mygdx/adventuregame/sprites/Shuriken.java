@@ -14,7 +14,9 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile  {
+public class Shuriken extends Sprite implements UpdatableSprite, EnemyProjectile  {
+    private boolean setToDestroyHitBox = false;
+
     private enum State{ARMED, IMPACT}
     private State currentState = State.ARMED;
     private State previousState = State.ARMED;
@@ -28,39 +30,71 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
     private Animation<TextureRegion> projectileAnimation;
     private float aliveTimer;
     private float stateTimer;
-    private static final float TIME_ALIVE = 200f;
-    private static final int WIDTH_PIXELS = 32;
-    private static final int HEIGHT_PIXELS = 16;
+    private static final float TIME_ALIVE = 5f;
+    private static final int WIDTH_PIXELS = 15;
+    private static final int HEIGHT_PIXELS = 15;
     private boolean isFriendly;
+    private float rotation =0f;
+    private float charge = 0f;
+    private boolean goingRight;
+    private static final float MAX_CHARGE = 1.2f;
+    private float existTimer = 0;
+    private boolean hitBoxDestroyed = false;
 
     private Animation<TextureRegion> projectile;
-    public FireBall(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly){
+    public Shuriken(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
+        this.goingRight = goingRight;
         this.world = screen.getWorld();
         this.screen = screen;
+        this.charge = charge;
         setPosition(x, y);
         this.isFriendly = isFriendly;
         defineProjectile();
         attackEnabled = false;
         aliveTimer = TIME_ALIVE;
         stateTimer = 0;
-        projectileAnimation = generateAnimation(screen.getAtlas().findRegion("projectile_animation")
-        ,4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        setRegion(new TextureRegion(screen.getAtlas().findRegion("arrow"), 0, 0, 16, 16));
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
-        if(isFriendly){
-            setScale(0.5f);
+        setOrigin(getWidth() / 2, getHeight() / 2);
+        setScale(0.75f);
+        if(goingRight){
+            rotation = -135;
+        }else {
+            rotation = 45;
         }
+
     }
 
     public void update(float dt){
+        if(!hitBoxDestroyed){
+            setRotation(rotation);
+            if(goingRight){
+                rotation -= 0.25;
+            }else {
+                rotation += 0.25;
+            }
+
+        }
+
         aliveTimer -= dt;
-        setRegion(getFrame(dt));
-        setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+        if(!hitBoxDestroyed){
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+
+        }
+        if( setToDestroyHitBox && !hitBoxDestroyed && !destroyed) {
+            hitBoxDestroyed = true;
+            world.destroyBody(b2body);
+        }
+
+        if(aliveTimer < 0 && !destroyed){
+            destroyed = true;
+        }
+
         if((aliveTimer < 0 || setToDestroy) && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
         }
-
 
     }
 
@@ -73,27 +107,6 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case ARMED:
-                attackEnabled = true;
-                texture = projectileAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IMPACT:
-            default:
-                attackEnabled = false;
-                texture = projectileAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        flipFramesIfNeeded(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
 
     private void flipFramesIfNeeded(TextureRegion texture){
         if (b2body.getLinearVelocity().x < 0 && texture.isFlipX()) {
@@ -107,7 +120,7 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
     public void setGoingRight(boolean status){
         float speed = 1f;
         if(isFriendly){
-            speed *= 3.5f;
+            speed = charge *2f + 3f;
         }
         if(status){
             b2body.setLinearVelocity(new Vector2(speed, 0));
@@ -143,13 +156,22 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
         }
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(8 / AdventureGame.PPM);
+        shape.setRadius(4 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
+        if(charge > MAX_CHARGE){
+            fixtureDef.density = 75f;
+        }else {
+            fixtureDef.density = charge * 5f;
+        }
+
         b2body.createFixture(fixtureDef).setUserData(this);
         b2body.setGravityScale(0.1f);
     }
 
+    public void setToDestroyHitBox(){
+        setToDestroyHitBox = true;
+    }
     public void setToDestroy(){
         setToDestroy = true;
     }
@@ -176,11 +198,15 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
 
     public void explode(){
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
-        ,getY() - getHeight() / 2 -0.05f));
+                ,getY() - getHeight() / 2 -0.05f));
     }
 
     @Override
     public boolean safeToRemove() {
         return safeToRemove;
+    }
+
+    public int getDamage(){
+        return (int)( charge * 5.5f) + 2;
     }
 }

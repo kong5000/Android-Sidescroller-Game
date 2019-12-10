@@ -34,7 +34,7 @@ import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireElemental;
-import com.mygdx.adventuregame.sprites.FireGolem;
+
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.Golem;
 import com.mygdx.adventuregame.sprites.HealthBar;
@@ -373,7 +373,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.end();
 
 
-//        b2dr.render(world, gameCam.combined);
+        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();

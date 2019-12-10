@@ -13,6 +13,7 @@ import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.GolemFireAttack;
 import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.Player;
+import com.mygdx.adventuregame.sprites.Shuriken;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
 
 public class WorldContactListener implements ContactListener {
@@ -83,20 +84,21 @@ public class WorldContactListener implements ContactListener {
 
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
-                    ((Enemy) fixA.getUserData()).damage(3);
-                    ((FireBall) fixB.getUserData()).setToDestroy();
+                    int damage = ((Shuriken) fixB.getUserData()).getDamage();
+                    ((Shuriken) fixB.getUserData()).setToDestroy();
+                    ((Enemy) fixA.getUserData()).damage(damage);
                 } else {
-                    ((Enemy) fixB.getUserData()).damage(3);
-                    ((FireBall) fixA.getUserData()).setToDestroy();
+                    int damage = ((Shuriken) fixA.getUserData()).getDamage();
+                    ((Shuriken) fixA.getUserData()).setToDestroy();
+                    ((Enemy) fixB.getUserData()).damage(damage);
+
                 }
                 break;
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_PROJECTILE_BIT) {
-                    ((FireBall) fixA.getUserData()).setToDestroy();
-                    ((FireBall) fixA.getUserData()).explode();
+                    ((Shuriken) fixA.getUserData()).setToDestroyHitBox();
                 } else {
-                    ((FireBall) fixB.getUserData()).setToDestroy();
-                    ((FireBall) fixB.getUserData()).explode();
+                    ((Shuriken) fixB.getUserData()).setToDestroyHitBox();
                 }
                 break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.GROUND_BIT:

@@ -85,6 +85,8 @@ public class Controller implements InputProcessor {
                     if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
                         player.startChargingAnimation();
                         player.setChargingSpell();
+                    }else if(player.getEquipedSpell() == Player.Spell.BOW){
+                        player.chargingBow = true;
                     }
                 }
 
@@ -101,6 +103,10 @@ public class Controller implements InputProcessor {
                 touchDown = false;
                 player.endChargingSpell();
                 stopSpell = true;
+
+                if(player.chargingBow){
+                    player.chargingBow = false;
+                }
             }
         });
 
@@ -114,6 +120,7 @@ public class Controller implements InputProcessor {
                 if (player.canMove()) {
                     player.jump();
                 }
+                player.jumpIsHeld = true;
                 buttonClicked = true;
                 return true;
             }
@@ -122,6 +129,7 @@ public class Controller implements InputProcessor {
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 buttonClicked = false;
                 touchDown = false;
+                player.jumpIsHeld =false;
             }
         });
 
@@ -138,16 +146,16 @@ public class Controller implements InputProcessor {
 //        Gdx.input.setInputProcessor(stage);
 
         Touchpad.TouchpadStyle touchStyle = new Touchpad.TouchpadStyle();
-        padKnobTex = new Texture(Gdx.files.internal("controller_inner_medium.png"));
+        padKnobTex = new Texture(Gdx.files.internal("controller_inner_small.png"));
         TextureRegion padKnobReg = new TextureRegion(padKnobTex);
 
         touchStyle.knob = new TextureRegionDrawable(padKnobReg);
-        padBackTex = new Texture(Gdx.files.internal("controller_outer_medium.png"));
+        padBackTex = new Texture(Gdx.files.internal("controller_outer_small.png"));
         TextureRegion padBackReg = new TextureRegion(padBackTex);
         touchStyle.background = new TextureRegionDrawable(padBackReg);
-        touchpadLeft = new Touchpad(3, touchStyle);
+        touchpadLeft = new Touchpad(5.5f, touchStyle);
         touchpadLeft.setVisible(false);
-        touchpadRight = new Touchpad(3, touchStyle);
+        touchpadRight = new Touchpad(5.5f, touchStyle);
         touchpadRight.setVisible(false);
 
         Table table = new Table();
@@ -250,12 +258,12 @@ public class Controller implements InputProcessor {
         if (stopSpell ) {
             if(player.currentState != Player.State.DODGING){
                 if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.PLAYER_MAX_SPEED) {
-//                player.b2body.applyLinearImpulse(new Vector2(0.15f, 0), player.b2body.getWorldCenter(), true);
-                    player.b2body.setLinearVelocity(player.currentSpeed, player.b2body.getLinearVelocity().y);
+                player.b2body.applyLinearImpulse(new Vector2(0.175f, 0), player.b2body.getWorldCenter(), true);
+//                    player.b2body.setLinearVelocity(player.currentSpeed, player.b2body.getLinearVelocity().y);
                 }
                 else if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
-//                player.b2body.applyLinearImpulse(new Vector2(-0.15f, 0), player.b2body.getWorldCenter(), true);
-                    player.b2body.setLinearVelocity(-player.currentSpeed, player.b2body.getLinearVelocity().y);
+                player.b2body.applyLinearImpulse(new Vector2(-0.175f, 0), player.b2body.getWorldCenter(), true);
+//                    player.b2body.setLinearVelocity(-player.currentSpeed, player.b2body.getLinearVelocity().y);
                 }
                 else  {
                     player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
@@ -273,7 +281,7 @@ public class Controller implements InputProcessor {
 
         }
 
-        if (yVal < -0.65f) {
+        if (yVal < -0.75f) {
 
                 player.setCrouching(true);
 
@@ -286,17 +294,17 @@ public class Controller implements InputProcessor {
             player.setCrouching(false);
         }
 
-        if (xVal > 0 && player.currentState != Player.State.DODGING) {
-            player.setRunningRight(true);
-            player.setInputPositiveX(true);
-            player.setInputNegativeX(false);
-        } else if (xVal < 0 && player.currentState != Player.State.DODGING) {
-            player.setRunningRight(false);
-            player.setInputPositiveX(false);
-            player.setInputNegativeX(true);
+
+
+        if(yVal > -.65){
+            player.setInputPositiveY(true);
+            player.setInputNegativeY(false);
+        }else if(yVal <= -.65){
+            player.setInputPositiveY(false);
+            player.setInputNegativeY(true);
         }else {
-            player.setInputPositiveX(false);
-            player.setInputNegativeX(false);
+            player.setInputPositiveY(false);
+            player.setInputNegativeY(false);
         }
 
 
@@ -319,6 +327,19 @@ public class Controller implements InputProcessor {
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.attack();
         }}
+
+        if (xVal > 0 && player.currentState != Player.State.DODGING) {
+            player.setRunningRight(true);
+            player.setInputPositiveX(true);
+            player.setInputNegativeX(false);
+        } else if (xVal < 0 && player.currentState != Player.State.DODGING) {
+            player.setRunningRight(false);
+            player.setInputPositiveX(false);
+            player.setInputNegativeX(true);
+        }else {
+            player.setInputPositiveX(false);
+            player.setInputNegativeX(false);
+        }
     }
 
     @Override
@@ -345,7 +366,8 @@ public class Controller implements InputProcessor {
         if (!buttonClicked && player.canMove()) {
             if (screenX > 700) {
                 if (screenY < 670) {
-                    player.attack();
+                    player.castSpell();
+//                    player.attack();
                 }
 
             }
@@ -364,6 +386,15 @@ public class Controller implements InputProcessor {
             }
             gestureStarted = false;
         }
+        if (screenX > 700) {
+            if (screenY < 670) {
+                if(player.currentState == Player.State.CHARGING_BOW){
+                    player.bowAttack();
+                }
+            }
+
+        }
+
         return false;
     }
 

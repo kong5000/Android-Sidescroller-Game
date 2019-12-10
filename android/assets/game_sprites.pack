@@ -640,65 +640,79 @@ projectile_animation
   orig: 128, 16
   offset: 0, 0
   index: -1
-chest_open
+player_throw
   rotate: false
-  xy: 4542, 870
-  size: 196, 37
-  orig: 196, 37
+  xy: 4542, 868
+  size: 208, 39
+  orig: 208, 39
   offset: 0, 0
-  index: -1
-mimic_idle
-  rotate: false
-  xy: 4542, 833
-  size: 196, 37
-  orig: 196, 37
-  offset: 0, 0
-  index: -1
+  index: 1
 player_attack3
   rotate: false
-  xy: 4542, 796
+  xy: 4542, 831
   size: 300, 37
   orig: 300, 37
   offset: 0, 0
   index: -1
 player_attack3_bright
   rotate: false
-  xy: 4542, 759
+  xy: 4542, 794
   size: 300, 37
   orig: 300, 37
   offset: 0, 0
   index: -1
 kobold_hurt
   rotate: false
-  xy: 4542, 724
+  xy: 4542, 759
   size: 204, 35
   orig: 204, 35
   offset: 0, 0
   index: -1
 kobold_hurt_bright
   rotate: false
-  xy: 4542, 689
+  xy: 4542, 724
   size: 204, 35
   orig: 204, 35
   offset: 0, 0
   index: -1
 player_crouch
   rotate: false
-  xy: 4542, 652
+  xy: 4542, 687
   size: 200, 37
   orig: 200, 37
   offset: 0, 0
   index: -1
+chest_open
+  rotate: false
+  xy: 4542, 650
+  size: 196, 37
+  orig: 196, 37
+  offset: 0, 0
+  index: -1
 fire_elemental_hurt
   rotate: false
-  xy: 4542, 609
+  xy: 4542, 607
   size: 186, 43
   orig: 186, 43
   offset: 0, 0
   index: -1
+mimic_idle
+  rotate: false
+  xy: 4738, 936
+  size: 196, 37
+  orig: 196, 37
+  offset: 0, 0
+  index: -1
+player_charge_bow_air
+  rotate: false
+  xy: 3630, 943
+  size: 100, 37
+  orig: 100, 37
+  offset: 0, 0
+  index: -1
 fire_elemental_hurt_bright
   rotate: false
-  xy: 4738, 930
+  xy: 4750, 893
   size: 186, 43
   orig: 186, 43
   offset: 0, 0
@@ -708,20 +722,6 @@ slime_attack
   xy: 3000, 7
   size: 170, 27
   orig: 170, 27
-  offset: 0, 0
-  index: -1
-ogre_hurt
-  rotate: false
-  xy: 4738, 888
-  size: 174, 42
-  orig: 174, 42
-  offset: 0, 0
-  index: -1
-ogre_hurt_bright
-  rotate: false
-  xy: 4738, 846
-  size: 174, 42
-  orig: 174, 42
   offset: 0, 0
   index: -1
 slime_die
@@ -747,7 +747,7 @@ ogre_jump
   index: -1
 fire_golem_fall
   rotate: false
-  xy: 4746, 700
+  xy: 4746, 735
   size: 132, 59
   orig: 132, 59
   offset: 0, 0
@@ -773,60 +773,60 @@ golem_fall
   orig: 152, 59
   offset: 0, 0
   index: -1
-player_hurt
+ogre_hurt
   rotate: false
-  xy: 4424, 14
-  size: 156, 39
-  orig: 156, 39
+  xy: 4424, 11
+  size: 174, 42
+  orig: 174, 42
+  offset: 0, 0
+  index: -1
+ogre_hurt_bright
+  rotate: false
+  xy: 4598, 108
+  size: 174, 42
+  orig: 174, 42
   offset: 0, 0
   index: -1
 golem_jump_ready
   rotate: false
-  xy: 4576, 91
+  xy: 4772, 91
   size: 152, 59
   orig: 152, 59
   offset: 0, 0
   index: -1
-player_hurt_bright
+player_hurt
   rotate: false
-  xy: 4728, 111
+  xy: 4576, 69
   size: 156, 39
   orig: 156, 39
   offset: 0, 0
   index: -1
-mimic_hurt
-  rotate: false
-  xy: 4576, 54
-  size: 147, 37
-  orig: 147, 37
-  offset: 0, 0
-  index: -1
-mimic_hurt_bright
-  rotate: false
-  xy: 4580, 17
-  size: 147, 37
-  orig: 147, 37
-  offset: 0, 0
-  index: -1
-slime_hurt
-  rotate: false
-  xy: 4728, 84
-  size: 136, 27
-  orig: 136, 27
-  offset: 0, 0
-  index: -1
 fire_golem_jump_ready
   rotate: false
-  xy: 4727, 25
+  xy: 4598, 10
   size: 132, 59
   orig: 132, 59
   offset: 0, 0
   index: -1
-slime_move
+mimic_hurt
   rotate: false
-  xy: 4746, 673
-  size: 136, 27
-  orig: 136, 27
+  xy: 4746, 698
+  size: 147, 37
+  orig: 147, 37
+  offset: 0, 0
+  index: -1
+player_hurt_bright
+  rotate: false
+  xy: 4742, 659
+  size: 156, 39
+  orig: 156, 39
+  offset: 0, 0
+  index: -1
+player_charge_bow
+  rotate: false
+  xy: 4738, 622
+  size: 150, 37
+  orig: 150, 37
   offset: 0, 0
   index: -1
 spike_box_3_side
@@ -836,25 +836,32 @@ spike_box_3_side
   orig: 80, 64
   offset: 0, 0
   index: -1
-player_got_item
+mimic_hurt_bright
   rotate: false
-  xy: 3630, 943
-  size: 50, 37
-  orig: 50, 37
+  xy: 4732, 54
+  size: 147, 37
+  orig: 147, 37
+  offset: 0, 0
+  index: -1
+slime_hurt
+  rotate: false
+  xy: 4730, 27
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+slime_move
+  rotate: false
+  xy: 4730, 0
+  size: 136, 27
+  orig: 136, 27
   offset: 0, 0
   index: -1
 2
   rotate: false
-  xy: 4842, 771
+  xy: 4842, 818
   size: 75, 75
   orig: 75, 75
-  offset: 0, 0
-  index: -1
-player_fall
-  rotate: false
-  xy: 4742, 634
-  size: 104, 39
-  orig: 104, 39
   offset: 0, 0
   index: -1
 3
@@ -871,58 +878,86 @@ player_fall
   orig: 75, 75
   offset: 0, 0
   index: -1
-player_fall_bright
-  rotate: false
-  xy: 4846, 634
-  size: 104, 39
-  orig: 104, 39
-  offset: 0, 0
-  index: -1
 5
   rotate: false
-  xy: 4872, 559
+  xy: 4878, 743
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
+player_got_item
+  rotate: false
+  xy: 3546, 866
+  size: 50, 37
+  orig: 50, 37
+  offset: 0, 0
+  index: -1
 6
   rotate: false
-  xy: 4872, 484
+  xy: 4898, 668
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 7
   rotate: false
-  xy: 4872, 409
+  xy: 4898, 593
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 8
   rotate: false
-  xy: 4872, 334
+  xy: 4872, 518
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
 9
   rotate: false
-  xy: 4884, 75
+  xy: 4872, 443
   size: 75, 75
   orig: 75, 75
   offset: 0, 0
   index: -1
+player_fall
+  rotate: false
+  xy: 4872, 404
+  size: 104, 39
+  orig: 104, 39
+  offset: 0, 0
+  index: -1
+player_fall_bright
+  rotate: false
+  xy: 4872, 365
+  size: 104, 39
+  orig: 104, 39
+  offset: 0, 0
+  index: -1
+player_fire_bow
+  rotate: false
+  xy: 4872, 328
+  size: 100, 37
+  orig: 100, 37
+  offset: 0, 0
+  index: -1
 monster_block
   rotate: false
-  xy: 3698, 1007
+  xy: 4106, 911
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
-bow
+arrow
   rotate: false
   xy: 2728, 254
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bow
+  rotate: false
+  xy: 4576, 53
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -955,23 +990,30 @@ ring_of_double_jump
   orig: 16, 16
   offset: 0, 0
   index: -1
+shuriken
+  rotate: false
+  xy: 4132, 171
+  size: 15, 15
+  orig: 15, 15
+  offset: 0, 0
+  index: -1
 ring_of_protection
   rotate: false
-  xy: 980, 102
+  xy: 4734, 920
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ring_of_regeneration
   rotate: false
-  xy: 2862, 176
+  xy: 980, 102
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 small_health
   rotate: false
-  xy: 3546, 887
+  xy: 2862, 176
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

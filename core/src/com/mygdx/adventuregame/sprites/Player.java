@@ -71,19 +71,28 @@ private static final float[] RECTANGULAR_HITBOX = {
     public float currentSpeed = 1.3f;
     private static float MAX_RUN_SPEED = 1.3f;
     private static float ATTACKING_RUN_SPEED = 0.65f;
+    private boolean negativeYInput = false;
+    private boolean positiveYInput = false;
+    public boolean jumpIsHeld = false;
+    public boolean chargingBow = false;
+    public boolean attackDown = false;
+    public  boolean attackReleased = true;
+    private float arrowCharge= 0;
+
     public enum State {
         FALLING, JUMPING, STANDING,
         RUNNING, HURT, ATTACKING,
         AIR_ATTACKING, FLIPPING,
         CASTING, DODGING, CROUCHING,
         SHOOTING, DYING, REVIVING, PICKUP,
-        WALLCLIMB
+        WALLCLIMB, CHARGING_BOW
     }
 
     public enum Spell {FIREBALL, SHIELD, BOW, NONE}
 
     private boolean canWallRun = false;
-    private Spell equipedSpell = Spell.NONE;
+//    private Spell equipedSpell = Spell.NONE;
+    private Spell equipedSpell = Spell.FIREBALL;
     public State currentState;
     public State previousState;
     public World world;
@@ -117,6 +126,10 @@ private static final float[] RECTANGULAR_HITBOX = {
     private Animation<TextureRegion> playerBowDamaged;
     private Animation<TextureRegion> playerCrouch;
     private Animation<TextureRegion> playerWallClimb;
+    private Animation<TextureRegion> playerThrow1;
+    private Animation<TextureRegion> playerChargeBow;
+    private Animation<TextureRegion> playerChargeBowAir;
+    private Animation<TextureRegion> playerFireBow;
     private TextureRegion playerGotItem;
 
     public float dodgeSpeed = 2f;
@@ -129,8 +142,8 @@ private static final float[] RECTANGULAR_HITBOX = {
     private boolean hasRegeneration = false;
     private boolean hasProtection = false;
     private int swordLevel = 0;
-    public boolean hasBow = false;
-    public boolean hasFireSpell = false;
+    public boolean hasBow = true;
+    public boolean hasFireSpell = true;
     private boolean canFireProjectile;
     private boolean passThroughFloor = false;
     private boolean isCrouching = false;
@@ -165,10 +178,10 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public static float PLAYER_MAX_SPEED = 1.35f;
     private static final float CAST_COOLDOWN_TIME = 1f;
-    private static float ARROW_COOLDOWN_TIME = 0.8f;
-    private static final float SHOOT_ARROW_TIME = 0.5f;
+    private static float ARROW_COOLDOWN_TIME = 0.45f;
+    private static final float SHOOT_ARROW_TIME = 0.2f;
     public static final float SHIELD_TIME = 3.5f;
-    private static final float HURT_TIME = 0.66f;
+    private static final float HURT_TIME = 0.45f;
     private static final float CAST_TIME = 0.5f;
     private static final float ATTACK_TIME = 0.35f;
     private static final float FLIP_TIME = 0.4f;
@@ -211,6 +224,8 @@ private static final float[] RECTANGULAR_HITBOX = {
     private Sprite dialogBox;
     private TextureRegion itemDialog;
 
+    private static float MAX_ARROW_CHARGE = 0.75f;
+
     //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
@@ -251,6 +266,7 @@ private static final float[] RECTANGULAR_HITBOX = {
         playerDie = generateAnimation(textureAtlas.findRegion("player_die"), 7, 52, 39, 0.3f);
         playerRevive = generateAnimation(textureAtlas.findRegion("player_revive"), 7, 50, 37, 0.3f);
 
+        playerThrow1 = generateAnimation(textureAtlas.findRegion("player_throw"), 4, 52, 39, 0.07f);
         playerAttack = generateAnimation(textureAtlas.findRegion("player_attack1"), 5, 52, 39, 0.07f);
         playerAttackDamaged = generateAnimation(textureAtlas.findRegion("player_attack1_bright"), 5, 52, 39, 0.07f);
         playerAttack2 = generateAnimation(textureAtlas.findRegion("player_attack2"), 6, 50, 37, 0.0575f);
@@ -268,6 +284,11 @@ private static final float[] RECTANGULAR_HITBOX = {
         playerDodgeDamaged = generateAnimation(textureAtlas.findRegion("player_dodge_bright"), 5, 50, 37, 0.07f);
         playerCrouch = generateAnimation(textureAtlas.findRegion("player_crouch"), 4, 50, 37, 0.1f);
         playerBow = generateAnimation(textureAtlas.findRegion("player_bow"), 5, 50, 37, 0.1f);
+        playerChargeBow = generateAnimation(textureAtlas.findRegion("player_charge_bow"), 3, 50, 37, 0.1f);
+        playerChargeBowAir = generateAnimation(textureAtlas.findRegion("player_charge_bow_air"), 2, 50, 37, 0.1f);
+        playerFireBow = generateAnimation(textureAtlas.findRegion("player_fire_bow"), 2, 50, 37, 0.1f);
+
+
         playerBowDamaged = generateAnimation(textureAtlas.findRegion("player_bow_bright"), 5, 50, 37, 0.1f);
         playerStand = new TextureRegion(getTexture(), 0, 0, 50, 37);
         playerGotItem = new TextureRegion(screen.getAtlas().findRegion("player_got_item"), 0, 0, 50, 37);
@@ -356,6 +377,14 @@ private static final float[] RECTANGULAR_HITBOX = {
         limitSpeed();
         updateAverageYVelocity();
         updateAverageXVelocity();
+        if(currentState == State.CHARGING_BOW){
+            if(arrowCharge < MAX_ARROW_CHARGE){
+                arrowCharge += dt;
+            }
+            if(stateTimer > MAX_ARROW_CHARGE){
+                playerChargeBow.setFrameDuration(10f);
+            }
+        }
         if(currentState == State.ATTACKING){
             currentSpeed = ATTACKING_RUN_SPEED;
         }else {
@@ -412,8 +441,13 @@ private static final float[] RECTANGULAR_HITBOX = {
                 playerReset = false;
             }
         }
+        if(currentState == State.CHARGING_BOW){
+            if(!chargingBow){
+                bowAttack();
+            }
+        }
         if (currentState == State.SHOOTING) {
-            if (stateTimer >= 0.25f) {
+            if (stateTimer >= 0.1f) {
                 if (!arrowLaunched) {
                     launchFireBall();
                     arrowLaunched = true;
@@ -519,6 +553,9 @@ private static final float[] RECTANGULAR_HITBOX = {
 
         TextureRegion region;
         switch (currentState) {
+            case CHARGING_BOW:
+                region = playerChargeBow.getKeyFrame(stateTimer, true);
+                break;
             case WALLCLIMB:
                 region = playerWallClimb.getKeyFrame(stateTimer);
                 break;
@@ -532,7 +569,8 @@ private static final float[] RECTANGULAR_HITBOX = {
                 region = playerGotItem;
                 break;
             case SHOOTING:
-                region = selectBrightFrameOrRegularFrame(playerBow, playerBowDamaged);
+//                region = selectBrightFrameOrRegularFrame(playerBow, playerBowDamaged);
+                region = playerFireBow.getKeyFrame(stateTimer);
                 break;
             case CROUCHING:
                 region = playerCrouch.getKeyFrame(stateTimer);
@@ -542,13 +580,15 @@ private static final float[] RECTANGULAR_HITBOX = {
                 break;
             case CASTING:
                 region = selectBrightFrameOrRegularFrame(playerCast, playerCastDamaged);
+//                region = playerChargeBow.getKeyFrame(stateTimer, true);
                 break;
             case HURT:
                 region = selectBrightFrameOrRegularFrame(playerHurt, playerHurtDamaged);
                 break;
             case ATTACKING:
                 if (attackNumber == 0) {
-                    region = selectBrightFrameOrRegularFrame(playerAttack, playerAttackDamaged);
+//                    region = selectBrightFrameOrRegularFrame(playerAttack, playerAttackDamaged);
+                    region = playerThrow1.getKeyFrame(stateTimer);
                 } else if (attackNumber == 1) {
                     region = selectBrightFrameOrRegularFrame(playerAttack2, playerAttack2Damaged);
                 } else {
@@ -605,6 +645,9 @@ private static final float[] RECTANGULAR_HITBOX = {
         }
         if (itemPickupTimer > 0) {
             return State.PICKUP;
+        }
+        if(chargingBow){
+            return State.CHARGING_BOW;
         }
         if (castTimer > 0 || chargingSpell) {
             return State.CASTING;
@@ -723,6 +766,7 @@ private static final float[] RECTANGULAR_HITBOX = {
         b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
 
         if (attackTimer < 0) {
+//            launchFireBall();
             attackTimer = ATTACK_TIME;
             if (swordFixture == null) {
                 createAttack();
@@ -805,11 +849,12 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public void castSpell() {
         if (equipedSpell == Spell.FIREBALL) {
-            if (castCooldown < 0) {
-                castTimer = CAST_TIME;
-                castCooldown = CAST_COOLDOWN_TIME;
-                canFireProjectile = true;
-            }
+            attack();
+//            if (castCooldown < 0) {
+//                castTimer = CAST_TIME;
+//                castCooldown = CAST_COOLDOWN_TIME;
+//                canFireProjectile = true;
+//            }
         } else if (equipedSpell == Spell.SHIELD) {
             if (castCooldown < 0) {
                 castTimer = CAST_TIME;
@@ -818,17 +863,22 @@ private static final float[] RECTANGULAR_HITBOX = {
                 magicShield.setAlpha(1);
             }
         } else if (equipedSpell == Spell.BOW) {
-            if (shootingTimer <= 0 && currentState != State.SHOOTING) {
-                if (arrowCooldown <= 0) {
-                    arrowCooldown = ARROW_COOLDOWN_TIME;
-                    arrowLaunched = false;
-                    shootArrow();
-                }
-
-            }
+            if(arrowCooldown <= 0)
+            chargingBow = true;
+//            bowAttack();
         }
     }
 
+    public void bowAttack(){
+        if (shootingTimer <= 0 && currentState != State.SHOOTING && arrowCooldown <= 0) {
+            playerChargeBow.setFrameDuration(0.1f);
+            shootArrow();
+                arrowCooldown = ARROW_COOLDOWN_TIME;
+                arrowLaunched = false;
+
+
+        }
+    }
     private void launchFireBall() {
         boolean ballDirectionRight;
         if (runningRight) {
@@ -836,7 +886,9 @@ private static final float[] RECTANGULAR_HITBOX = {
         } else {
             ballDirectionRight = false;
         }
-        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true));
+//        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true));
+        screen.getSpritesToAdd().add(new Shuriken(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true, arrowCharge));
+        arrowCharge = 0;
     }
 
     public void switchSpell() {
@@ -884,6 +936,12 @@ private static final float[] RECTANGULAR_HITBOX = {
 
     public void setInputPositiveX(boolean state){
         positiveXInput = state;
+    }
+    public void setInputPositiveY(boolean state){
+        positiveYInput = state;
+    }
+    public void setInputNegativeY(boolean state){
+        negativeYInput = state;
     }
     public void setInputNegativeX(boolean state){
         negativeXInput = state;
@@ -954,6 +1012,7 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
 
     public void shootArrow() {
+        chargingBow = false;
         if (shootingTimer <= 0) {
             shootingTimer = SHOOT_ARROW_TIME;
         }
@@ -973,7 +1032,7 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
 
     public boolean canMove() {
-        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT);
+        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT && currentState != State.CHARGING_BOW);
     }
 
     public void pickupItem(int itemID) {
@@ -1186,8 +1245,23 @@ private static final float[] RECTANGULAR_HITBOX = {
                 b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED -1.5f);
             }
         }
-        if(currentState == State.PICKUP || currentState == State.HURT){
+        if(currentState == State.PICKUP || currentState == State.HURT ){
             b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+        }
+        if(currentState == State.CASTING){
+            if(!isFalling() && !isJumping()){
+                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            }
+        }
+        if(currentState == State.SHOOTING){
+            if(!isFalling() && !isJumping()){
+                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            }
+        }
+        if(currentState == State.CHARGING_BOW){
+            if(!isFalling() && !isJumping()){
+                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            }
         }
     }
 
@@ -1220,10 +1294,13 @@ private static final float[] RECTANGULAR_HITBOX = {
     }
     public void enableWallRun(){
         if(currentState == State.FALLING || currentState == State.JUMPING || currentState == State.FLIPPING){
-            if(wallrunTimer < 0){
-                wallrunTimer = 0.35f;
+            if(jumpIsHeld){
+                if(wallrunTimer < 0){
+                    wallrunTimer = 0.35f;
+                }
+                canWallRun = true;
             }
-            canWallRun = true;
+
         }
 
     }
