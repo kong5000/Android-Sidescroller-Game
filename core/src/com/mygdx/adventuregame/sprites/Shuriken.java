@@ -120,7 +120,7 @@ public class Shuriken extends Sprite implements UpdatableSprite, EnemyProjectile
     public void setGoingRight(boolean status){
         float speed = 1f;
         if(isFriendly){
-            speed = charge *2f + 3f;
+            speed = charge *3.5f + 3f;
         }
         if(status){
             b2body.setLinearVelocity(new Vector2(speed, 0));
@@ -166,7 +166,7 @@ public class Shuriken extends Sprite implements UpdatableSprite, EnemyProjectile
         }
 
         b2body.createFixture(fixtureDef).setUserData(this);
-        b2body.setGravityScale(0.1f);
+        b2body.setGravityScale(0.12f);
     }
 
     public void setToDestroyHitBox(){
@@ -207,6 +207,6 @@ public class Shuriken extends Sprite implements UpdatableSprite, EnemyProjectile
     }
 
     public int getDamage(){
-        return (int)( charge * 5.5f) + 2;
+        return (int)( charge * 8.5f) + 2;
     }
 }

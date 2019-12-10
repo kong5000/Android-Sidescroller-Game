@@ -587,8 +587,8 @@ private static final float[] RECTANGULAR_HITBOX = {
                 break;
             case ATTACKING:
                 if (attackNumber == 0) {
-//                    region = selectBrightFrameOrRegularFrame(playerAttack, playerAttackDamaged);
-                    region = playerThrow1.getKeyFrame(stateTimer);
+                    region = selectBrightFrameOrRegularFrame(playerAttack, playerAttackDamaged);
+//                    region = playerThrow1.getKeyFrame(stateTimer);
                 } else if (attackNumber == 1) {
                     region = selectBrightFrameOrRegularFrame(playerAttack2, playerAttack2Damaged);
                 } else {
@@ -646,7 +646,7 @@ private static final float[] RECTANGULAR_HITBOX = {
         if (itemPickupTimer > 0) {
             return State.PICKUP;
         }
-        if(chargingBow){
+        if(chargingBow && arrowCooldown <= 0){
             return State.CHARGING_BOW;
         }
         if (castTimer > 0 || chargingSpell) {
@@ -736,6 +736,9 @@ private static final float[] RECTANGULAR_HITBOX = {
             }
             endChargingSpell();
             screen.getDamageNumbersToAdd().add(new DamageNumber(screen, getXPos(), getYPos(), true, damage));
+            if(currentState == State.CHARGING_BOW){
+                bowAttack();
+            }
         }
    }
 

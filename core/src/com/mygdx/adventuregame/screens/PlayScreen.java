@@ -192,7 +192,7 @@ public class PlayScreen implements Screen {
 
     public void update(float dt){
         controller.handleInput();
-        controller.update();
+        controller.update(dt);
 //        handleInupt(dt);
         world.step(1/60f, 6, 2);
         player.update(dt);

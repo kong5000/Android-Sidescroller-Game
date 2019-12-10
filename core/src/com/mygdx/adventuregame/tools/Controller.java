@@ -51,6 +51,8 @@ public class Controller implements InputProcessor {
     private boolean buttonClicked = false;
 
 
+    private float touchDownTimer;
+    private boolean hasActed = false;
     int touchStartX;
     int touchStartY;
 
@@ -62,6 +64,8 @@ public class Controller implements InputProcessor {
     private TextureRegionDrawable button;
     private TextureRegionDrawable bow;
     private boolean stopSpell = true;
+    private boolean attackHeldDown = false;
+    private float attackHeldDownTimer = 0;
 
     public Controller(SpriteBatch batch, final PlayScreen screen) {
         this.screen = screen;
@@ -79,7 +83,6 @@ public class Controller implements InputProcessor {
         image.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-
                 if(player.canAct()){
                     player.castSpell();
                     if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
@@ -184,7 +187,14 @@ public class Controller implements InputProcessor {
         stage.addActor(table);
     }
 
-    public void update() {
+    public void update(float dt) {
+        if(attackHeldDown){
+            attackHeldDownTimer += dt;
+        }
+        if(attackHeldDownTimer > 0.175 && !hasActed){
+            player.castSpell();
+            hasActed = true;
+        }
         switch (player.getEquipedSpell()) {
             case FIREBALL:
                 image.setDrawable(button);
@@ -359,15 +369,26 @@ public class Controller implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        if (screenX > 1200) {
+
             touchStartX = screenX;
             touchStartY = screenY;
-        }
-        if (!buttonClicked && player.canMove()) {
+
+//        if (!buttonClicked && player.canMove()) {
+//            if (screenX > 700) {
+//                if (screenY < 670) {
+////                    player.castSpell();
+////                    player.attack();
+//                }
+//
+//            }
+//
+//        }
+
+        if (!buttonClicked) {
             if (screenX > 700) {
                 if (screenY < 670) {
-                    player.castSpell();
-//                    player.attack();
+                    hasActed = false;
+                    attackHeldDown = true;
                 }
 
             }
@@ -386,14 +407,29 @@ public class Controller implements InputProcessor {
             }
             gestureStarted = false;
         }
+
         if (screenX > 700) {
             if (screenY < 670) {
-                if(player.currentState == Player.State.CHARGING_BOW){
-                    player.bowAttack();
+                attackHeldDown = false;
+                if(attackHeldDownTimer <0.125f){
+                    if(Math.abs(touchStartX - touchEndX) < 10){
+                        if(player.getEquipedSpell() != Player.Spell.BOW){
+                            player.castSpell();
+                        }else {
+                            player.bowAttack();
+                        }
+                    }
+
                 }
+                attackHeldDownTimer = 0;
             }
 
         }
+        if(player.currentState == Player.State.CHARGING_BOW){
+            player.bowAttack();
+        }
+        System.out.printf("END VALUE IS " + Integer.toString(touchEndX) + "\n");
+        System.out.printf("START VALUE IS " + Integer.toString(touchStartX) + "\n");
 
         return false;
     }
