@@ -8,12 +8,10 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
-import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.FireSpell;
-import com.mygdx.adventuregame.sprites.GolemFireAttack;
 import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.Player;
-import com.mygdx.adventuregame.sprites.Shuriken;
+import com.mygdx.adventuregame.sprites.Arrow;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
 
 public class WorldContactListener implements ContactListener {
@@ -84,21 +82,21 @@ public class WorldContactListener implements ContactListener {
 
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
-                    int damage = ((Shuriken) fixB.getUserData()).getDamage();
-                    ((Shuriken) fixB.getUserData()).setToDestroy();
+                    int damage = ((Arrow) fixB.getUserData()).getDamage();
+                    ((Arrow) fixB.getUserData()).setToDestroy();
                     ((Enemy) fixA.getUserData()).damage(damage);
                 } else {
-                    int damage = ((Shuriken) fixA.getUserData()).getDamage();
-                    ((Shuriken) fixA.getUserData()).setToDestroy();
+                    int damage = ((Arrow) fixA.getUserData()).getDamage();
+                    ((Arrow) fixA.getUserData()).setToDestroy();
                     ((Enemy) fixB.getUserData()).damage(damage);
 
                 }
                 break;
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_PROJECTILE_BIT) {
-                    ((Shuriken) fixA.getUserData()).setToDestroyHitBox();
+                    ((Arrow) fixA.getUserData()).setToDestroyHitBox();
                 } else {
-                    ((Shuriken) fixB.getUserData()).setToDestroyHitBox();
+                    ((Arrow) fixB.getUserData()).setToDestroyHitBox();
                 }
                 break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.GROUND_BIT:

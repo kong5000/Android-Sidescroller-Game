@@ -14,7 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 
-public class Shuriken extends Sprite implements UpdatableSprite, EnemyProjectile  {
+public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile  {
     private boolean setToDestroyHitBox = false;
 
     private enum State{ARMED, IMPACT}
@@ -42,7 +42,7 @@ public class Shuriken extends Sprite implements UpdatableSprite, EnemyProjectile
     private boolean hitBoxDestroyed = false;
 
     private Animation<TextureRegion> projectile;
-    public Shuriken(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
+    public Arrow(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
         this.goingRight = goingRight;
         this.world = screen.getWorld();
         this.screen = screen;

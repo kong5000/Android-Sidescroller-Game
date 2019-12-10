@@ -890,7 +890,7 @@ private static final float[] RECTANGULAR_HITBOX = {
             ballDirectionRight = false;
         }
 //        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true));
-        screen.getSpritesToAdd().add(new Shuriken(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true, arrowCharge));
+        screen.getSpritesToAdd().add(new Arrow(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true, arrowCharge));
         arrowCharge = 0;
     }
 
