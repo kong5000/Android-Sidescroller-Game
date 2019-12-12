@@ -1,11 +1,10 @@
 package com.mygdx.adventuregame.sprites;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.Explosion;
 
-public class EnemyDestroyedEffect extends  Explosion {
+public class EnemyDestroyedEffect extends Explosion {
     public EnemyDestroyedEffect(PlayScreen screen, float x, float y) {
         super(screen, x, y);
     }

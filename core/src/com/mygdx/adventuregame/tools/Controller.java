@@ -83,12 +83,12 @@ public class Controller implements InputProcessor {
         image.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                if(player.canAct()){
+                if (player.canAct()) {
                     player.castSpell();
                     if (player.getEquipedSpell() == Player.Spell.FIREBALL) {
                         player.startChargingAnimation();
                         player.setChargingSpell();
-                    }else if(player.getEquipedSpell() == Player.Spell.BOW){
+                    } else if (player.getEquipedSpell() == Player.Spell.BOW) {
                         player.chargingBow = true;
                     }
                 }
@@ -107,7 +107,7 @@ public class Controller implements InputProcessor {
                 player.endChargingSpell();
                 stopSpell = true;
 
-                if(player.chargingBow){
+                if (player.chargingBow) {
                     player.chargingBow = false;
                 }
             }
@@ -132,7 +132,7 @@ public class Controller implements InputProcessor {
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 buttonClicked = false;
                 touchDown = false;
-                player.jumpIsHeld =false;
+                player.jumpIsHeld = false;
             }
         });
 
@@ -188,11 +188,14 @@ public class Controller implements InputProcessor {
     }
 
     public void update(float dt) {
-        if(attackHeldDown){
+        if (attackHeldDown) {
             attackHeldDownTimer += dt;
         }
-        if(attackHeldDownTimer > 0.175 && !hasActed){
-            player.castSpell();
+        if (attackHeldDownTimer > 0.175 && !hasActed) {
+            if (!player.downAttacking) {
+                player.castSpell();
+            }
+
             hasActed = true;
         }
         switch (player.getEquipedSpell()) {
@@ -264,79 +267,77 @@ public class Controller implements InputProcessor {
     public void handleInput() {
         float yVal = getTouchpadLeft().getKnobPercentY();
         float xVal = getTouchpadLeft().getKnobPercentX();
-        if(player.canMove()){
-        if (stopSpell ) {
-            if(player.currentState != Player.State.DODGING){
-                if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.PLAYER_MAX_SPEED) {
-                player.b2body.applyLinearImpulse(new Vector2(0.175f, 0), player.b2body.getWorldCenter(), true);
+        if (player.canMove()) {
+            if (stopSpell) {
+                if (player.currentState != Player.State.DODGING) {
+                    if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.currentMaxSpeed) {
+                        player.b2body.applyLinearImpulse(new Vector2(0.175f, 0), player.b2body.getWorldCenter(), true);
 //                    player.b2body.setLinearVelocity(player.currentSpeed, player.b2body.getLinearVelocity().y);
-                }
-                else if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
-                player.b2body.applyLinearImpulse(new Vector2(-0.175f, 0), player.b2body.getWorldCenter(), true);
+                    } else if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= -player.currentMaxSpeed) {
+                        player.b2body.applyLinearImpulse(new Vector2(-0.175f, 0), player.b2body.getWorldCenter(), true);
 //                    player.b2body.setLinearVelocity(-player.currentSpeed, player.b2body.getLinearVelocity().y);
-                }
-                else  {
-                    player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
-                }
-            }else {
-                if(player.runningRight){
-                    player.b2body.setLinearVelocity(player.dodgeSpeed, player.b2body.getLinearVelocity().y);
+                    } else {
+                        player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
+                    }
+                } else {
+                    if (player.runningRight) {
+                        player.b2body.setLinearVelocity(player.dodgeSpeed, player.b2body.getLinearVelocity().y);
 
-                }else{
-                    player.b2body.setLinearVelocity(-player.dodgeSpeed, player.b2body.getLinearVelocity().y);
+                    } else {
+                        player.b2body.setLinearVelocity(-player.dodgeSpeed, player.b2body.getLinearVelocity().y);
+
+                    }
 
                 }
 
             }
 
-        }
-
-        if (yVal < -0.75f) {
+            if (yVal < -0.75f) {
 
                 player.setCrouching(true);
 
-            player.dodgeEnable(true);
-            if (player.getCurrentState() == Player.State.JUMPING) {
-                player.dodge();
+                player.dodgeEnable(true);
+                if (player.getCurrentState() == Player.State.JUMPING) {
+                    player.dodge();
+                }
+            } else {
+                player.dodgeEnable(false);
+                player.setCrouching(false);
             }
-        } else {
-            player.dodgeEnable(false);
-            player.setCrouching(false);
+
+
+            if (yVal > -.65) {
+                player.setInputPositiveY(true);
+                player.setInputNegativeY(false);
+            } else if (yVal <= -.65) {
+                player.setInputPositiveY(false);
+                player.setInputNegativeY(true);
+            } else {
+                player.setInputPositiveY(false);
+                player.setInputNegativeY(false);
+            }
+
+
+            if (Gdx.input.justTouched()) {
+
+            }
+
+
+            if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
+                player.jump();
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= player.currentMaxSpeed) {
+                player.b2body.setLinearVelocity(1.5f, player.b2body.getLinearVelocity().y);
+            }
+
+            if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -player.currentMaxSpeed) {
+                player.b2body.setLinearVelocity(-1.5f, player.b2body.getLinearVelocity().y);
+            }
+            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                player.attack();
+            }
         }
-
-
-
-        if(yVal > -.65){
-            player.setInputPositiveY(true);
-            player.setInputNegativeY(false);
-        }else if(yVal <= -.65){
-            player.setInputPositiveY(false);
-            player.setInputNegativeY(true);
-        }else {
-            player.setInputPositiveY(false);
-            player.setInputNegativeY(false);
-        }
-
-
-        if (Gdx.input.justTouched()) {
-
-        }
-
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            player.jump();
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <=  player.PLAYER_MAX_SPEED) {
-            player.b2body.setLinearVelocity(1.5f, player.b2body.getLinearVelocity().y);
-        }
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= - player.PLAYER_MAX_SPEED) {
-            player.b2body.setLinearVelocity(-1.5f, player.b2body.getLinearVelocity().y);
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            player.attack();
-        }}
 
         if (xVal > 0 && player.currentState != Player.State.DODGING) {
             player.setRunningRight(true);
@@ -346,7 +347,7 @@ public class Controller implements InputProcessor {
             player.setRunningRight(false);
             player.setInputPositiveX(false);
             player.setInputNegativeX(true);
-        }else {
+        } else {
             player.setInputPositiveX(false);
             player.setInputNegativeX(false);
         }
@@ -370,8 +371,8 @@ public class Controller implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-            touchStartX = screenX;
-            touchStartY = screenY;
+        touchStartX = screenX;
+        touchStartY = screenY;
 
 //        if (!buttonClicked && player.canMove()) {
 //            if (screenX > 700) {
@@ -406,16 +407,21 @@ public class Controller implements InputProcessor {
                 player.jump();
             }
             gestureStarted = false;
+
+
         }
 
         if (screenX > 700) {
             if (screenY < 670) {
                 attackHeldDown = false;
-                if(attackHeldDownTimer <0.125f){
-                    if(Math.abs(touchStartX - touchEndX) < 10){
-                        if(player.getEquipedSpell() != Player.Spell.BOW){
+                if (attackHeldDownTimer < 0.125f) {
+
+                    if (Math.abs(touchStartX - touchEndX) < 10) {
+                        if (player.getEquipedSpell() != Player.Spell.BOW) {
+
                             player.castSpell();
-                        }else {
+
+                        } else {
                             player.bowAttack();
                         }
                     }
@@ -425,7 +431,7 @@ public class Controller implements InputProcessor {
             }
 
         }
-        if(player.currentState == Player.State.CHARGING_BOW){
+        if (player.currentState == Player.State.CHARGING_BOW) {
             player.bowAttack();
         }
         System.out.printf("END VALUE IS " + Integer.toString(touchEndX) + "\n");

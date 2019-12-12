@@ -1,13 +1,11 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Effects;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.Effects;
+import com.mygdx.adventuregame.sprites.UpdatableSprite;
 
-public class Explosion extends Effects implements UpdatableSprite{
+public class Explosion extends Effects implements UpdatableSprite {
     public Explosion(PlayScreen screen, float x, float y) {
         super(screen, x, y);
     }

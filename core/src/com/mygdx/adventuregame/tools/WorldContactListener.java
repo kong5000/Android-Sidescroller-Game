@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
 import com.mygdx.adventuregame.sprites.FireSpell;
@@ -37,6 +38,23 @@ public class WorldContactListener implements ContactListener {
                 } else {
                     if (((Player) fixA.getUserData()).getCurrentState() == Player.State.FALLING) {
                         ((Enemy) fixB.getUserData()).hitOnHead();
+                    }
+                }
+                break;
+            case AdventureGame.PLAYER_BIT | AdventureGame.ENVIRONMENT_SENSOR_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
+                    CheckPoint checkPoint = ((CheckPoint) fixB.getUserData());
+                    Player player = ((Player) fixA.getUserData());
+                    player.setRespawnPoint(checkPoint);
+                    if(checkPoint != player.getCurrentCheckPoint()){
+                        checkPoint.playAnimation();
+                    }
+                } else {
+                    CheckPoint checkPoint = ((CheckPoint) fixA.getUserData());
+                    Player player = ((Player) fixB.getUserData());
+                    player.setRespawnPoint(checkPoint);
+                    if(checkPoint != player.getCurrentCheckPoint()){
+                        checkPoint.playAnimation();
                     }
                 }
                 break;

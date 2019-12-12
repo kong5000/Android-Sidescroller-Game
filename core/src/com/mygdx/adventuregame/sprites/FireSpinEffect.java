@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.Effects;
+import com.mygdx.adventuregame.sprites.Enemy;
 
 public class FireSpinEffect extends Effects {
     private Enemy enemy;

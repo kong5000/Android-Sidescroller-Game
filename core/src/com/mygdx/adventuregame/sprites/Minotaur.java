@@ -2,11 +2,8 @@ package com.mygdx.adventuregame.sprites;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -14,6 +11,9 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
+import com.mygdx.adventuregame.sprites.Effects.Vortex;
 
 public class Minotaur extends Enemy {
     private static final float[] MINOTAUR_HITBOX = {
@@ -121,6 +121,9 @@ public class Minotaur extends Enemy {
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
+                if(!destroyed){
+                    screen.getSpritesToAdd().add(new Vortex(screen, getX() +0.1f, getY() - getHeight()/2 + 0.1f));
+                }
             }
         }
 

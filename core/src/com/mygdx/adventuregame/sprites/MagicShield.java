@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.Explosion;
 
 public class MagicShield extends Explosion {
     private Player player;
@@ -42,13 +43,13 @@ public class MagicShield extends Explosion {
                 frames.add(new TextureRegion(
                         region,
                         i * 100,
-                        0,
+                        j * 100,
                         100,
                         100
                 ));
             }
         }
-        animation = new Animation(0.05f, frames, Animation.PlayMode.LOOP);
+        animation = new Animation(0.03f, frames, Animation.PlayMode.LOOP);
 //        animation = generateAnimation(screen.getAtlas().findRegion("grass_shield"),
 //                91, 100, 100, 0.01f);
         setBounds(getX(), getY(), 100 / AdventureGame.PPM, 100 / AdventureGame.PPM);

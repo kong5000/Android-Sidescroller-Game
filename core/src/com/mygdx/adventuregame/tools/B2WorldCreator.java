@@ -13,6 +13,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.FireElemental;
@@ -82,17 +83,12 @@ public class B2WorldCreator {
             }
             screen.getSpritesToAdd().add(spikeBlock);
         }
-//        for(MapObject object : map.getLayers().get(12).getObjects().getByType(RectangleMapObject.class))
-//        {
-//            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-//            bodyDef.type = BodyDef.BodyType.StaticBody;
-//            bodyDef.position.set((rect.getX() + rect.getWidth()/2) / AdventureGame.PPM,
-//                    (rect.getY() + rect.getHeight() / 2) / AdventureGame.PPM);
-//            body = world.createBody(bodyDef);
-//            shape.setAsBox((rect.getWidth() / 2) / AdventureGame.PPM, (rect.getHeight() / 2)/ AdventureGame.PPM);
-//            fixtureDef.shape = shape;
-//            body.createFixture(fixtureDef);
-//        }
+        for (MapObject object : map.getLayers().get(21).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            CheckPoint checkPoint = new CheckPoint(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
+            screen.getCheckPoints().add(checkPoint);
+
+        }
         for (MapObject object : map.getLayers().get(12).getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
