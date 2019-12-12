@@ -7,10 +7,13 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.BlueFlame;
 
 public class CheckPoint {
     private World world;
     public Body b2body;
+    private PlayScreen screen;
+    private boolean torchLit = false;
     float xPos;
     float yPos;
     private static final float[] CHECKPOINT_BOX = {
@@ -22,6 +25,7 @@ public class CheckPoint {
         this.world = screen.getWorld();
         this.xPos = x;
         this.yPos = y;
+        this.screen = screen;
         defineCheckPointBox();
     }
 
@@ -51,5 +55,9 @@ public class CheckPoint {
     }
 
     public void playAnimation() {
+        if(!torchLit){
+            torchLit = true;
+            screen.getSpritesToAdd().add(new BlueFlame(screen, getXPos(), getYPos()));
+        }
     }
 }

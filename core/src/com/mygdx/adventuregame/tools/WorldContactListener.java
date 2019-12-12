@@ -45,17 +45,18 @@ public class WorldContactListener implements ContactListener {
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
                     CheckPoint checkPoint = ((CheckPoint) fixB.getUserData());
                     Player player = ((Player) fixA.getUserData());
-                    player.setRespawnPoint(checkPoint);
                     if(checkPoint != player.getCurrentCheckPoint()){
                         checkPoint.playAnimation();
                     }
+                    player.setRespawnPoint(checkPoint);
+
                 } else {
                     CheckPoint checkPoint = ((CheckPoint) fixA.getUserData());
                     Player player = ((Player) fixB.getUserData());
-                    player.setRespawnPoint(checkPoint);
                     if(checkPoint != player.getCurrentCheckPoint()){
                         checkPoint.playAnimation();
                     }
+                    player.setRespawnPoint(checkPoint);
                 }
                 break;
             case AdventureGame.PLAYER_BIT | AdventureGame.MOVING_BLOCK_BIT:
