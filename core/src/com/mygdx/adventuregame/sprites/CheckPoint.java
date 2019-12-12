@@ -51,13 +51,13 @@ public class CheckPoint {
         return xPos +0.06f;
     }
     public float getYPos(){
-        return yPos -.4f;
+        return yPos -1.15f;
     }
 
     public void playAnimation() {
         if(!torchLit){
             torchLit = true;
-            screen.getSpritesToAdd().add(new BlueFlame(screen, getXPos(), getYPos()));
+            screen.getSpritesToAdd().add(new BlueFlame(screen, getXPos(), getYPos() + 0.75f));
         }
     }
 }

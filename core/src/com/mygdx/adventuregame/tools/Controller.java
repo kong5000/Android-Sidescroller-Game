@@ -337,20 +337,21 @@ public class Controller implements InputProcessor {
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                 player.attack();
             }
+            if (xVal > 0 && player.currentState != Player.State.DODGING) {
+                player.setRunningRight(true);
+                player.setInputPositiveX(true);
+                player.setInputNegativeX(false);
+            } else if (xVal < 0 && player.currentState != Player.State.DODGING) {
+                player.setRunningRight(false);
+                player.setInputPositiveX(false);
+                player.setInputNegativeX(true);
+            } else {
+                player.setInputPositiveX(false);
+                player.setInputNegativeX(false);
+            }
         }
 
-        if (xVal > 0 && player.currentState != Player.State.DODGING) {
-            player.setRunningRight(true);
-            player.setInputPositiveX(true);
-            player.setInputNegativeX(false);
-        } else if (xVal < 0 && player.currentState != Player.State.DODGING) {
-            player.setRunningRight(false);
-            player.setInputPositiveX(false);
-            player.setInputNegativeX(true);
-        } else {
-            player.setInputPositiveX(false);
-            player.setInputNegativeX(false);
-        }
+
     }
 
     @Override

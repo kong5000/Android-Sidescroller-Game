@@ -15,7 +15,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
+import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
 import com.mygdx.adventuregame.sprites.Effects.Vortex;
 
 import java.util.Random;
@@ -83,6 +85,8 @@ public class Player extends Sprite {
     private float arrowCharge = 0;
     private boolean hitBoxUpdated = true;
     private float wallRunCooldown;
+    private boolean squarePortalStarted = false;
+    private boolean resurrectStarted = false;
 
     public enum State {
         FALLING, JUMPING, STANDING,
@@ -197,7 +201,7 @@ public class Player extends Sprite {
 
     private float magicShieldAlpha = 1f;
     private int health;
-    private static final int FULL_HEALTH = 20;
+    private static final int FULL_HEALTH = 1;
 
     TextureAtlas textureAtlas;
 
@@ -504,30 +508,44 @@ public class Player extends Sprite {
         if (currentState == State.DYING) {
             deathTimer += dt;
             if (deathTimer >= DEATH_SPELL_TIME) {
-
-                magicShield.setAlpha(1);
-                magicShield.setScale(magicShieldSize);
-                if (magicShieldSize < 1) {
-                    magicShieldSize += 0.01f;
+                if(!squarePortalStarted){
+                    setAlpha(0);
+                    screen.getTopLayerSpritesToAdd().add(new SquarePortal(screen,getX() + 0.07f, getY() - 0.15f));
+                    squarePortalStarted = true;
                 }
+//
+//                magicShield.setAlpha(1);
+//                magicShield.setScale(magicShieldSize);
+//                if (magicShieldSize < 1) {
+//                    magicShieldSize += 0.01f;
+//                }
             }
             if (deathTimer >= DEATH_TIME) {
-                magicShieldAlpha -= 0.005;
-                if (magicShieldAlpha < 0) {
-                    magicShieldAlpha = 0;
-                }
-                magicShield.setAlpha(magicShieldAlpha);
+//                magicShieldAlpha -= 0.005;
+//                if (magicShieldAlpha < 0) {
+//                    magicShieldAlpha = 0;
+//                }
+//                magicShield.setAlpha(magicShieldAlpha);
                 if (!playerReset) {
                     resetPlayer();
+                    if(!resurrectStarted){
+                        setAlpha(1);
+                        screen.getTopLayerSpritesToAdd().add(new Resurrect(screen,b2body.getPosition().x - 0.25f, b2body.getPosition().y));
+                        resurrectStarted = true;
+
+                    }
                 }
             }
             if (deathTimer >= REVIVE_TIME) {
+
                 reviveTimer = 2.2f;
                 stateTimer = 0;
                 magicShield.setAlpha(0);
                 magicShieldAlpha = 1f;
                 deathTimer = 0;
                 playerReset = false;
+                resurrectStarted = false;
+                squarePortalStarted = false;
             }
         }
         if (currentState == State.CHARGING_BOW) {
@@ -1370,7 +1388,7 @@ public class Player extends Sprite {
                 b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED - 1.5f);
             }
         }
-        if (currentState == State.PICKUP || currentState == State.HURT) {
+        if (currentState == State.PICKUP || currentState == State.HURT || currentState == State.DYING) {
             b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
         }
         if (currentState == State.CASTING) {

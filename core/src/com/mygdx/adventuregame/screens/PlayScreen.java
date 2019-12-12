@@ -90,6 +90,9 @@ public class PlayScreen implements Screen {
     private Array<UpdatableSprite> spritesToAdd;
     private Array<UpdatableSprite> sprites;
 
+    private Array<UpdatableSprite> topLayerSpritesToAdd;
+    private Array<UpdatableSprite> topLayerSprites;
+
     private Stage stage;
     private Color fadeScreenColor = Color.BLACK;
     private float fadeTickTimer = 0;
@@ -171,6 +174,9 @@ public class PlayScreen implements Screen {
         sprites = new Array<>();
         spritesToAdd = new Array<>();
 
+        topLayerSprites = new Array<>();
+        topLayerSpritesToAdd = new Array<>();
+
         new B2WorldCreator(world, map, this);
 
 //        sprites.add(new Item(this, 5f, 5f, 1));
@@ -202,6 +208,9 @@ public class PlayScreen implements Screen {
         background.setPosition(player.b2body.getPosition().x * -10, player.b2body.getPosition().y * - 5);
         backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
         for(UpdatableSprite sprite : sprites){
+            sprite.update(dt);
+        }
+        for(UpdatableSprite sprite : topLayerSprites){
             sprite.update(dt);
         }
         for(Enemy enemy : enemyList){
@@ -298,9 +307,7 @@ public class PlayScreen implements Screen {
 
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
-        for(UpdatableSprite sprite : sprites){
-            sprite.draw(game.batch);
-        }
+
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
 //                if(enemy.isHurt()){
@@ -316,9 +323,9 @@ public class PlayScreen implements Screen {
                 fireBall.draw(game.batch);
             }
         }
-//        for(UpdatableSprite sprite : sprites){
-//            sprite.draw(game.batch);
-//        }
+        for(UpdatableSprite sprite : sprites){
+            sprite.draw(game.batch);
+        }
         for(DamageNumber number : damageNumbers){
             if(!number.isForPlayer()){
                 game.batch.setShader(shader);
@@ -386,6 +393,9 @@ public class PlayScreen implements Screen {
 //        game.batch.setShader(shader);
 //        game.batch.setShader(null);
         player.draw(game.batch);
+        for(UpdatableSprite sprite : topLayerSprites){
+            sprite.draw(game.batch);
+        }
 
 
         game.batch.end();
@@ -439,6 +449,13 @@ public class PlayScreen implements Screen {
             }
         }
 
+        if(!topLayerSpritesToAdd.isEmpty()){
+            for(UpdatableSprite sprite : topLayerSpritesToAdd){
+                topLayerSprites.add(sprite);
+                topLayerSpritesToAdd.removeValue(sprite, true);
+            }
+        }
+
         if(!healthBarsToAdd.isEmpty()){
             for(HealthBar bar : healthBarsToAdd){
                 healthBars.add(bar);
@@ -457,7 +474,11 @@ public class PlayScreen implements Screen {
                 sprites.removeValue(sprite, true);
             }
         }
-
+        for(UpdatableSprite sprite : topLayerSprites){
+            if(sprite.safeToRemove()){
+                topLayerSprites.removeValue(sprite, true);
+            }
+        }
         for(HealthBar healthBar : healthBars){
             if(healthBar.safeToRemove){
                 healthBars.removeValue(healthBar, true);
@@ -594,5 +615,7 @@ public class PlayScreen implements Screen {
         return healthBarsToAdd;
     }
     public Array<UpdatableSprite> getSpritesToAdd(){ return spritesToAdd;}
+    public Array<UpdatableSprite> getTopLayerSpritesToAdd(){ return topLayerSpritesToAdd;}
+    public Array<UpdatableSprite> getTopLayerSprites(){ return topLayerSprites;}
     public Array<CheckPoint> getCheckPoints(){return checkPoints;}
 }
