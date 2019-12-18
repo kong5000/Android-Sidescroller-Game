@@ -201,7 +201,7 @@ public class Player extends Sprite {
 
     private float magicShieldAlpha = 1f;
     private int health;
-    private static final int FULL_HEALTH = 1;
+    private static final int FULL_HEALTH = 20;
 
     TextureAtlas textureAtlas;
 
@@ -240,6 +240,11 @@ public class Player extends Sprite {
     private float spawnPointX;
     private float spawnPointY;
 
+    private static final float LEVEL_1_START_X = 10.05f;
+    private static final float LEVEL_1_START_Y = 5.65f;
+
+
+
     //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
@@ -247,8 +252,11 @@ public class Player extends Sprite {
         this.screen = screen;
 
 
-        spawnPointX = 4.05f;
-        spawnPointY = 5.65f;
+//        spawnPointX = 10.05f;
+//        spawnPointY = 5.65f;
+
+        spawnPointX = 2f;
+        spawnPointY = 9f;
 
         dialogBox = new Sprite();
         dialogBox.setBounds(getX(), getY(), 112 / AdventureGame.PPM, 75 / AdventureGame.PPM);
@@ -333,7 +341,7 @@ public class Player extends Sprite {
         bodyDef.position.set(spawnPointX , spawnPointY);
 //        bodyDef.position.set(spawnPointX , spawnPointY);
         //First minotaur
-//        bodyDef.position.set(7900 / AdventureGame.PPM, 360 / AdventureGame.PPM);
+//        bodyDef.position.set(6400 / AdventureGame.PPM, 900 / AdventureGame.PPM);
         //Boss Area
 //        bodyDef.position.set(10950 / AdventureGame.PPM, 900 / AdventureGame.PPM);
         bodyDef.type = BodyDef.BodyType.DynamicBody;

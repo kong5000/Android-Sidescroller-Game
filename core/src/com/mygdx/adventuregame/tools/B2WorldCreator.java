@@ -78,8 +78,11 @@ public class B2WorldCreator {
         for (MapObject object : map.getLayers().get(20).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             HorizontalSpikeBlock spikeBlock = new HorizontalSpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
-            if(isAtLocation(rect.getY(), 512)){
-                spikeBlock.setTravelTime(7f);
+            if(isAtLocation(rect.getY(), 1040)){
+                spikeBlock.setTravelTime(4.3f);
+            }
+            if(isAtLocation(rect.getY(), 1168)){
+                spikeBlock.setTravelTime(4.3f);
             }
             screen.getSpritesToAdd().add(spikeBlock);
         }

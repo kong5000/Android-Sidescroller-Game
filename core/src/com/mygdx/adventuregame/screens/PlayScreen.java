@@ -105,12 +105,15 @@ public class PlayScreen implements Screen {
         assetManager.finishLoading();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
 
-
-        Texture bgTexture = new Texture("BackgroundLong.png");
-        Texture bgTextureFar = new Texture("BackgroundCloud.png");
-
+        Texture bgTexture = new Texture("temple_bg.png");
         background = new Sprite(bgTexture);
-        backgroundFar = new Sprite(bgTextureFar);
+
+//        Texture bgTexture = new Texture("BackgroundLong.png");
+//        background = new Sprite(bgTexture);
+//        Texture bgTextureFar = new Texture("BackgroundCloud.png");
+//        backgroundFar = new Sprite(bgTextureFar);
+
+
 
 
         this.game = game;
@@ -124,7 +127,8 @@ public class PlayScreen implements Screen {
 
 
 //        map = mapLoader.load("forest_castle.tmx");
-        map = mapLoader.load("forest_castle.tmx", params);
+//        map = mapLoader.load("forest_castle.tmx", params);
+        map = mapLoader.load("temple.tmx", params);
 
 
 
@@ -202,11 +206,10 @@ public class PlayScreen implements Screen {
     public void update(float dt){
         controller.handleInput();
         controller.update(dt);
-//        handleInupt(dt);
         world.step(1/60f, 6, 2);
         player.update(dt);
         background.setPosition(player.b2body.getPosition().x * -10, player.b2body.getPosition().y * - 5);
-        backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
+//        backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
         for(UpdatableSprite sprite : sprites){
             sprite.update(dt);
         }
@@ -297,24 +300,17 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        backgroundFar.draw(game.batch);
+//        backgroundFar.draw(game.batch);
         background.draw(game.batch);
 
         game.batch.end();
         renderer.render();
-
-
 
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
 
         if(enemyList.size > 0){
             for(Enemy enemy : enemyList){
-//                if(enemy.isHurt()){
-//                    game.batch.setShader(shader);
-//                }else {
-//                    game.batch.setShader(null);
-//                }
                 enemy.draw(game.batch);
             }
         }
@@ -381,8 +377,6 @@ public class PlayScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.rect(0, 0, AdventureGame.V_WIDTH * AdventureGame.PPM, AdventureGame.V_HEIGHT * AdventureGame.PPM);
         shapeRenderer.end();
-
-
 //        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);

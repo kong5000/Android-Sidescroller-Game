@@ -33,7 +33,7 @@ public class Resurrect extends Effects {
         }
         animation = new Animation(TIME_PER_FRAME, frames, Animation.PlayMode.NORMAL);
         setBounds(getX(), getY(), WIDTH / AdventureGame.PPM, HEIGHT / AdventureGame.PPM);
-        setScale(1.5f);
+        setScale(1.65f);
     }
 
 }
