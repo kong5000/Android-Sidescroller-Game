@@ -1004,6 +1004,20 @@ monster_block
   orig: 32, 32
   offset: 0, 0
   index: -1
+switch_left
+  rotate: false
+  xy: 4924, 1885
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+switch_right
+  rotate: false
+  xy: 4068, 231
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 arrow
   rotate: false
   xy: 3822, 734

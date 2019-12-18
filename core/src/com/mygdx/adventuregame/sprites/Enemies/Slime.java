@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -12,6 +12,9 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Item;
 
 import java.util.Random;
 

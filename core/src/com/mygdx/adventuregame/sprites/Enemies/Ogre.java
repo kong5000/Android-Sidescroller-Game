@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -10,66 +10,76 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
+import com.mygdx.adventuregame.sprites.Enemy;
 
+public class Ogre extends Enemy {
+    private static final float[] OGRE_HITBOX = {
+            -0.12f, 0.1f,
+            -0.12f, -0.2f,
+            0.12f, -0.2f,
+            0.12f, 0.1f};
+    private static final float[] SWORD_HITBOX_RIGHT = {
+            0.2f, -0.2f,
+            0.2f, 0.1f,
+            0.1f, -0.2f,
+            0f, 0.15f};
+    private static final float[] SWORD_HITBOX_LEFT = {
+            -0.2f, -0.2f,
+            -0.2f, 0.1f,
+            -0.1f, -0.2f,
+            0f, 0.15f};
 
-public class Kobold extends Enemy {
-    private static final float[] KOBOLD_HITBOX = {
-            -0.17f, 0.1f,
-            -0.17f, -0.15f,
-            0.15f, -0.15f,
-            0.15f, 0.1f};
-    private static final float[] SPEAR_HITBOX_RIGHT = {
-            0.3f, -0.1f,
-            0.3f, 0.00f,
-            0.1f, -0.1f,
-            0.1f, 0.00f};
-    private static final float[] SPEAR_HITBOX_LEFT = {
-            -0.3f, -0.1f,
-            -0.3f, 0.00f,
-            -0.1f, -0.1f,
-            -0.1f, 0.00f};
-    private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
 
-    private static final int WIDTH_PIXELS = 68;
-    private static final int HEIGHT_PIXELS = 35;
+    private static final int WIDTH_PIXELS = 58;
+    private static final int HEIGHT_PIXELS = 42;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.7f;
-    private static final float FLASH_RED_TIME = 0.4f;
+    private static final float INVINCIBILITY_TIME = 0.4f;
+    private static final float FLASH_RED_TIME = 0.3f;
 
     private float attackTimer;
-
 
     private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
+    private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> attackAnimation;
+    private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
+    private Animation<TextureRegion> hurtAnimationDamaged;
     private Animation<TextureRegion> idleAnimation;
+    private Animation<TextureRegion> idleAnimationDamaged;
 
     private boolean setToDie = false;
 
     private Fixture attackFixture;
 
-
-
-    public Kobold(PlayScreen screen, float x, float y) {
+    public Ogre(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_run"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_die"),
+        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_run_bright"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_die"),
+                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_attack"),
                 7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_attack"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_hurt"),
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_attack_bright"),
+                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("kobold_hurt_bright"),
+        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_hurt_bright"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_idle"),
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_idle_bright"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
@@ -83,16 +93,18 @@ public class Kobold extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 4;
-        barYOffset = 0.09f;
+        attackDamage = 3;
+        health = 10;
+        barYOffset = 0.02f;
+        setScale(1.3f);
     }
 
     @Override
     public void update(float dt) {
-        if(runningRight){
-            barXOffset = -0.15f;
-        }else {
-            barXOffset = 0f;
+        if (runningRight) {
+            barXOffset = -0.2f;
+        } else {
+            barXOffset = -0.05f;
         }
         if (health <= 0) {
             if (!setToDie) {
@@ -119,7 +131,7 @@ public class Kobold extends Enemy {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act();
+            act(dt);
         }
     }
 
@@ -133,16 +145,9 @@ public class Kobold extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
-
-        if (attackTimer > 0) {
-            attackTimer -= dt;
-        }
-        if(affectedBySpellTimer > 0){
-            affectedBySpellTimer -=dt;
-        }
     }
 
-    private void act() {
+    private void act(float dt) {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
@@ -157,6 +162,10 @@ public class Kobold extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
+        }
+
+        if (attackTimer > 0) {
+            attackTimer -= dt;
         }
     }
 
@@ -179,21 +188,21 @@ public class Kobold extends Enemy {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
+                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
+                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
+                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
+                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
                 break;
         }
         orientTextureTowardsPlayer(texture);
@@ -239,7 +248,7 @@ public class Kobold extends Enemy {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -248,26 +257,35 @@ public class Kobold extends Enemy {
         }
     }
 
+
+    @Override
+    public void hitByFire() {
+        screen.getExplosions().add(new Explosion(screen, getX(), getY()));
+
+    }
+
     @Override
     public void hitOnHead() {
         damage(2);
+
     }
 
 
     @Override
     public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
-            hurtTimer = HURT_TIME;
+        if (isAlive()) {
+            if (invincibilityTimer < 0) {
+                health -= amount;
+                invincibilityTimer = INVINCIBILITY_TIME;
+            }
+            if (flashRedTimer < 0) {
+                flashRedTimer = FLASH_RED_TIME;
+            }
+            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
+                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+            showHealthBar = true;
+            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
         }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
-        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
     }
 
     @Override
@@ -291,9 +309,9 @@ public class Kobold extends Enemy {
     private float[] getAttackHitbox() {
         float[] hitbox;
         if (runningRight) {
-            hitbox = SPEAR_HITBOX_RIGHT;
+            hitbox = SWORD_HITBOX_RIGHT;
         } else {
-            hitbox = SPEAR_HITBOX_LEFT;
+            hitbox = SWORD_HITBOX_LEFT;
         }
         return hitbox;
     }
@@ -325,15 +343,15 @@ public class Kobold extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
     }
 
     private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.2f, 0), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(.5f, 2f), b2body.getWorldCenter(), true);
     }
 
     private void goIntoAttackState() {
@@ -354,8 +372,7 @@ public class Kobold extends Enemy {
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
-        shape.set(KOBOLD_HITBOX);
+        shape.set(OGRE_HITBOX);
         return shape;
     }
-
 }

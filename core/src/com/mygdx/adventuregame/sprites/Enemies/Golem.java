@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -11,26 +11,17 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
-import com.mygdx.adventuregame.sprites.Effects.Vortex;
-import com.mygdx.adventuregame.sprites.Effects.Xplosion;
+import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.MonsterTile;
 
-public class FireGolem extends Enemy {
+public class Golem extends Enemy {
     private static final float[] MINOTAUR_HITBOX = {
             -0.15f, 0.1f,
             -0.15f, -0.35f,
             0.15f, -0.35f,
             0.15f, 0.1f};
-    private static final float[] FIRE_SHIELD_HITBOX = {
-            -0.15f, 0.1f,
-            -0.275f, 0f,
-            -0.275f, -0.2f,
-            -0.15f, -0.35f,
-            0.275f, 0f,
-            0.275f, -0.2f,
-            0.15f, -0.35f,
-            0.15f, 0.1f,
-    };
     private static final float[] SWORD_HITBOX_RIGHT = {
             0.4f, -0.4f,
             0.4f, 0.1f,
@@ -42,9 +33,9 @@ public class FireGolem extends Enemy {
             -0.1f, -0.4f,
             0.2f, 0.3f};
 
-    private static final float ATTACK_RATE = 1f;
+    private static final float ATTACK_RATE = 1.75f;
 
-    private static final int WIDTH_PIXELS = 66;
+    private static final int WIDTH_PIXELS = 76;
     private static final int HEIGHT_PIXELS = 59;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
@@ -55,8 +46,6 @@ public class FireGolem extends Enemy {
 
     private float deathTimer;
 
-    private Animation<TextureRegion> chargeAnimation;
-    private Animation<TextureRegion> chargeAnimationDamaged;
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
@@ -66,66 +55,44 @@ public class FireGolem extends Enemy {
     private Animation<TextureRegion> hurtAnimationDamaged;
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> idleAnimationDamaged;
-    private Animation<TextureRegion> launchBallAnimation;
 
     private Array<MonsterTile> monsterTiles;
 
     private boolean setToDie = false;
 
     private Fixture attackFixture;
-    private Fixture fireShieldFixture;
 
-    private float attackCycleTimer = 6;
-    private boolean shieldOn = false;
-    private float shieldTimer = 5;
-    private float chargingTimer = 0;
-    private PlayScreen screen;
-    GolemFireAttack fireAttack;
-    private float angleToPlayer;
-    private FireSpinEffect fireSpinEffect;
-    private float shieldDamageTick = 0.25f;
-    private float attackCooldownTimer;
-    private static final float ATTACK_COOLDOWN = 2.25f;
-    private float playerCloseTimer = 0;
-
-    public FireGolem(PlayScreen screen, float x, float y) {
+    public Golem(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        this.screen = screen;
-        chargeAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_charge_ball"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_run"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("golem_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_run"),
+        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
 
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_die"),
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("golem_die"),
                 9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
 
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_rapid_attack"),
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("golem_rapid_attack"),
+                11, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+
+
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_rapid_attack"),
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
 
 
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_rapid_attack"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_hurt"),
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("golem_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_hurt"),
+        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_idle"),
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("golem_idle"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_idle"),
+        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_idle"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        launchBallAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_launch_ball"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
 
-//        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
-        setBounds(getX(), getY(), WIDTH_PIXELS * 1.3f / AdventureGame.PPM, HEIGHT_PIXELS * 1.3f / AdventureGame.PPM);
+        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
         setToDestroy = false;
@@ -137,71 +104,15 @@ public class FireGolem extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 45;
+        health = 25;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         attachNearbyTiles();
-//        setScale(1.25f);
-
-        angleToPlayer = getVectorToPlayer().angle();
-
+        setScale(1.4f);
     }
-
-    private void startFireShield() {
-        fireSpinEffect = new FireSpinEffect(screen, getX(), getY(), this);
-//        createShieldAttack();
-        screen.getSpritesToAdd().add(fireSpinEffect);
-    }
-
-    private void stopFireShield() {
-        disableFireShieldHitBox();
-        fireSpinEffect.setToDestroy();
-        fireSpinEffect = null;
-    }
-
-    private void startFireAttack() {
-        fireAttack = new GolemFireAttack(screen, getX() - getWidth() / 2, getY() - getHeight() / 2, runningRight, this);
-        screen.getSpritesToAdd().add(fireAttack);
-        chargingTimer = 3f;
-    }
-
 
     @Override
     public void update(float dt) {
-        if (attackCycleTimer > 0) {
-            attackCycleTimer -= dt;
-        } else {
-            attackCycleTimer = 7f;
-            startFireAttack();
-        }
-
-        if (shieldOn) {
-
-            if (shieldDamageTick > 0) {
-                shieldDamageTick -= dt;
-            } else {
-                if (inRange()) {
-                    screen.getPlayer().hurt(3);
-                }
-                shieldDamageTick = 0.75f;
-            }
-        } else {
-            shieldDamageTick = -1;
-        }
-        if (shieldTimer > 0) {
-            shieldTimer -= dt;
-        } else if(shieldOn){
-            stopFireShield();
-            shieldOn = false;
-        }
-
-        if (chargingTimer > 0) {
-            chargingTimer -= dt;
-        } else {
-            if (fireAttack != null) {
-                fireAttack.stopCharging();
-            }
-        }
         if (runningRight) {
             barXOffset = -0.2f;
         } else {
@@ -218,20 +129,10 @@ public class FireGolem extends Enemy {
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
-                if(!destroyed){
-                    screen.getSpritesToAdd().add(new Xplosion(screen, getX() +0.1f, getY() - getHeight()/2 + 0.1f));
-                }
             }
         }
 
         if (setToDestroy && !destroyed) {
-            screen.getSpritesToAdd().add(new FireElemental(screen, b2body.getPosition().x, b2body.getPosition().y, true));
-//            if(fireAttack != null){
-//                fireAttack.setToDestroy();
-//            }
-//            if(fireSpinEffect != null){
-//                fireSpinEffect.setToDestroy();
-//            }
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
@@ -247,9 +148,6 @@ public class FireGolem extends Enemy {
     }
 
     private void updateStateTimers(float dt) {
-        if(attackCooldownTimer > 0){
-            attackCooldownTimer -=dt;
-        }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
         }
@@ -265,11 +163,8 @@ public class FireGolem extends Enemy {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
-                if(attackCooldownTimer <= 0){
-                    goIntoAttackState();
-                    attackCooldownTimer = ATTACK_COOLDOWN;
-                    lungeAtPlayer();
-                }
+                goIntoAttackState();
+                lungeAtPlayer();
             }
         }
         if (currentState == State.ATTACKING) {
@@ -300,14 +195,6 @@ public class FireGolem extends Enemy {
 
         TextureRegion texture;
         switch (currentState) {
-            case CAST:
-                attackEnabled = true;
-                texture = launchBallAnimation.getKeyFrame(stateTimer);
-                break;
-            case CHARGING:
-                attackEnabled = true;
-                texture = chargeAnimation.getKeyFrame(stateTimer, true);
-                break;
             case DYING:
                 attackEnabled = false;
                 texture = deathAnimation.getKeyFrame(stateTimer);
@@ -330,7 +217,6 @@ public class FireGolem extends Enemy {
                 texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
                 break;
         }
-
         orientTextureTowardsPlayer(texture);
 
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
@@ -342,13 +228,6 @@ public class FireGolem extends Enemy {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
             attackFixture = null;
-        }
-    }
-
-    private void disableFireShieldHitBox() {
-        if (fireShieldFixture != null) {
-            b2body.destroyFixture(fireShieldFixture);
-            fireShieldFixture = null;
         }
     }
 
@@ -374,30 +253,18 @@ public class FireGolem extends Enemy {
         }
     }
 
-
     private State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
-        } else if (chargingTimer > 0) {
-            if (!shieldOn) {
-                shieldTimer = 3;
-                startFireShield();
-                shieldOn = true;
-            }
-            if (chargingTimer < 0.35) {
-                return State.CAST;
-            }
-            return State.CHARGING;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM && Math.abs(getVectorToPlayer().x) > 20f / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
         } else {
-            b2body.setLinearVelocity(new Vector2(0, b2body.getLinearVelocity().y));
             return State.IDLE;
         }
     }
@@ -434,15 +301,6 @@ public class FireGolem extends Enemy {
 
     }
 
-    private boolean inRange() {
-        return (getVectorToPlayer().len() < 0.45f);
-    }
-
-    protected Vector2 getVectorToPlayer() {
-        Vector2 enemyPosition = new Vector2(this.getX() + 0.22f, this.getY());
-        Vector2 playerVector = new Vector2(screen.getPlayer().getX(), screen.getPlayer().getY());
-        return playerVector.sub(enemyPosition);
-    }
 
     @Override
     public void damage(int amount) {
@@ -477,21 +335,6 @@ public class FireGolem extends Enemy {
         fixtureDef.isSensor = false;
         attackFixture = b2body.createFixture(fixtureDef);
         attackFixture.setUserData(this);
-    }
-
-    private void createShieldAttack() {
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_ATTACK_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
-        PolygonShape polygonShape = new PolygonShape();
-        float[] hitbox = FIRE_SHIELD_HITBOX;
-        polygonShape.set(hitbox);
-        fixtureDef.shape = polygonShape;
-        fixtureDef.isSensor = true;
-        fixtureDef.density = 500f;
-        fixtureDef.restitution = 0.7f;
-        fireShieldFixture = b2body.createFixture(fixtureDef);
-        fireShieldFixture.setUserData(this);
     }
 
     private float[] getAttackHitbox() {
@@ -558,7 +401,7 @@ public class FireGolem extends Enemy {
     }
 
 
-    private void attachNearbyTiles() {
+    private void attachNearbyTiles(){
         for (MonsterTile monsterTile : screen.monsterTiles) {
             Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
             Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
@@ -568,17 +411,10 @@ public class FireGolem extends Enemy {
             }
         }
     }
-
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
         shape.set(MINOTAUR_HITBOX);
         return shape;
     }
-
-    public boolean isCharging() {
-        return chargingTimer > 0;
-    }
-
-
 }

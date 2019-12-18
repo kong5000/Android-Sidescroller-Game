@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -8,86 +8,71 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
+import com.mygdx.adventuregame.sprites.Enemy;
 
-public class Golem extends Enemy {
-    private static final float[] MINOTAUR_HITBOX = {
-            -0.15f, 0.1f,
-            -0.15f, -0.35f,
-            0.15f, -0.35f,
+
+public class Kobold extends Enemy {
+    private static final float[] KOBOLD_HITBOX = {
+            -0.17f, 0.1f,
+            -0.17f, -0.15f,
+            0.15f, -0.15f,
             0.15f, 0.1f};
-    private static final float[] SWORD_HITBOX_RIGHT = {
-            0.4f, -0.4f,
-            0.4f, 0.1f,
-            0.1f, -0.4f,
-            -0.2f, 0.3f};
-    private static final float[] SWORD_HITBOX_LEFT = {
-            -0.4f, -0.4f,
-            -0.4f, 0.1f,
-            -0.1f, -0.4f,
-            0.2f, 0.3f};
-
+    private static final float[] SPEAR_HITBOX_RIGHT = {
+            0.3f, -0.1f,
+            0.3f, 0.00f,
+            0.1f, -0.1f,
+            0.1f, 0.00f};
+    private static final float[] SPEAR_HITBOX_LEFT = {
+            -0.3f, -0.1f,
+            -0.3f, 0.00f,
+            -0.1f, -0.1f,
+            -0.1f, 0.00f};
+    private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
 
-    private static final int WIDTH_PIXELS = 76;
-    private static final int HEIGHT_PIXELS = 59;
+    private static final int WIDTH_PIXELS = 68;
+    private static final int HEIGHT_PIXELS = 35;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.4f;
-    private static final float FLASH_RED_TIME = 0.3f;
+    private static final float INVINCIBILITY_TIME = 0.7f;
+    private static final float FLASH_RED_TIME = 0.4f;
 
     private float attackTimer;
+
 
     private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
+    private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
-
-    private Array<MonsterTile> monsterTiles;
 
     private boolean setToDie = false;
 
     private Fixture attackFixture;
 
-    public Golem(PlayScreen screen, float x, float y) {
+
+
+    public Kobold(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("golem_run"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("golem_die"),
-                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("golem_rapid_attack"),
-                11, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_rapid_attack"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("golem_hurt"),
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_die"),
+                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_attack"),
+                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_hurt"),
+        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("kobold_hurt_bright"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("golem_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("kobold_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -100,20 +85,16 @@ public class Golem extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        attackDamage = 3;
-        health = 25;
-        barYOffset = 0.02f;
-        monsterTiles = new Array<>();
-        attachNearbyTiles();
-        setScale(1.4f);
+        health = 4;
+        barYOffset = 0.09f;
     }
 
     @Override
     public void update(float dt) {
-        if (runningRight) {
-            barXOffset = -0.2f;
-        } else {
-            barXOffset = -0.05f;
+        if(runningRight){
+            barXOffset = -0.15f;
+        }else {
+            barXOffset = 0f;
         }
         if (health <= 0) {
             if (!setToDie) {
@@ -126,6 +107,9 @@ public class Golem extends Enemy {
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
+                if(!destroyed){
+                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth()/4, getY() - getHeight() - 0.1f));
+                }
             }
         }
 
@@ -133,14 +117,11 @@ public class Golem extends Enemy {
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
-            for (MonsterTile monsterTile : monsterTiles) {
-                monsterTile.setToDestroy();
-            }
         } else if (!destroyed) {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act(dt);
+            act();
         }
     }
 
@@ -154,9 +135,16 @@ public class Golem extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
+
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+        }
+        if(affectedBySpellTimer > 0){
+            affectedBySpellTimer -=dt;
+        }
     }
 
-    private void act(float dt) {
+    private void act() {
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInAttackRange()) {
@@ -171,10 +159,6 @@ public class Golem extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
-        }
-
-        if (attackTimer > 0) {
-            attackTimer -= dt;
         }
     }
 
@@ -197,21 +181,21 @@ public class Golem extends Enemy {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
+                texture = attackAnimation.getKeyFrame(stateTimer);
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
+                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer, true);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
+                texture = idleAnimation.getKeyFrame(stateTimer, true);
                 break;
         }
         orientTextureTowardsPlayer(texture);
@@ -257,7 +241,7 @@ public class Golem extends Enemy {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -266,54 +250,26 @@ public class Golem extends Enemy {
         }
     }
 
-//    @Override
-//    public void defineEnemy() {
-//        BodyDef bodyDef = new BodyDef();
-//        bodyDef.position.set(getX(), getY());
-//        bodyDef.type = BodyDef.BodyType.DynamicBody;
-//        b2body = world.createBody(bodyDef);
-//
-//        FixtureDef fixtureDef = new FixtureDef();
-//        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-//        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-//                | AdventureGame.PLAYER_SWORD_BIT
-//                | AdventureGame.PLAYER_PROJECTILE_BIT
-//                | AdventureGame.FIRE_SPELL_BIT;
-//        PolygonShape shape = new PolygonShape();
-//        shape.set(MINOTAUR_HITBOX);
-//
-//        fixtureDef.shape = shape;
-//        b2body.createFixture(fixtureDef).setUserData(this);
-//    }
-
-    @Override
-    public void hitByFire() {
-        screen.getExplosions().add(new Explosion(screen, getX(), getY()));
-
-    }
-
     @Override
     public void hitOnHead() {
         damage(2);
-
     }
 
 
     @Override
     public void damage(int amount) {
-        if (isAlive()) {
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
+        if (invincibilityTimer < 0) {
+            health -= amount;
+            invincibilityTimer = INVINCIBILITY_TIME;
+            hurtTimer = HURT_TIME;
         }
+        if (flashRedTimer < 0) {
+            flashRedTimer = FLASH_RED_TIME;
+        }
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+        showHealthBar = true;
+        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
     }
 
     @Override
@@ -337,9 +293,9 @@ public class Golem extends Enemy {
     private float[] getAttackHitbox() {
         float[] hitbox;
         if (runningRight) {
-            hitbox = SWORD_HITBOX_RIGHT;
+            hitbox = SPEAR_HITBOX_RIGHT;
         } else {
-            hitbox = SWORD_HITBOX_LEFT;
+            hitbox = SPEAR_HITBOX_LEFT;
         }
         return hitbox;
     }
@@ -371,15 +327,15 @@ public class Golem extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.5f, 2f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void goIntoAttackState() {
@@ -397,21 +353,11 @@ public class Golem extends Enemy {
         return false;
     }
 
-
-    private void attachNearbyTiles(){
-        for (MonsterTile monsterTile : screen.monsterTiles) {
-            Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
-            Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
-            float distance = enemyPosition.sub(tileVector).len();
-            if (distance < 8f) {
-                monsterTiles.add(monsterTile);
-            }
-        }
-    }
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
-        shape.set(MINOTAUR_HITBOX);
+        shape.set(KOBOLD_HITBOX);
         return shape;
     }
+
 }

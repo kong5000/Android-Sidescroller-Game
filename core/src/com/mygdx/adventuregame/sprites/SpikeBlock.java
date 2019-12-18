@@ -42,6 +42,7 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
     private float downTimer = 0f;
     private boolean paused = false;
     private float travelTime = 2f;
+    private Lever lever;
 
 
     public SpikeBlock(PlayScreen screen, float x, float y) {
@@ -105,40 +106,37 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
 
     @Override
     public void update(float dt) {
-//        if(paused){
-//            pauseMovement();
-//            if(pauseTimer > 0){
-//                pauseTimer -= dt;
-//            }else {
-//                paused = false;
-//                movementTimer = 1;
-//                move();
-//                direction *= -1;
-//            }
-//        }
-//
-//        if(!paused){
-//            if(movementTimer > 0){
-//                movementTimer -= dt;
-//            }else {
-//                paused = true;
-//                pauseTimer = 1f;
-//            }
-//        }
-        if(movementTimer < 1){
-            moveDown();
-        }else if(movementTimer >= 1){
-            move();
+        if(hasALever()){
+            if(lever.leverOn()){
+                if(movementTimer < 1){
+                    moveDown();
+                }else if(movementTimer >= 1){
+                    move();
+                }
+                if(movementTimer > 0){
+                    movementTimer -= dt;
+                }
+            }else{
+                pauseMovement();
+            }
+        }else {
+            if(movementTimer < 1){
+                moveDown();
+            }else if(movementTimer >= 1){
+                move();
+            }
+            if(movementTimer > 0){
+                movementTimer -= dt;
+            }
         }
-        if(movementTimer > 0){
-            movementTimer -= dt;
-        }
+
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
 
     }
 
     private void pauseMovement() {
         b2body.setLinearVelocity(new Vector2(0, 0));
+        sensorBody.setLinearVelocity(0, 0);
     }
 
     protected void move(){
@@ -161,4 +159,12 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
     public void setTravelTime(float time){
         travelTime = time;
     }
+
+    public void attachLever(Lever lever){
+        this.lever = lever;
+    }
+    private boolean hasALever(){
+        return (lever != null);
+    }
+
 }

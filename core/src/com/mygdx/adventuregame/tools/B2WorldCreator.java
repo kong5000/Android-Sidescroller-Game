@@ -11,22 +11,24 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.sprites.FireElemental;
-import com.mygdx.adventuregame.sprites.FireGolem;
+import com.mygdx.adventuregame.sprites.Enemies.FireElemental;
+import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.HorizontalSpikeBlock;
-import com.mygdx.adventuregame.sprites.Kobold;
-import com.mygdx.adventuregame.sprites.Mimic;
-import com.mygdx.adventuregame.sprites.Minotaur;
+import com.mygdx.adventuregame.sprites.Enemies.Kobold;
+import com.mygdx.adventuregame.sprites.Enemies.Mimic;
+import com.mygdx.adventuregame.sprites.Enemies.Minotaur;
 import com.mygdx.adventuregame.sprites.MonsterTile;
-import com.mygdx.adventuregame.sprites.Ogre;
-import com.mygdx.adventuregame.sprites.Slime;
+import com.mygdx.adventuregame.sprites.Enemies.Ogre;
+import com.mygdx.adventuregame.sprites.Enemies.Slime;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
+import com.mygdx.adventuregame.sprites.Lever;
 
 public class B2WorldCreator {
     private PlayScreen screen;
@@ -36,15 +38,18 @@ public class B2WorldCreator {
     private FixtureDef fixtureDef = new FixtureDef();
     private Body body;
     private World world;
+    private Array<Lever> levers;
 
     public B2WorldCreator(World world, TiledMap map, PlayScreen screen) {
         this.screen = screen;
         this.world = world;
+        levers = new Array<>();
 //        BodyDef bodyDef = new BodyDef();
 //        PolygonShape shape = new PolygonShape();
 //        FixtureDef fixtureDef = new FixtureDef();
 //        Body body;
         //3 is the object layer from tmx for ground
+
 
         for (MapObject object : map.getLayers().get(13).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -70,28 +75,41 @@ public class B2WorldCreator {
             screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
             screen.getEnemyList().add(enemy);
         }
+        for (MapObject object : map.getLayers().get(21).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            CheckPoint checkPoint = new CheckPoint(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
+            screen.getCheckPoints().add(checkPoint);
+        }
+
+        for (MapObject object : map.getLayers().get(22).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Lever lever = new Lever(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
+            screen.getSpritesToAdd().add(lever);
+            levers.add(lever);
+
+        }
         for (MapObject object : map.getLayers().get(19).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             SpikeBlock spikeBlock = new SpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            if (isAtLocation(rect.getX(), 2079.75f)) {
+                spikeBlock.setTravelTime(8f);
+                spikeBlock.attachLever(levers.get(0));
+            }
             screen.getSpritesToAdd().add(spikeBlock);
         }
         for (MapObject object : map.getLayers().get(20).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             HorizontalSpikeBlock spikeBlock = new HorizontalSpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
-            if(isAtLocation(rect.getY(), 1040)){
-                spikeBlock.setTravelTime(4.3f);
-            }
-            if(isAtLocation(rect.getY(), 1168)){
-                spikeBlock.setTravelTime(4.3f);
-            }
+//            if(isAtLocation(rect.getY(), 1040)){
+//                spikeBlock.setTravelTime(4.3f);
+//            }
+//            if(isAtLocation(rect.getY(), 1168)){
+//                spikeBlock.setTravelTime(4.3f);
+//            }
             screen.getSpritesToAdd().add(spikeBlock);
         }
-        for (MapObject object : map.getLayers().get(21).getObjects().getByType(RectangleMapObject.class)) {
-            Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            CheckPoint checkPoint = new CheckPoint(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM - 0.07f);
-            screen.getCheckPoints().add(checkPoint);
 
-        }
+
         for (MapObject object : map.getLayers().get(12).getObjects()) {
             if (object instanceof RectangleMapObject) {
                 Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -117,8 +135,6 @@ public class B2WorldCreator {
                 fixtureDef.shape = shape;
 
                 world.createBody(bodyDef).createFixture(fixtureDef);
-
-
 
 
 //                shape = getPolygon((PolygonMapObject) object);
@@ -197,26 +213,22 @@ public class B2WorldCreator {
             treasureType = AdventureGame.BOW;
         } else if (isAtLocation(chestPosition, AdventureGame.DOUBLE_JUMP_LOCATION)) {
             treasureType = AdventureGame.RING_OF_DOUBLE_JUMP;
-        }else if (isAtLocation(chestPosition, AdventureGame.RING_OF_PROTECTION_LOCATION)){
+        } else if (isAtLocation(chestPosition, AdventureGame.RING_OF_PROTECTION_LOCATION)) {
             treasureType = AdventureGame.RING_OF_PROTECTION;
-        }
-        else if (isAtLocation(chestPosition, AdventureGame.SWORD_LOCATION)){
+        } else if (isAtLocation(chestPosition, AdventureGame.SWORD_LOCATION)) {
             treasureType = AdventureGame.SWORD;
-        }
-        else if (isAtLocation(chestPosition, AdventureGame.RING_OF_REGEN_LOCATION)){
+        } else if (isAtLocation(chestPosition, AdventureGame.RING_OF_REGEN_LOCATION)) {
             treasureType = AdventureGame.RING_OF_REGENERATION;
-        }
-        else if (isAtLocation(chestPosition, AdventureGame.SWORD_LOCATION_2)){
+        } else if (isAtLocation(chestPosition, AdventureGame.SWORD_LOCATION_2)) {
             treasureType = AdventureGame.SWORD;
-        }
-        else if (isAtLocation(chestPosition, AdventureGame.BOW_LOCATION_2)){
+        } else if (isAtLocation(chestPosition, AdventureGame.BOW_LOCATION_2)) {
             treasureType = AdventureGame.BOW;
         }
 
         return new Chest(screen, chestPosition / AdventureGame.PPM, y / AdventureGame.PPM, treasureType);
     }
 
-    private boolean isAtLocation(float currentChest, float location){
+    private boolean isAtLocation(float currentChest, float location) {
         return (Math.abs(currentChest - location) < 0.01f);
     }
 

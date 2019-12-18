@@ -70,6 +70,7 @@ public class Player extends Sprite {
             0f, -0.1f,
             0, 0.3f};
     private static final float INVINCIBLE_TIME = 1f;
+    public static final float WALLRUN_TIME = 0.45f;
     private boolean onElevator = false;
     private CheckPoint currentCheckPoint;
 
@@ -761,7 +762,7 @@ public class Player extends Sprite {
             return State.DOWN_ATTACK;
         }
         if (canWallRun && wallrunTimer > 0) {
-            if (positiveXInput || negativeXInput)
+            if (positiveXInput || negativeXInput )
                 return State.WALLCLIMB;
         }
         if (reviveTimer > 0) {
@@ -1446,12 +1447,15 @@ public class Player extends Sprite {
 
     public void enableWallRun() {
         if (currentState == State.FALLING || currentState == State.JUMPING || currentState == State.FLIPPING) {
-            if (wallrunTimer < 0 && wallRunCooldown <= 0) {
-                wallrunTimer = 0.35f;
-                wallRunCooldown = 1f;
+            if(jumpIsHeld){
+                if (wallrunTimer < 0 && wallRunCooldown <= 0) {
+                    wallrunTimer = WALLRUN_TIME;
+                    wallRunCooldown = 1f;
+                }
+
+                canWallRun = true;
             }
 
-            canWallRun = true;
         }
 
     }

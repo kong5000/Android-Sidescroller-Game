@@ -29,21 +29,17 @@ import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Effects.BlueFlame;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 
-import com.mygdx.adventuregame.sprites.FireElemental;
-import com.mygdx.adventuregame.sprites.FireGolem;
+import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;
-import com.mygdx.adventuregame.sprites.Item;
-import com.mygdx.adventuregame.sprites.Kobold;
-import com.mygdx.adventuregame.sprites.Mimic;
+import com.mygdx.adventuregame.sprites.Enemies.Mimic;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.Player;
-import com.mygdx.adventuregame.sprites.SpikeBlock;
+import com.mygdx.adventuregame.sprites.Lever;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
 import com.mygdx.adventuregame.tools.B2WorldCreator;
 import com.mygdx.adventuregame.tools.Controller;
@@ -193,11 +189,8 @@ public class PlayScreen implements Screen {
         enemyList.add(new Mimic(this, 3.75f, 5f));
         enemyList.add(new FireGolem(this, 3.55f, 5f));
 
-        sprites.add(new Item(this, 5.2f, 5f, AdventureGame.SMALL_HEALTH));
-        sprites.add(new Item(this, 5.4f, 5f, AdventureGame.LARGE_HEALTH));
-        sprites.add(new Item(this, 5.6f, 5f, AdventureGame.MEDIUM_HEALTH));
-        sprites.add(new Item(this, 4.8f, 5f, AdventureGame.RING_OF_DOUBLE_JUMP));
-        sprites.add(new SpikeBlock(this, 6.8f, 5f));
+
+        sprites.add(new Lever(this, 2, 7.6f));
 
 //        checkPoints.add(new CheckPoint(this, 5, 5));
 
@@ -377,7 +370,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.rect(0, 0, AdventureGame.V_WIDTH * AdventureGame.PPM, AdventureGame.V_HEIGHT * AdventureGame.PPM);
         shapeRenderer.end();
-//        b2dr.render(world, gameCam.combined);
+        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
