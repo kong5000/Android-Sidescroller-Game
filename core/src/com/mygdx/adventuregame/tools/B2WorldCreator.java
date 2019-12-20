@@ -95,6 +95,10 @@ public class B2WorldCreator {
                 spikeBlock.setTravelTime(8f);
                 spikeBlock.attachLever(levers.get(0));
             }
+            if (isAtLocation(rect.getX(), 7216f)) {
+                spikeBlock.setTravelTime(8f);
+                spikeBlock.attachLever(levers.get(1));
+            }
             screen.getSpritesToAdd().add(spikeBlock);
         }
         for (MapObject object : map.getLayers().get(20).getObjects().getByType(RectangleMapObject.class)) {
