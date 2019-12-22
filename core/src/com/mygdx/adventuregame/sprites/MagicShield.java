@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.player.Player;
 
 public class MagicShield extends Explosion {
     private Player player;

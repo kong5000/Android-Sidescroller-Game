@@ -997,6 +997,20 @@ player_fire_bow
   orig: 100, 37
   offset: 0, 0
   index: -1
+pearl_01a
+  rotate: false
+  xy: 4692, 548
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+sword_02b
+  rotate: false
+  xy: 4884, 1236
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
 monster_block
   rotate: false
   xy: 4616, 99

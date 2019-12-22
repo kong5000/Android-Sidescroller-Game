@@ -37,7 +37,7 @@ public class Ogre extends Enemy {
     private static final int WIDTH_PIXELS = 58;
     private static final int HEIGHT_PIXELS = 42;
 
-    private static final float CORPSE_EXISTS_TIME = 1.5f;
+    private static final float CORPSE_EXISTS_TIME = 1f;
     private static final float INVINCIBILITY_TIME = 0.4f;
     private static final float FLASH_RED_TIME = 0.3f;
 

@@ -79,7 +79,7 @@ public class Mimic extends Enemy {
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         transformAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_transform"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.05f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -280,7 +280,7 @@ public class Mimic extends Enemy {
     @Override
     public void damage(int amount) {
         if(hasBeenAttacked == false){
-            transformTimer = 0.7f;
+            transformTimer = 0.3f;
         }
         hasBeenAttacked = true;
         if (invincibilityTimer < 0) {

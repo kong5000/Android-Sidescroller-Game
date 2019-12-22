@@ -11,7 +11,7 @@ import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.Item;
-import com.mygdx.adventuregame.sprites.Player;
+import com.mygdx.adventuregame.sprites.player.Player;
 import com.mygdx.adventuregame.sprites.Arrow;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
 

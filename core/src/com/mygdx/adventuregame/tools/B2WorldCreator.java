@@ -91,7 +91,7 @@ public class B2WorldCreator {
         for (MapObject object : map.getLayers().get(19).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             SpikeBlock spikeBlock = new SpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
-            if (isAtLocation(rect.getX(), 2079.75f)) {
+            if (isAtLocation(rect.getX(), 2079.5f)) {
                 spikeBlock.setTravelTime(8f);
                 spikeBlock.attachLever(levers.get(0));
             }

@@ -38,11 +38,10 @@ import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;
 import com.mygdx.adventuregame.sprites.Enemies.Mimic;
 import com.mygdx.adventuregame.sprites.MonsterTile;
-import com.mygdx.adventuregame.sprites.Player;
-import com.mygdx.adventuregame.sprites.Lever;
+import com.mygdx.adventuregame.sprites.player.Player;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
 import com.mygdx.adventuregame.tools.B2WorldCreator;
-import com.mygdx.adventuregame.tools.Controller;
+import com.mygdx.adventuregame.sprites.player.Controller;
 import com.mygdx.adventuregame.tools.WorldContactListener;
 
 import java.util.Iterator;
@@ -190,7 +189,6 @@ public class PlayScreen implements Screen {
         enemyList.add(new FireGolem(this, 3.55f, 5f));
 
 
-        sprites.add(new Lever(this, 2, 7.6f));
 
 //        checkPoints.add(new CheckPoint(this, 5, 5));
 

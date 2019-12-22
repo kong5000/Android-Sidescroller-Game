@@ -21,6 +21,7 @@ public class Lever extends Enemy implements UpdatableSprite {
             0.15f, 0.08f};
 
     private float SWITCH_ACTIVE_TIME = 0.75f;
+    private boolean canBeToggled = true;
 
     private enum State {OFF, ON}
     ;
@@ -108,7 +109,7 @@ public class Lever extends Enemy implements UpdatableSprite {
         FixtureDef fixtureDef = new FixtureDef();
 
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT | AdventureGame.PLAYER_PROJECTILE_BIT;
 
         PolygonShape shape = new PolygonShape();
         shape.set(LEVER_HITBOX);
@@ -135,7 +136,8 @@ public class Lever extends Enemy implements UpdatableSprite {
     @Override
     public void damage(int amount) {
 
-        if(canBeSwitchedTimer < 0){
+        if(canBeSwitchedTimer < 0 && canBeToggled){
+            canBeToggled = false;
             if(currentState == State.OFF){
                 isClosed = false;
             }else {
@@ -166,5 +168,8 @@ public class Lever extends Enemy implements UpdatableSprite {
 
     public boolean leverOn(){
         return currentState == State.ON;
+    }
+    public void setOneTimeSwitch(boolean state){
+        canBeToggled = state;
     }
 }

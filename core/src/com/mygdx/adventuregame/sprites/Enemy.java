@@ -20,6 +20,8 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     public State currentState;
     public State previousState;
 
+    //Todo getter and setters
+    //Todo move protected variable to subclasses as private variables.
     protected World world;
     protected PlayScreen screen;
     public Body b2body;

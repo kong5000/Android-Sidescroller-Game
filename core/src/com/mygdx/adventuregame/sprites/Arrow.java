@@ -167,7 +167,7 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile  {
         }
 
         b2body.createFixture(fixtureDef).setUserData(this);
-        b2body.setGravityScale(0.12f);
+        b2body.setGravityScale(0.07f);
     }
 
     public void setToDestroyHitBox(){

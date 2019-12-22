@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.tools;
+package com.mygdx.adventuregame.sprites.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -23,7 +23,6 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.FireSpell;
-import com.mygdx.adventuregame.sprites.Player;
 
 
 public class Controller implements InputProcessor {
@@ -62,6 +61,7 @@ public class Controller implements InputProcessor {
     boolean gestureStarted = false;
     private TextureRegionDrawable shield;
     private TextureRegionDrawable button;
+    private TextureRegionDrawable sword;
     private TextureRegionDrawable bow;
     private boolean stopSpell = true;
     private boolean attackHeldDown = false;
@@ -71,7 +71,11 @@ public class Controller implements InputProcessor {
         this.screen = screen;
         this.player = screen.getPlayer();
         bow = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("bow"), 0, 0, 16, 16));
-        button = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("fire_elemental_idle"),
+//        button = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("fire_elemental_idle"),
+//                0, 0, 62, 43));
+        button = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("pearl_01a"),
+                0, 0, 62, 43));
+        sword = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("sword_02b"),
                 0, 0, 62, 43));
         shield = new TextureRegionDrawable(new TextureRegion(screen.getAtlas().findRegion("grass_shield"),
                 0, 0, 100, 100));
@@ -115,6 +119,7 @@ public class Controller implements InputProcessor {
 
         jumpButton = new Image();
         jumpButton.setSize(62 * SCALE, 43 * SCALE);
+        jumpButton.setScale(0.85f);
         jumpButton.setVisible(false);
         jumpButton.setDrawable(button);
         jumpButton.addListener(new InputListener() {
@@ -200,8 +205,8 @@ public class Controller implements InputProcessor {
         }
         switch (player.getEquipedSpell()) {
             case FIREBALL:
-                image.setDrawable(button);
-                image.setScale(1f);
+                image.setDrawable(sword);
+                image.setScale(0.65f);
                 break;
             case SHIELD:
                 image.setDrawable(shield);
@@ -337,6 +342,19 @@ public class Controller implements InputProcessor {
             if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                 player.attack();
             }
+            if (xVal > 0 && player.currentState != Player.State.DODGING) {
+                player.setRunningRight(true);
+                player.setInputPositiveX(true);
+                player.setInputNegativeX(false);
+            } else if (xVal < 0 && player.currentState != Player.State.DODGING) {
+                player.setRunningRight(false);
+                player.setInputPositiveX(false);
+                player.setInputNegativeX(true);
+            } else {
+                player.setInputPositiveX(false);
+                player.setInputNegativeX(false);
+            }
+        }else if(player.canTurn()){
             if (xVal > 0 && player.currentState != Player.State.DODGING) {
                 player.setRunningRight(true);
                 player.setInputPositiveX(true);

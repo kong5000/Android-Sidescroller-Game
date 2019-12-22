@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.player.Player;
 
 public class FireSpell extends Sprite implements UpdatableSprite{
     private enum State {ARMED, IMPACT}

@@ -148,7 +148,7 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
 
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
-        b2body.setGravityScale(0.1f);
+        b2body.setGravityScale(0);
     }
 
     public void setToDestroy(){
