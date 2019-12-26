@@ -206,12 +206,15 @@ public class Player extends Sprite {
     private static final float LEVEL_1_START_X = 10.05f;
     private static final float LEVEL_1_START_Y = 5.65f;
 
+    private PlayerBody playerBody;
+
     //Todo firespell blowsup box obstacles
     public Player(World world, PlayScreen screen) {
         super(screen.getAtlas().findRegion("player_idle1"));
         this.world = world;
         this.screen = screen;
         this.animations = new PlayerAnimations(screen.getAtlas(), this);
+        playerBody = new PlayerBody(world, this);
 
 //        spawnPointX = 10.05f;
 //        spawnPointY = 5.65f;
@@ -241,129 +244,15 @@ public class Player extends Sprite {
         itemPickupTimer = 0;
         itemDialog = new TextureRegion(screen.getAtlas().findRegion("sword_dialog"), 0, 0, 450, 300);
 
-        definePlayer();
+//        definePlayer();
+        playerBody.setSpawnPoint(spawnPointX, spawnPointY);
+        b2body = playerBody.definePlayer();
         setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
 //        setBounds(0, 0, 55 / AdventureGame.PPM, 41 / AdventureGame.PPM);
 //        setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
         magicShield = new MagicShield(screen, b2body.getPosition().x, b2body.getPosition().y, this);
         magicShield.setAlpha(0);
 
-    }
-
-    private void definePlayer() {
-        BodyDef bodyDef = new BodyDef();
-        //Starting Castle
-        bodyDef.position.set(spawnPointX , spawnPointY);
-//        bodyDef.position.set(spawnPointX , spawnPointY);
-        //First minotaur
-//        bodyDef.position.set(6400 / AdventureGame.PPM, 900 / AdventureGame.PPM);
-        //Boss Area
-//        bodyDef.position.set(10950 / AdventureGame.PPM, 900 / AdventureGame.PPM);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bodyDef);
-
-        FixtureDef fixtureDef = new FixtureDef();
-
-        PolygonShape bodyShape = new PolygonShape();
-        bodyShape.set(RECTANGULAR_HITBOX);
-        fixtureDef.shape = bodyShape;
-        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.ENEMY_HEAD_BIT
-                | AdventureGame.ENEMY_ATTACK_BIT
-                | AdventureGame.ENEMY_PROJECTILE_BIT
-                | AdventureGame.PLATFORM_BIT
-                | AdventureGame.SPIKE_BIT
-                | AdventureGame.ITEM_BIT
-                | AdventureGame.MOVING_BLOCK_BIT;
-        fixtureDef.isSensor = false;
-        fixtureDef.friction = 0;
-        b2body.createFixture(fixtureDef).setUserData(this);
-        fixtureDef = new FixtureDef();
-
-        bodyShape = new PolygonShape();
-        bodyShape.set(HEAD_HITBOX);
-
-        fixtureDef.shape = bodyShape;
-        fixtureDef.filter.categoryBits = AdventureGame.WALL_RUN_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT;
-        fixtureDef.isSensor = true;
-        b2body.createFixture(fixtureDef).setUserData(this);
-    }
-
-    private void createBigHitBox() {
-        BodyDef bodyDef = new BodyDef();
-        //Starting Castle
-        bodyDef.position.set(getX() + 0.3f, getY() + 0.11f);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bodyDef);
-
-        FixtureDef fixtureDef = new FixtureDef();
-
-        PolygonShape bodyShape = new PolygonShape();
-        bodyShape.set(RECTANGULAR_HITBOX);
-        fixtureDef.shape = bodyShape;
-        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.ENEMY_HEAD_BIT
-                | AdventureGame.ENEMY_ATTACK_BIT
-                | AdventureGame.ENEMY_PROJECTILE_BIT
-                | AdventureGame.PLATFORM_BIT
-                | AdventureGame.SPIKE_BIT
-                | AdventureGame.ITEM_BIT
-                | AdventureGame.MOVING_BLOCK_BIT;
-        fixtureDef.isSensor = false;
-        fixtureDef.friction = 0;
-        b2body.createFixture(fixtureDef).setUserData(this);
-
-
-        fixtureDef = new FixtureDef();
-
-        bodyShape = new PolygonShape();
-        bodyShape.set(HEAD_HITBOX);
-
-        fixtureDef.shape = bodyShape;
-        fixtureDef.filter.categoryBits = AdventureGame.WALL_RUN_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT;
-        fixtureDef.isSensor = true;
-        b2body.createFixture(fixtureDef).setUserData(this);
-    }
-
-    private void createSmallHitBox() {
-        BodyDef bodyDef = new BodyDef();
-        //Starting Castle
-        bodyDef.position.set(getX() + 0.3f, getY() + 0.11f);
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bodyDef);
-
-        FixtureDef fixtureDef = new FixtureDef();
-
-        PolygonShape bodyShape = new PolygonShape();
-        bodyShape.set(RECTANGULAR_HITBOX_SMALL);
-        fixtureDef.shape = bodyShape;
-        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.ENEMY_HEAD_BIT
-                | AdventureGame.ENEMY_ATTACK_BIT
-                | AdventureGame.ENEMY_PROJECTILE_BIT
-                | AdventureGame.PLATFORM_BIT
-                | AdventureGame.SPIKE_BIT
-                | AdventureGame.ITEM_BIT
-                | AdventureGame.MOVING_BLOCK_BIT;
-        fixtureDef.isSensor = false;
-        fixtureDef.friction = 0;
-        b2body.createFixture(fixtureDef).setUserData(this);
-
-        fixtureDef = new FixtureDef();
-
-        bodyShape = new PolygonShape();
-        bodyShape.set(HEAD_HITBOX);
-
-        fixtureDef.shape = bodyShape;
-        fixtureDef.filter.categoryBits = AdventureGame.WALL_RUN_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT;
-        fixtureDef.isSensor = true;
-        b2body.createFixture(fixtureDef).setUserData(this);
     }
 
     public void update(float dt) {
@@ -938,18 +827,21 @@ public class Player extends Sprite {
 
     private void changeToSmallHitBox() {
         world.destroyBody(b2body);
-        createSmallHitBox();
+        b2body = playerBody.createSmallHitBox();
+//        createSmallHitBox();
     }
 
     private void changeToBigHitBox() {
         world.destroyBody(b2body);
-        createBigHitBox();
+        b2body = playerBody.createBigHitBox();
+//        createBigHitBox();
     }
 
 
     private void resetPlayer() {
         world.destroyBody(b2body);
-        definePlayer();
+//        definePlayer();
+        b2body = playerBody.definePlayer();
     }
 
     public boolean doneDying() {
