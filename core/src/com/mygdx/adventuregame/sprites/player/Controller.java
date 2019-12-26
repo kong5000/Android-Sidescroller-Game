@@ -117,11 +117,19 @@ public class Controller implements InputProcessor {
             }
         });
 
-        jumpButton = new Image();
-        jumpButton.setSize(62 * SCALE, 43 * SCALE);
-        jumpButton.setScale(0.85f);
-        jumpButton.setVisible(false);
-        jumpButton.setDrawable(button);
+        Image aButtonImage = new Image(new Texture("a_button.png"));
+        aButtonImage.setSize(50, 50);
+
+        Image bButtonImage = new Image(new Texture("b_button.png"));
+        bButtonImage.setSize(40, 40);
+
+        Image spellButtonImage = new Image(new Texture("spell_button.png"));
+        spellButtonImage.setSize(40, 40);
+
+        jumpButton = new Image(new Texture("a_button.png"));
+        jumpButton.setSize(50, 50);
+//        jumpButton.setScale(0.85f);
+        jumpButton.setVisible(true);
         jumpButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -166,8 +174,78 @@ public class Controller implements InputProcessor {
         touchpadRight = new Touchpad(5.5f, touchStyle);
         touchpadRight.setVisible(false);
 
+
+        Table buttonTable = new Table();
+//        buttonTable.bottom();
+//        buttonTable.padLeft(100);
+//        buttonTable.add();
+//        buttonTable.add(bButtonImage).size(bButtonImage.getWidth(), bButtonImage.getHeight());
+//        buttonTable.add();
+//        buttonTable.row().pad(5, 5, 5, 5);
+//        buttonTable.add(aButtonImage).size(aButtonImage.getWidth(), aButtonImage.getHeight());
+//        buttonTable.add();
+//        buttonTable.add(spellButtonImage).size(spellButtonImage.getWidth(), spellButtonImage.getHeight());
+//        buttonTable.row().padBottom(5);
+//        buttonTable.add();
+
+
+        aButtonImage.setPosition(350,0);
+        bButtonImage.setPosition(300, 10);
+        spellButtonImage.setPosition(350, 60);
+
+
+        spellButtonImage.addListener(new InputListener(){
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                player.fireBow();
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                player.bowAttack();
+            }
+        });
+        bButtonImage.addListener(new InputListener(){
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                hasActed = false;
+                attackHeldDown = true;
+                player.swingSword();
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                attackHeldDownTimer = 0;
+                attackHeldDown = false;
+            }
+        });
+
+        aButtonImage.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                if (player.canMove()) {
+                    player.jump();
+                }
+                player.jumpIsHeld = true;
+                buttonClicked = true;
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                buttonClicked = false;
+                touchDown = false;
+                player.jumpIsHeld = false;
+            }
+        });
+        stage.addActor(aButtonImage);
+        stage.addActor(bButtonImage);
+        stage.addActor(spellButtonImage);
+
         Table table = new Table();
-        table.bottom();
+        table.left().bottom();
         table.setFillParent(true);
         table.toFront();
         table.padLeft(25);
@@ -179,8 +257,8 @@ public class Controller implements InputProcessor {
         table.add().expandX();
         table.add().expandX();
         table.add().expandX();
-        table.add(image).size(image.getWidth(), image.getHeight());
-        table.add(jumpButton).size(jumpButton.getWidth(), jumpButton.getHeight()).expandX();
+//        table.add(image).size(image.getWidth(), image.getHeight());
+//        table.add(jumpButton).size(jumpButton.getWidth(), jumpButton.getHeight()).expandX();
 //        table.add(touchpadRight).expandX();
 
 
@@ -190,6 +268,7 @@ public class Controller implements InputProcessor {
             }
         });
         stage.addActor(table);
+        stage.addActor(buttonTable);
     }
 
     public void update(float dt) {
@@ -389,31 +468,8 @@ public class Controller implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-
         touchStartX = screenX;
         touchStartY = screenY;
-
-//        if (!buttonClicked && player.canMove()) {
-//            if (screenX > 700) {
-//                if (screenY < 670) {
-////                    player.castSpell();
-////                    player.attack();
-//                }
-//
-//            }
-//
-//        }
-
-        if (!buttonClicked) {
-            if (screenX > 700) {
-                if (screenY < 670) {
-                    hasActed = false;
-                    attackHeldDown = true;
-                }
-
-            }
-
-        }
         return false;
     }
 
@@ -426,33 +482,8 @@ public class Controller implements InputProcessor {
                 player.jump();
             }
             gestureStarted = false;
-
-
         }
-
-        if (screenX > 700) {
-            if (screenY < 670) {
-                attackHeldDown = false;
-                if (attackHeldDownTimer < 0.125f) {
-
-                    if (Math.abs(touchStartX - touchEndX) < 10) {
-                        if (player.getEquipedSpell() != Player.Spell.BOW) {
-
-                            player.castSpell();
-
-                        } else {
-                            player.bowAttack();
-                        }
-                    }
-
-                }
-                attackHeldDownTimer = 0;
-            }
-
-        }
-        if (player.currentState == Player.State.CHARGING_BOW) {
-            player.bowAttack();
-        }
+        
         System.out.printf("END VALUE IS " + Integer.toString(touchEndX) + "\n");
         System.out.printf("START VALUE IS " + Integer.toString(touchStartX) + "\n");
 

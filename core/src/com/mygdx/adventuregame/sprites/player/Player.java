@@ -1,18 +1,13 @@
 package com.mygdx.adventuregame.sprites.player;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Arrow;
@@ -21,52 +16,12 @@ import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
 import com.mygdx.adventuregame.sprites.FireSpell;
-import com.mygdx.adventuregame.sprites.MagicShield;
 
 import java.util.Random;
 import java.util.UUID;
 
 public class Player extends Sprite {
-    //    private static final float[] RECTANGULAR_HITBOX = {
-//            -0.05f, 0.2f,
-//            -0.08f, 0.1f,
-//            -0.05f, 0f,
-//            0.05f, 0f,
-//            0.08f, 0.1f,
-//            0.05f, 0.2f};
-    private static final float[] RECTANGULAR_HITBOX = {
-            -0.05f, 0.25f,
-            -0.05f, -0.07f,
-            0.05f, -0.07f,
-            0.05f, 0.25f};
-    private static final float[] RECTANGULAR_HITBOX_SMALL = {
-            -0.05f, 0.15f,
-            -0.03f, -0.07f,
-            0.03f, -0.07f,
-            0.05f, 0.15f};
-    private static final float[] HEAD_HITBOX = {
-            -0.115f, 0.08f,
-            -0.01f, 0f,
-            0.01f, 0f,
-            0.115f, 0.08f};
-    private static final float[] SWORD_HITBOX_AIR = {
-            -0.25f, 0f,
-            -0.25f, 0.2f,
-            0f, -0.1f,
-            0.25f, 0f,
-            0.25f, 0.2f,
-            0, 0.3f};
 
-    private static final float[] SWORD_HITBOX_RIGHT = {
-            0f, -0.1f,
-            0.25f, 0f,
-            0.25f, 0.2f,
-            0, 0.3f};
-    private static final float[] SWORD_HITBOX_LEFT = {
-            -0.25f, 0f,
-            -0.25f, 0.2f,
-            0f, -0.1f,
-            0, 0.3f};
     private static final float INVINCIBLE_TIME = 1f;
     public static final float WALLRUN_TIME = 0.45f;
     private boolean onElevator = false;
@@ -177,11 +132,8 @@ public class Player extends Sprite {
 
     private PlayScreen screen;
 
-    private MagicShield magicShield;
-
     private float comboTimer;
     public int attackNumber = 0;
-    private UUID currentAttackId;
 
     private boolean playerReset = false;
     private TextureRegion pickedUpItem;
@@ -244,15 +196,9 @@ public class Player extends Sprite {
         itemPickupTimer = 0;
         itemDialog = new TextureRegion(screen.getAtlas().findRegion("sword_dialog"), 0, 0, 450, 300);
 
-//        definePlayer();
         playerBody.setSpawnPoint(spawnPointX, spawnPointY);
         b2body = playerBody.definePlayer();
         setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
-//        setBounds(0, 0, 55 / AdventureGame.PPM, 41 / AdventureGame.PPM);
-//        setBounds(0, 0, 50 / AdventureGame.PPM, 37 / AdventureGame.PPM);
-        magicShield = new MagicShield(screen, b2body.getPosition().x, b2body.getPosition().y, this);
-        magicShield.setAlpha(0);
-
     }
 
     public void update(float dt) {
@@ -335,7 +281,6 @@ public class Player extends Sprite {
 
                 reviveTimer = 2.2f;
                 stateTimer = 0;
-                magicShield.setAlpha(0);
                 deathTimer = 0;
                 playerReset = false;
                 resurrectStarted = false;
@@ -398,9 +343,6 @@ public class Player extends Sprite {
         } else {
             attackNumber = 0;
         }
-        if (shieldTimer < 0) {
-            magicShield.setAlpha(0);
-        }
         if (dodgeTimer > 0) {
 
             dodgeTimer -= dt;
@@ -429,7 +371,6 @@ public class Player extends Sprite {
                 canFireProjectile = false;
             }
         }
-        magicShield.update(dt);
     }
 
     private void castFireSpell() {
@@ -445,7 +386,6 @@ public class Player extends Sprite {
             itemSprite.draw(batch);
             dialogBox.draw(batch);
         }
-        magicShield.draw(batch);
     }
 
     private TextureRegion getFrame(float dt) {
@@ -540,9 +480,6 @@ public class Player extends Sprite {
             }
             health -= damage;
             animations.flashPlayerSprite();
-//            if (flashRedTimer < 0) {
-//                flashRedTimer = FLASH_RED_TIME;
-//            }
             endChargingSpell();
             screen.getDamageNumbersToAdd().add(new DamageNumber(screen, getXPos(), getYPos(), true, damage));
             if (currentState == State.CHARGING_BOW) {
@@ -581,7 +518,7 @@ public class Player extends Sprite {
         if (attackTimer < 0) {
             attackTimer = ATTACK_TIME;
             if (swordFixture == null) {
-                createAttack();
+                swordFixture = playerBody.createAttack();
             }
             if (attackNumber == 1) {
                 if (runningRight) {
@@ -612,38 +549,6 @@ public class Player extends Sprite {
         return false;
     }
 
-    private void createAttack() {
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.PLAYER_SWORD_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.ENEMY_BIT;
-        PolygonShape polygonShape = new PolygonShape();
-        float[] hitbox;
-        switch (currentState) {
-            case JUMPING:
-            case FLIPPING:
-            case AIR_ATTACKING:
-            case FALLING:
-                hitbox = SWORD_HITBOX_AIR;
-                break;
-            default:
-                if (runningRight) {
-                    hitbox = SWORD_HITBOX_RIGHT;
-                } else {
-                    hitbox = SWORD_HITBOX_LEFT;
-                }
-                break;
-        }
-        if (attackNumber == 1) {
-            hitbox = SWORD_HITBOX_AIR;
-        }
-        polygonShape.set(hitbox);
-        fixtureDef.shape = polygonShape;
-        fixtureDef.isSensor = false;
-        swordFixture = b2body.createFixture(fixtureDef);
-        swordFixture.setUserData(this);
-        currentAttackId = UUID.randomUUID();
-    }
-
     public int getHealth() {
         return health;
     }
@@ -667,12 +572,19 @@ public class Player extends Sprite {
                 castTimer = CAST_TIME;
                 castCooldown = CAST_COOLDOWN_TIME;
                 shieldTimer = SHIELD_TIME;
-                magicShield.setAlpha(1);
             }
         } else if (equipedSpell == Spell.BOW) {
             if (arrowCooldown <= 0)
                 chargingBow = true;
         }
+    }
+
+    public void swingSword(){
+        attack();
+    }
+    public void fireBow(){
+        if (arrowCooldown <= 0)
+            chargingBow = true;
     }
 
     public void bowAttack() {
@@ -763,17 +675,12 @@ public class Player extends Sprite {
         return damage;
     }
 
-    public UUID getAttackId() {
-        return currentAttackId;
-    }
-
     public boolean canPassFloor() {
         return passThroughFloor;
     }
 
     public void setCanPassFloor(boolean state) {
-        passThroughFloor = true;
-//        passThroughFloor = state;
+        passThroughFloor = state;
     }
 
     public void dodge() {
@@ -783,11 +690,9 @@ public class Player extends Sprite {
             if (b2body.getLinearVelocity().y == 0) {
                 dodgeTimer = 0.35f;
                 if (runningRight) {
-//                    b2body.applyLinearImpulse(new Vector2(2f, 0), b2body.getWorldCenter(), true);
                     b2body.setLinearVelocity(currentSpeed, b2body.getLinearVelocity().y);
 
                 } else {
-//                    b2body.applyLinearImpulse(new Vector2(-2f, 0), b2body.getWorldCenter(), true);
                     b2body.setLinearVelocity(-currentSpeed, b2body.getLinearVelocity().y);
                 }
             }
@@ -828,19 +733,16 @@ public class Player extends Sprite {
     private void changeToSmallHitBox() {
         world.destroyBody(b2body);
         b2body = playerBody.createSmallHitBox();
-//        createSmallHitBox();
     }
 
     private void changeToBigHitBox() {
         world.destroyBody(b2body);
         b2body = playerBody.createBigHitBox();
-//        createBigHitBox();
     }
 
 
     private void resetPlayer() {
         world.destroyBody(b2body);
-//        definePlayer();
         b2body = playerBody.definePlayer();
     }
 
@@ -1113,5 +1015,8 @@ public class Player extends Sprite {
 
     public float getStateTimer(){
         return stateTimer;
+    }
+    public TextureAtlas getTextureAtlas(){
+        return textureAtlas;
     }
 }
