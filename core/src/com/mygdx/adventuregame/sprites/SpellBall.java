@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -15,8 +16,9 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 
-public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, PlayerProjectile  {
+public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectile, PlayerProjectile  {
     private boolean setToDestroyHitBox = false;
+    private static float PROJECTILE_SPEED = 2f;
 
     private enum State{ARMED, IMPACT}
     private State currentState = State.ARMED;
@@ -32,42 +34,61 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     private float aliveTimer;
     private float stateTimer;
     private static final float TIME_ALIVE = 5f;
-    private static final int WIDTH_PIXELS = 15;
-    private static final int HEIGHT_PIXELS = 15;
+    private static final int WIDTH_PIXELS = 100;
+    private static final int HEIGHT_PIXELS = 100;
     private boolean isFriendly;
     private float rotation =0f;
     private float charge = 0f;
     private boolean goingRight;
     private static final float MAX_CHARGE = 1.2f;
-    private float existTimer = 0;
+    private float existTimer = 3;
     private boolean hitBoxDestroyed = false;
+    private float directionAngle;
 
     private Animation<TextureRegion> projectile;
-    public Arrow(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
+    public SpellBall(PlayScreen screen, float x, float y, float directionAngle){
         this.goingRight = goingRight;
         this.world = screen.getWorld();
         this.screen = screen;
-        this.charge = charge;
+        this.directionAngle = directionAngle;
         setPosition(x, y);
         this.isFriendly = isFriendly;
         defineProjectile();
         attackEnabled = false;
         aliveTimer = TIME_ALIVE;
         stateTimer = 0;
-        setRegion(new TextureRegion(screen.getAtlas().findRegion("arrow"), 0, 0, 16, 16));
-        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
-        setGoingRight(goingRight);
-        setOrigin(getWidth() / 2, getHeight() / 2);
-        setScale(0.75f);
-        if(goingRight){
-            rotation = -135;
-        }else {
-            rotation = 45;
-        }
 
+        TextureRegion region = screen.getAtlas().findRegion("fire_ball");
+        Array<TextureRegion> frames = new Array<TextureRegion>();
+        for (int j = 0; j < 8; j++) {
+            for (int i = 0; i < 8; i++) {
+                frames.add(new TextureRegion(
+                        region,
+                        i * 100,
+                        0,
+                        100,
+                        100
+                ));
+            }
+        }
+        projectileAnimation = new Animation(0.02f, frames, Animation.PlayMode.LOOP);
+
+
+//        setRegion(new TextureRegion(screen.getAtlas().findRegion("arrow"), 0, 0, 16, 16));
+        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
+        setOrigin(getWidth() / 2, getHeight() / 2);
+        setScale(0.3f);
+        launchProjectile();
     }
 
     public void update(float dt){
+        stateTimer += dt;
+        setRegion(projectileAnimation.getKeyFrame(stateTimer));
+        if(existTimer > 0){
+            existTimer -= dt;
+        }else if(!setToDestroy){
+            setToDestroy();
+        }
         if(!hitBoxDestroyed){
             setRotation(rotation);
             if(goingRight){
@@ -118,6 +139,13 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         }
     }
 
+    private void launchProjectile(){
+        this.setRotation(directionAngle);
+        float x = PROJECTILE_SPEED * MathUtils.cos(directionAngle * MathUtils.degreesToRadians);
+        float y = PROJECTILE_SPEED * MathUtils.sin(directionAngle * MathUtils.degreesToRadians);
+        b2body.setLinearVelocity(x, y);
+    }
+
     public void setGoingRight(boolean status){
         float speed = 1f;
         if(isFriendly){
@@ -148,16 +176,12 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         b2body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        if(isFriendly){
             fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
-        }else{
-            fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
-        }
+            fixtureDef.filter.maskBits = AdventureGame.ENEMY_BIT;
+
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(4 / AdventureGame.PPM);
+        shape.setRadius(6 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
         if(charge > MAX_CHARGE){
@@ -167,7 +191,7 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         }
 
         b2body.createFixture(fixtureDef).setUserData(this);
-        b2body.setGravityScale(0.07f);
+        b2body.setGravityScale(0f);
     }
 
     public void setToDestroyHitBox(){

@@ -135,6 +135,7 @@ public class Controller implements InputProcessor {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (player.canMove()) {
                     player.jump();
+
                 }
                 player.jumpIsHeld = true;
                 buttonClicked = true;
@@ -197,13 +198,13 @@ public class Controller implements InputProcessor {
         spellButtonImage.addListener(new InputListener(){
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                player.fireBow();
+                player.beginRangedAttack();
                 return true;
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                player.bowAttack();
+                player.endRangedAttack();
             }
         });
         bButtonImage.addListener(new InputListener(){
@@ -227,6 +228,7 @@ public class Controller implements InputProcessor {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (player.canMove()) {
                     player.jump();
+                    player.enableSpellBall();
                 }
                 player.jumpIsHeld = true;
                 buttonClicked = true;
@@ -272,12 +274,16 @@ public class Controller implements InputProcessor {
     }
 
     public void update(float dt) {
+        player.setStickRotation(getControlStickAngle());
+
         if (attackHeldDown) {
             attackHeldDownTimer += dt;
         }
         if (attackHeldDownTimer > 0.175 && !hasActed) {
-            if (!player.downAttacking) {
-                player.castSpell();
+            if(player.getCurrentState() == Player.State.CHARGING_BOW){
+                player.fireBow();
+            }else {
+                player.swingSword();
             }
 
             hasActed = true;
@@ -451,6 +457,13 @@ public class Controller implements InputProcessor {
 
     }
 
+    public float getControlStickAngle(){
+        Vector2 leftStickVector = new Vector2(
+                getTouchpadLeft().getKnobPercentX(),
+                getTouchpadLeft().getKnobPercentY()
+        );
+        return leftStickVector.angle();
+    }
     @Override
     public boolean keyDown(int keycode) {
         return false;
@@ -483,7 +496,7 @@ public class Controller implements InputProcessor {
             }
             gestureStarted = false;
         }
-        
+
         System.out.printf("END VALUE IS " + Integer.toString(touchEndX) + "\n");
         System.out.printf("START VALUE IS " + Integer.toString(touchStartX) + "\n");
 

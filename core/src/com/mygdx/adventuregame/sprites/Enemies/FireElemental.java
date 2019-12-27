@@ -25,7 +25,7 @@ public class FireElemental extends Enemy {
     private static final int HEIGHT_PIXELS = 43;
 
     private static final float CORPSE_EXISTS_TIME = 1.1f;
-    private static final float INVINCIBILITY_TIME = 0.7f;
+    private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.4f;
     private static final float HURT_TIME = 0.3f;
 

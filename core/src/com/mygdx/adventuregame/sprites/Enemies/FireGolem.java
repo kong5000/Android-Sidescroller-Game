@@ -53,7 +53,7 @@ public class FireGolem extends Enemy {
     private static final int HEIGHT_PIXELS = 59;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.4f;
+    private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.3f;
 
     private float attackTimer;

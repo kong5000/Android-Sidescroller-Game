@@ -230,7 +230,7 @@ public class PlayScreen implements Screen {
         }
 
         hud.setScore(player.getHealth());
-        hud.setExperience(player.geXP());
+        hud.setExperience((int)player.getMana());
 
 
         //Camera tracks player

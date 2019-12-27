@@ -16,6 +16,7 @@ import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
 import com.mygdx.adventuregame.sprites.FireSpell;
+import com.mygdx.adventuregame.sprites.SpellBall;
 
 import java.util.Random;
 import java.util.UUID;
@@ -41,10 +42,35 @@ public class Player extends Sprite {
     private float wallRunCooldown;
     private boolean squarePortalStarted = false;
     private boolean resurrectStarted = false;
+    private float stickRotation;
+    private boolean spellBallEnabled;
+    private float spellBallTimer = -1f;
+    private float fireRate = -1f;
+    private boolean firingSpell;
 
+    private float mana = 0;
+    private static float FULL_MANA = 100;
 
     public boolean canTurn() {
-        return currentState == State.CHARGING_BOW;
+        return currentState == State.CHARGING_BOW || currentState == State.CASTING;
+    }
+
+    public void endRangedAttack() {
+//        if(spellBallTimer < 0){
+//            bowAttack();
+//        }
+        firingSpell = false;
+    }
+
+    public void beginRangedAttack() {
+//        if(spellBallTimer < 0){
+//            fireBow();
+//        }else {
+//            firingSpell = true;
+//        }
+        if (mana > 0) {
+            firingSpell = true;
+        }
     }
 
     public enum State {
@@ -167,7 +193,7 @@ public class Player extends Sprite {
         this.screen = screen;
         this.animations = new PlayerAnimations(screen.getAtlas(), this);
         playerBody = new PlayerBody(world, this);
-
+        mana = FULL_MANA;
 //        spawnPointX = 10.05f;
 //        spawnPointY = 5.65f;
 
@@ -202,25 +228,31 @@ public class Player extends Sprite {
     }
 
     public void update(float dt) {
+        if(mana < FULL_MANA && !firingSpell){
+            mana += 7 * dt;
+        }
+
         setPosition(getXPos(), getYPos() + 0.1f);
         setRegion(getFrame(dt));
         limitSpeed();
         updateAverageYVelocity();
         updateAverageXVelocity();
-
-        if(currentState == State.DOWN_ATTACK){
+        if (spellBallTimer > 0) {
+            spellBallTimer -= dt;
+        }
+        if (currentState == State.DOWN_ATTACK) {
             b2body.setLinearVelocity(0, -3.5f);
         }
-        if(!isFalling()){
+        if (!isFalling()) {
             downAttacking = false;
         }
         if (currentState == State.DODGING || currentState == State.CROUCHING || currentState == State.CROUCH_WALKING && !hitBoxUpdated) {
-            hitBoxUpdated = true;
-            changeToSmallHitBox();
+//            hitBoxUpdated = true;
+//            changeToSmallHitBox();
         }
         if (currentState != State.DODGING && currentState != State.CROUCHING && currentState != State.CROUCH_WALKING && hitBoxUpdated) {
-            hitBoxUpdated = false;
-            changeToBigHitBox();
+//            hitBoxUpdated = false;
+//            changeToBigHitBox();
         }
         if (currentState == State.CHARGING_BOW) {
             if (arrowCharge < MAX_ARROW_CHARGE) {
@@ -230,6 +262,19 @@ public class Player extends Sprite {
                 animations.pauseChargingAnimation();
             }
         }
+        if (currentState == State.CASTING) {
+            fireRate -= dt;
+        }
+        if (fireRate < 0 && firingSpell && mana > 0) {
+            if(mana >= 10){
+                mana -= 10;
+            }else {
+                mana = 0;
+            }
+            screen.getSpritesToAdd().add(new SpellBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, stickRotation));
+            fireRate = 0.35f;
+        }
+
         if (currentState == State.CROUCH_WALKING) {
             currentMaxSpeed = CROUCH_SPEED;
         } else {
@@ -260,18 +305,18 @@ public class Player extends Sprite {
         if (currentState == State.DYING) {
             deathTimer += dt;
             if (deathTimer >= DEATH_SPELL_TIME) {
-                if(!squarePortalStarted){
+                if (!squarePortalStarted) {
                     setAlpha(0);
-                    screen.getTopLayerSpritesToAdd().add(new SquarePortal(screen,getX() + 0.07f, getY() - 0.15f));
+                    screen.getTopLayerSpritesToAdd().add(new SquarePortal(screen, getX() + 0.07f, getY() - 0.15f));
                     squarePortalStarted = true;
                 }
             }
             if (deathTimer >= DEATH_TIME) {
                 if (!playerReset) {
                     resetPlayer();
-                    if(!resurrectStarted){
+                    if (!resurrectStarted) {
                         setAlpha(1);
-                        screen.getTopLayerSpritesToAdd().add(new Resurrect(screen,b2body.getPosition().x - 0.25f, b2body.getPosition().y));
+                        screen.getTopLayerSpritesToAdd().add(new Resurrect(screen, b2body.getPosition().x - 0.25f, b2body.getPosition().y));
                         resurrectStarted = true;
 
                     }
@@ -403,11 +448,11 @@ public class Player extends Sprite {
     }
 
     private State getState() {
-        if(downAttacking){
+        if (downAttacking) {
             return State.DOWN_ATTACK;
         }
         if (canWallRun && wallrunTimer > 0) {
-            if (positiveXInput || negativeXInput )
+            if (positiveXInput || negativeXInput)
                 return State.WALLCLIMB;
         }
         if (reviveTimer > 0) {
@@ -418,6 +463,9 @@ public class Player extends Sprite {
         }
         if (itemPickupTimer > 0) {
             return State.PICKUP;
+        }
+        if (firingSpell ) {
+            return State.CASTING;
         }
         if (chargingBow && arrowCooldown <= 0) {
             return State.CHARGING_BOW;
@@ -455,13 +503,11 @@ public class Player extends Sprite {
             return State.FLIPPING;
         } else if (isJumping() && !onElevator) {
             return State.JUMPING;
-        }
-        else if (isFalling() && !onElevator) {
+        } else if (isFalling() && !onElevator) {
             return State.FALLING;
         } else if (dodgeTimer > 0) {
             return State.DODGING;
-        }
-        else if (isRunning()) {
+        } else if (isRunning()) {
             flipEnabled = true;
             return State.RUNNING;
         } else {
@@ -472,6 +518,7 @@ public class Player extends Sprite {
 
 
     public void hurt(int damage) {
+        firingSpell = false;
         if (invincibilityTimer < 0) {
             invincibilityTimer = INVINCIBLE_TIME;
             hurtTimer = HURT_TIME;
@@ -579,10 +626,11 @@ public class Player extends Sprite {
         }
     }
 
-    public void swingSword(){
+    public void swingSword() {
         attack();
     }
-    public void fireBow(){
+
+    public void fireBow() {
         if (arrowCooldown <= 0)
             chargingBow = true;
     }
@@ -604,6 +652,8 @@ public class Player extends Sprite {
             ballDirectionRight = false;
         }
         screen.getSpritesToAdd().add(new Arrow(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true, arrowCharge));
+        screen.getSpritesToAdd().add(new SpellBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, stickRotation));
+
         arrowCharge = 0;
     }
 
@@ -754,7 +804,7 @@ public class Player extends Sprite {
     }
 
     public boolean canMove() {
-        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT && currentState != State.CHARGING_BOW);
+        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT && currentState != State.CHARGING_BOW && currentState != State.CASTING);
     }
 
     public void pickupItem(int itemID) {
@@ -968,6 +1018,12 @@ public class Player extends Sprite {
                 b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
             }
         }
+
+        if (currentState == State.CASTING) {
+            if (onElevator) {
+                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            }
+        }
     }
 
     public boolean canAct() {
@@ -976,7 +1032,7 @@ public class Player extends Sprite {
 
     public void enableWallRun() {
         if (currentState == State.FALLING || currentState == State.JUMPING || currentState == State.FLIPPING) {
-            if(jumpIsHeld){
+            if (jumpIsHeld) {
                 if (wallrunTimer < 0 && wallRunCooldown <= 0) {
                     wallrunTimer = WALLRUN_TIME;
                     wallRunCooldown = 1f;
@@ -1003,20 +1059,32 @@ public class Player extends Sprite {
         canWallRun = false;
     }
 
-    public void setRespawnPoint(CheckPoint checkPoint){
+    public void setRespawnPoint(CheckPoint checkPoint) {
         currentCheckPoint = checkPoint;
         spawnPointY = checkPoint.getYPos();
         spawnPointX = checkPoint.getXPos();
     }
 
-    public CheckPoint getCurrentCheckPoint(){
+    public CheckPoint getCurrentCheckPoint() {
         return currentCheckPoint;
     }
 
-    public float getStateTimer(){
+    public float getStateTimer() {
         return stateTimer;
     }
-    public TextureAtlas getTextureAtlas(){
+
+    public TextureAtlas getTextureAtlas() {
         return textureAtlas;
+    }
+
+    public void setStickRotation(float angle) {
+        stickRotation = angle;
+    }
+
+    public void enableSpellBall() {
+        spellBallTimer = 5f;
+    }
+    public float getMana(){
+        return mana;
     }
 }
