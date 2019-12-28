@@ -13,18 +13,20 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Arrow;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Effects.Charge;
+import com.mygdx.adventuregame.sprites.Effects.IceShatter;
 import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.SpellBall;
 
 import java.util.Random;
-import java.util.UUID;
 
 public class Player extends Sprite {
 
     private static final float INVINCIBLE_TIME = 1f;
     public static final float WALLRUN_TIME = 0.45f;
+    private static final float SPELL_COOLDOWN_TIME = 0.5f;
     private boolean onElevator = false;
     private CheckPoint currentCheckPoint;
 
@@ -48,8 +50,22 @@ public class Player extends Sprite {
     private float fireRate = -1f;
     private boolean firingSpell;
 
+    private float spellCharge = 0;
+    private float animationCenterX;
+    private float animationCenterY;
+
     private float mana = 0;
     private static float FULL_MANA = 100;
+
+    private boolean fireBallLaunched = false;
+
+    private float chargingTimer = 0f;
+    private boolean fullyCharged = false;
+    private boolean charging = false;
+
+    private Charge chargeEffect;
+    private boolean canCastSpell = true;
+    private float spellCooldownTimer = -1f;
 
     public boolean canTurn() {
         return currentState == State.CHARGING_BOW || currentState == State.CASTING;
@@ -68,9 +84,18 @@ public class Player extends Sprite {
 //        }else {
 //            firingSpell = true;
 //        }
-        if (mana > 0) {
-            firingSpell = true;
+        chargingTimer = 0;
+//        if (mana > 0) {
+//            firingSpell = true;
+//        }
+        if (mana > 0 && canCastSpell) {
+
+            launchSpellBall();
         }
+    }
+
+    public boolean isFullyCharge() {
+        return fullyCharged;
     }
 
     public enum State {
@@ -143,7 +168,7 @@ public class Player extends Sprite {
     private static final float SHOOT_ARROW_TIME = 0.2f;
     public static final float SHIELD_TIME = 3.5f;
     private static final float HURT_TIME = 0.45f;
-    private static final float CAST_TIME = 0.5f;
+    private static final float CAST_TIME = 0.15f;
     private static final float ATTACK_TIME = 0.35f;
     private static final float FLIP_TIME = 0.4f;
     private static final float MAX_VERTICAL_SPEED = 3f;
@@ -194,6 +219,7 @@ public class Player extends Sprite {
         this.animations = new PlayerAnimations(screen.getAtlas(), this);
         playerBody = new PlayerBody(world, this);
         mana = FULL_MANA;
+        chargeEffect = new Charge(screen, getX(), getY(), this);
 //        spawnPointX = 10.05f;
 //        spawnPointY = 5.65f;
 
@@ -228,10 +254,21 @@ public class Player extends Sprite {
     }
 
     public void update(float dt) {
-        if(mana < FULL_MANA && !firingSpell){
+        if (spellCooldownTimer > 0) {
+            spellCooldownTimer -= dt;
+            canCastSpell = false;
+        } else {
+            canCastSpell = true;
+        }
+        if (charging || chargeEffect.isFullyCharged()) {
+            chargingTimer += dt;
+        }
+        if (mana < FULL_MANA && !firingSpell) {
             mana += 7 * dt;
         }
+        if (currentState == State.CASTING) {
 
+        }
         setPosition(getXPos(), getYPos() + 0.1f);
         setRegion(getFrame(dt));
         limitSpeed();
@@ -262,17 +299,13 @@ public class Player extends Sprite {
                 animations.pauseChargingAnimation();
             }
         }
+        if (charging) {
+            spellCharge += dt;
+        }
         if (currentState == State.CASTING) {
             fireRate -= dt;
-        }
-        if (fireRate < 0 && firingSpell && mana > 0) {
-            if(mana >= 10){
-                mana -= 10;
-            }else {
-                mana = 0;
-            }
-            screen.getSpritesToAdd().add(new SpellBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, stickRotation));
-            fireRate = 0.35f;
+        } else {
+            fireRate = -1f;
         }
 
         if (currentState == State.CROUCH_WALKING) {
@@ -340,7 +373,7 @@ public class Player extends Sprite {
         if (currentState == State.SHOOTING) {
             if (stateTimer >= 0.1f) {
                 if (!arrowLaunched) {
-                    launchFireBall();
+                    launchArrow();
                     arrowLaunched = true;
                 }
             }
@@ -411,7 +444,7 @@ public class Player extends Sprite {
         }
 
         if (currentState == State.CASTING) {
-            if (stateTimer > 0.1f && canFireProjectile) {
+            if (stateTimer > 0.1f && castCooldown > 0) {
                 castFireSpell();
                 canFireProjectile = false;
             }
@@ -424,7 +457,12 @@ public class Player extends Sprite {
 
     @Override
     public void draw(Batch batch) {
+        if (charging || chargeEffect.isFullyCharged()) {
+            chargeEffect.update(chargingTimer);
+            chargeEffect.draw(batch);
+        }
         super.draw(batch);
+
         if (itemPickupTimer > 0) {
             dialogBox.setPosition(b2body.getPosition().x - dialogBox.getWidth() / 2, b2body.getPosition().y + dialogBox.getHeight() / 2);
             itemSprite.setPosition(b2body.getPosition().x - 0.1f, b2body.getPosition().y + 0.15f);
@@ -464,9 +502,9 @@ public class Player extends Sprite {
         if (itemPickupTimer > 0) {
             return State.PICKUP;
         }
-        if (firingSpell ) {
-            return State.CASTING;
-        }
+//        if (firingSpell) {
+//            return State.CASTING;
+//        }
         if (chargingBow && arrowCooldown <= 0) {
             return State.CHARGING_BOW;
         }
@@ -474,21 +512,11 @@ public class Player extends Sprite {
             return State.CASTING;
         } else if (attackTimer > 0) {
             if (currentState == State.ATTACKING) {
-                if (attackNumber == 0) {
-//                    if (playerAttack.isAnimationFinished(stateTimer)) {
-//                        return State.RUNNING;
-//                    }
+                if (animations.attackAnimationFinished(attackNumber, stateTimer)) {
+                    return State.RUNNING;
                 }
-                if (attackNumber == 1) {
-//                    if (playerAttack2.isAnimationFinished(stateTimer)) {
-//                        return State.RUNNING;
-//                    }
-                }
-                if (attackNumber == 2) {
-//                    if (playerAttack3.isAnimationFinished(stateTimer)) {
-//                        return State.RUNNING;
-//                    }
-                }
+
+
             }
             if (Math.abs(b2body.getLinearVelocity().y) > 0 && !onElevator && !downAttacking) {
                 return State.AIR_ATTACKING;
@@ -519,6 +547,7 @@ public class Player extends Sprite {
 
     public void hurt(int damage) {
         firingSpell = false;
+        stopCharging();
         if (invincibilityTimer < 0) {
             invincibilityTimer = INVINCIBLE_TIME;
             hurtTimer = HURT_TIME;
@@ -644,7 +673,7 @@ public class Player extends Sprite {
         }
     }
 
-    private void launchFireBall() {
+    private void launchArrow() {
         boolean ballDirectionRight;
         if (runningRight) {
             ballDirectionRight = true;
@@ -652,10 +681,23 @@ public class Player extends Sprite {
             ballDirectionRight = false;
         }
         screen.getSpritesToAdd().add(new Arrow(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, ballDirectionRight, true, arrowCharge));
-        screen.getSpritesToAdd().add(new SpellBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, stickRotation));
 
         arrowCharge = 0;
     }
+
+    private void launchSpellBall() {
+        if (canCastSpell) {
+            if (chargeEffect.isFullyCharged()) {
+            }
+            castTimer = CAST_TIME;
+            chargeEffect.reset();
+            screen.getSpritesToAdd().add(new SpellBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, runningRight, true, spellCharge));
+            spellCharge = 0;
+            spellCooldownTimer = SPELL_COOLDOWN_TIME;
+            canCastSpell = false;
+        }
+    }
+
 
     public void switchSpell() {
         switch (equipedSpell) {
@@ -1084,7 +1126,75 @@ public class Player extends Sprite {
     public void enableSpellBall() {
         spellBallTimer = 5f;
     }
-    public float getMana(){
+
+    public float getMana() {
         return mana;
+    }
+
+    public void startCharge() {
+        charging = true;
+
+    }
+
+    public void stopCharging() {
+        charging = false;
+    }
+
+    public boolean isMoving() {
+
+        switch (currentState) {
+            case RUNNING:
+            case FALLING:
+            case FLIPPING:
+            case DODGING:
+            case JUMPING:
+                return true;
+            default:
+                return false;
+
+        }
+    }
+
+    private void updateAnimationCoords() {
+        animationCenterX = getX();
+        animationCenterY = getY();
+
+        if (isMoving()) {
+            if (dodgeTimer > 0) {
+                if (runningRight) {
+                    animationCenterX -= 0.05f;
+                } else {
+                    animationCenterX += 0.05f;
+                }
+            } else {
+                if (runningRight) {
+                    animationCenterX += 0.05f;
+                } else {
+                    animationCenterX -= 0.035f;
+                }
+            }
+        }
+        if (currentState == State.DODGING) {
+            animationCenterY -= .13f;
+        }else if(currentState == State.ATTACKING){
+            animationCenterY -=0.05f;
+            if (runningRight) {
+                animationCenterX += 0.03f;
+            } else {
+                animationCenterX -= 0.03f;
+            }
+        }
+
+
+    }
+
+    public float getXCoord() {
+        updateAnimationCoords();
+        return animationCenterX;
+    }
+
+    public float getYCoord() {
+        updateAnimationCoords();
+        return animationCenterY;
     }
 }

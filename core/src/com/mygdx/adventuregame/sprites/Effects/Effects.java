@@ -65,4 +65,6 @@ public abstract class Effects extends Sprite implements UpdatableSprite {
         Animation<TextureRegion> animation = new Animation<TextureRegion>(secondsPerFrame, frames);
         return animation;
     }
+
+
 }

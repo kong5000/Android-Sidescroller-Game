@@ -245,4 +245,13 @@ public class PlayerAnimations {
        return playerRevive.isAnimationFinished(stateTimer);
     }
 
+    public boolean attackAnimationFinished(int attackNumber, float stateTimer){
+        if(attackNumber == 1){
+            return playerAttack.isAnimationFinished(stateTimer);
+        }else if(attackNumber == 2){
+            return playerAttack2.isAnimationFinished(stateTimer);
+        }else {
+            return playerAttack3.isAnimationFinished(stateTimer);
+        }
+    }
 }

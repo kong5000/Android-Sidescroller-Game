@@ -13,7 +13,6 @@ import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.Item;
 import com.mygdx.adventuregame.sprites.PlayerProjectile;
 import com.mygdx.adventuregame.sprites.player.Player;
-import com.mygdx.adventuregame.sprites.Arrow;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
 
 public class WorldContactListener implements ContactListener {

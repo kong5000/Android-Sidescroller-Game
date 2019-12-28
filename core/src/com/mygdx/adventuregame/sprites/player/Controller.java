@@ -168,7 +168,7 @@ public class Controller implements InputProcessor {
 
         touchStyle.knob = new TextureRegionDrawable(padKnobReg);
         padBackTex = new Texture(Gdx.files.internal("controller_outer_small.png"));
-        TextureRegion padBackReg = new TextureRegion(padBackTex);
+        final TextureRegion padBackReg = new TextureRegion(padBackTex);
         touchStyle.background = new TextureRegionDrawable(padBackReg);
         touchpadLeft = new Touchpad(5.5f, touchStyle);
         touchpadLeft.setVisible(false);
@@ -190,36 +190,54 @@ public class Controller implements InputProcessor {
 //        buttonTable.add();
 
 
-        aButtonImage.setPosition(350,0);
+        aButtonImage.setPosition(350, 0);
         bButtonImage.setPosition(300, 10);
         spellButtonImage.setPosition(350, 60);
+        image.setPosition(350, 90);
 
 
-        spellButtonImage.addListener(new InputListener(){
+        spellButtonImage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 player.beginRangedAttack();
+////                player.startChargingAnimation();
+//                player.setChargingSpell();
+//                if (player.canAct()) {
+//                    player.startChargingAnimation();
+//                    player.setChargingSpell();
+//
+//                }
+//                stopSpell = false;
                 return true;
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
                 player.endRangedAttack();
+//                player.endChargingSpell();
+                stopSpell = true;
             }
         });
-        bButtonImage.addListener(new InputListener(){
+        bButtonImage.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 hasActed = false;
                 attackHeldDown = true;
-                player.swingSword();
+                if(player.isFullyCharge()){
+                    player.swingSword();
+                }
                 return true;
             }
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                if(attackHeldDownTimer < 0.175f){
+                    player.swingSword();
+                }
                 attackHeldDownTimer = 0;
                 attackHeldDown = false;
+
+                player.stopCharging();
             }
         });
 
@@ -228,7 +246,6 @@ public class Controller implements InputProcessor {
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 if (player.canMove()) {
                     player.jump();
-                    player.enableSpellBall();
                 }
                 player.jumpIsHeld = true;
                 buttonClicked = true;
@@ -280,12 +297,12 @@ public class Controller implements InputProcessor {
             attackHeldDownTimer += dt;
         }
         if (attackHeldDownTimer > 0.175 && !hasActed) {
-            if(player.getCurrentState() == Player.State.CHARGING_BOW){
-                player.fireBow();
-            }else {
-                player.swingSword();
-            }
-
+//            if (player.getCurrentState() == Player.State.CHARGING_BOW) {
+//                player.fireBow();
+//            } else {
+//                player.swingSword();
+//            }
+            player.startCharge();
             hasActed = true;
         }
         switch (player.getEquipedSpell()) {
@@ -439,7 +456,7 @@ public class Controller implements InputProcessor {
                 player.setInputPositiveX(false);
                 player.setInputNegativeX(false);
             }
-        }else if(player.canTurn()){
+        } else if (player.canTurn()) {
             if (xVal > 0 && player.currentState != Player.State.DODGING) {
                 player.setRunningRight(true);
                 player.setInputPositiveX(true);
@@ -457,13 +474,14 @@ public class Controller implements InputProcessor {
 
     }
 
-    public float getControlStickAngle(){
+    public float getControlStickAngle() {
         Vector2 leftStickVector = new Vector2(
                 getTouchpadLeft().getKnobPercentX(),
                 getTouchpadLeft().getKnobPercentY()
         );
         return leftStickVector.angle();
     }
+
     @Override
     public boolean keyDown(int keycode) {
         return false;
