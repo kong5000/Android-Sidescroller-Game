@@ -107,8 +107,8 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     }
 
     protected Vector2 getVectorToPlayer() {
-        Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
-        Vector2 playerVector = new Vector2(screen.getPlayer().getX(), screen.getPlayer().getY());
+        Vector2 enemyPosition = new Vector2(b2body.getPosition().x, b2body.getPosition().y);
+        Vector2 playerVector = new Vector2(screen.getPlayer().b2body.getPosition().x, screen.getPlayer().b2body.getPosition().y);
         return playerVector.sub(enemyPosition);
     }
 

@@ -26,6 +26,7 @@ public class AdventureGame extends Game {
 	public static final int SWORD = 7;
 	public static final int RING_OF_REGENERATION = 8;
 	public static final int RING_OF_PROTECTION = 9;
+	public static final int GOLD_COIN = 10;
 
 	public static final short GROUND_BIT = 1;
 	public static final short PLAYER_BIT = 2;

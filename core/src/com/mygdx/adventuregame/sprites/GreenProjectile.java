@@ -15,10 +15,9 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 
-public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, PlayerProjectile  {
-    private boolean setToDestroyHitBox = false;
+public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyProjectile {
+    private enum State {ARMED, IMPACT}
 
-    private enum State{ARMED, IMPACT}
     private State currentState = State.ARMED;
     private State previousState = State.ARMED;
     private World world;
@@ -32,110 +31,104 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     private float aliveTimer;
     private float stateTimer;
     private static final float TIME_ALIVE = 5f;
-    private static final int WIDTH_PIXELS = 15;
-    private static final int HEIGHT_PIXELS = 15;
+    private static final int WIDTH_PIXELS = 36;
+    private static final int HEIGHT_PIXELS = 11;
     private boolean isFriendly;
-    private float rotation =0f;
-    private float charge = 0f;
-    private boolean goingRight;
-    private static final float MAX_CHARGE = 1.2f;
-    private float existTimer = 0;
-    private boolean hitBoxDestroyed = false;
 
     private Animation<TextureRegion> projectile;
-    public Arrow(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
-        this.goingRight = goingRight;
+
+    public GreenProjectile(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly) {
         this.world = screen.getWorld();
         this.screen = screen;
-        this.charge = charge;
         setPosition(x, y);
         this.isFriendly = isFriendly;
         defineProjectile();
         attackEnabled = false;
         aliveTimer = TIME_ALIVE;
         stateTimer = 0;
-        setRegion(new TextureRegion(screen.getAtlas().findRegion("arrow"), 0, 0, 16, 16));
+        projectileAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_projectile")
+                , 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
-        setOrigin(getWidth() / 2, getHeight() / 2);
-        setScale(0.75f);
-        if(goingRight){
-            rotation = -135;
-        }else {
-            rotation = 45;
+        if (isFriendly) {
+            setScale(0.5f);
         }
-
+        setOriginCenter();
     }
 
-    public void update(float dt){
-        if(!hitBoxDestroyed){
-            setRotation(rotation);
-            if(goingRight){
-                rotation -= 0.25;
-            }else {
-                rotation += 0.25;
-            }
-
-        }
-
+    public void update(float dt) {
         aliveTimer -= dt;
-        if(!hitBoxDestroyed){
-            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-
-        }
-        if( setToDestroyHitBox && !hitBoxDestroyed && !destroyed) {
-            hitBoxDestroyed = true;
-            world.destroyBody(b2body);
-        }
-
-        if(aliveTimer < 0 && !destroyed){
-            destroyed = true;
-        }
-
-        if((aliveTimer < 0 || setToDestroy) && !destroyed) {
+        setRegion(getFrame(dt));
+        setPosition(b2body.getPosition().x - getWidth() / 2 , b2body.getPosition().y -0.05f );
+        if ((aliveTimer < 0 || setToDestroy) && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
         }
+
 
     }
 
     @Override
-    public void draw(Batch batch){
-        if(!destroyed){
+    public void draw(Batch batch) {
+        if (!destroyed) {
             super.draw(batch);
-        }else{
+        } else {
             safeToRemove = true;
         }
     }
 
+    private TextureRegion getFrame(float dt) {
+        currentState = getState();
 
-    private void flipFramesIfNeeded(TextureRegion texture){
+        TextureRegion texture;
+        switch (currentState) {
+            case ARMED:
+                attackEnabled = true;
+                texture = projectileAnimation.getKeyFrame(stateTimer, true);
+                break;
+            case IMPACT:
+            default:
+                attackEnabled = false;
+                texture = projectileAnimation.getKeyFrame(stateTimer, true);
+                break;
+        }
+//        flipFramesIfNeeded(texture);
+
+        stateTimer = currentState == previousState ? stateTimer + dt : 0;
+        previousState = currentState;
+        return texture;
+    }
+
+    private void flipFramesIfNeeded(TextureRegion texture) {
         if (b2body.getLinearVelocity().x < 0 && texture.isFlipX()) {
             texture.flip(true, false);
         }
-        if (b2body.getLinearVelocity().x > 0  && !texture.isFlipX()) {
+        if (b2body.getLinearVelocity().x > 0 && !texture.isFlipX()) {
             texture.flip(true, false);
         }
     }
 
-    public void setGoingRight(boolean status){
+    public void setGoingRight(boolean status) {
         float speed = 1f;
-        if(isFriendly){
-            speed = charge *3.5f + 3f;
+        if (isFriendly) {
+            speed *= 3.5f;
         }
-        if(status){
+        if (status) {
             b2body.setLinearVelocity(new Vector2(speed, 0));
-        }else{
-            b2body.setLinearVelocity(new Vector2(-speed,0));
+        } else {
+            b2body.setLinearVelocity(new Vector2(-speed, 0));
         }
     }
 
+    public void setVelocity(float x, float y) {
+        b2body.setLinearVelocity(x, y);
+    }
 
-    private State getState(){
+
+    private State getState() {
         if (setToDestroy) {
             return State.IMPACT;
-        }
-        else {
+        } else {
             return State.ARMED;
         }
     }
@@ -148,32 +141,20 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         b2body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        if(isFriendly){
-            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
-        }else{
-            fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
-        }
+
+        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
+
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(4 / AdventureGame.PPM);
+        shape.setRadius(6 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
-        if(charge > MAX_CHARGE){
-            fixtureDef.density = 75f;
-        }else {
-            fixtureDef.density = charge * 5f;
-        }
-
         b2body.createFixture(fixtureDef).setUserData(this);
-        b2body.setGravityScale(0.07f);
+        b2body.setGravityScale(0);
     }
 
-    public void setToDestroyHitBox(){
-        setToDestroyHitBox = true;
-    }
-    public void setToDestroy(){
+    public void setToDestroy() {
         setToDestroy = true;
     }
 
@@ -197,22 +178,13 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         return animation;
     }
 
-    public void explode(){
+    public void explode() {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
-                ,getY() - getHeight() / 2 -0.05f));
+                , getY() - getHeight() / 2 - 0.05f));
     }
 
     @Override
     public boolean safeToRemove() {
         return safeToRemove;
-    }
-
-    public int getDamage(){
-        return (int)( charge * 8.5f) + 2;
-    }
-
-    @Override
-    public void targetHit() {
-        setToDestroy();
     }
 }

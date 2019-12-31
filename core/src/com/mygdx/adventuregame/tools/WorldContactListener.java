@@ -10,7 +10,7 @@ import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
 import com.mygdx.adventuregame.sprites.FireSpell;
-import com.mygdx.adventuregame.sprites.Item;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.sprites.PlayerProjectile;
 import com.mygdx.adventuregame.sprites.player.Player;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
@@ -102,12 +102,12 @@ public class WorldContactListener implements ContactListener {
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
                     int damage = ((PlayerProjectile) fixB.getUserData()).getDamage();
-                    ((PlayerProjectile) fixB.getUserData()).setToDestroy();
+                    ((PlayerProjectile) fixB.getUserData()).targetHit();
                     ((Enemy) fixA.getUserData()).damage(damage);
                     ((Enemy) fixA.getUserData()).hitByFire();
                 } else {
                     int damage = ((PlayerProjectile) fixA.getUserData()).getDamage();
-                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
+                    ((PlayerProjectile) fixA.getUserData()).targetHit();
                     ((Enemy) fixB.getUserData()).damage(damage);
                     ((Enemy) fixB.getUserData()).hitByFire();
 
@@ -115,9 +115,11 @@ public class WorldContactListener implements ContactListener {
                 break;
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_PROJECTILE_BIT) {
-                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
+                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
                 } else {
-                    ((PlayerProjectile) fixB.getUserData()).setToDestroyHitBox();
+                    ((PlayerProjectile) fixB.getUserData()).setToDestroy();
+//                    ((PlayerProjectile) fixB.getUserData()).setToDestroyHitBox();
                 }
                 break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
@@ -339,6 +341,9 @@ public class WorldContactListener implements ContactListener {
                         ((Enemy) fixA.getUserData()).damage(10);
                     }
                 }
+                break;
+            case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
+                contact.setEnabled(false);
                 break;
         }
 

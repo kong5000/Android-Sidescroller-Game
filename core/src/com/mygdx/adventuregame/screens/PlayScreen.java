@@ -25,10 +25,12 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Enemies.Necromancer;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
@@ -181,14 +183,11 @@ public class PlayScreen implements Screen {
 //        sprites.add(new Item(this, 5f, 5f, 1));
 
         shapeRenderer = new ShapeRenderer();
-        enemyList.add(new Chest(this, 5f, 5f, AdventureGame.BOW));
-        enemyList.add(new Chest(this, 4f, 5f, AdventureGame.FIRE_SPELLBOOK));
+        enemyList.add(new Necromancer(this, 80f, 5f));
 
 
-        enemyList.add(new Mimic(this, 3.75f, 5f));
-        enemyList.add(new FireGolem(this, 3.55f, 5f));
 
-
+        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
 
 //        checkPoints.add(new CheckPoint(this, 5, 5));
 

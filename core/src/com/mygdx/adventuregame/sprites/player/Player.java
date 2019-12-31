@@ -14,6 +14,7 @@ import com.mygdx.adventuregame.sprites.Arrow;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Charge;
+import com.mygdx.adventuregame.sprites.Effects.GreenFlame;
 import com.mygdx.adventuregame.sprites.Effects.IceShatter;
 import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
@@ -223,9 +224,11 @@ public class Player extends Sprite {
 //        spawnPointX = 10.05f;
 //        spawnPointY = 5.65f;
 
-        spawnPointX = 2f;
-        spawnPointY = 9f;
-
+//        spawnPointX = 2f;
+//        spawnPointY = 9f;
+        //bossroom
+        spawnPointX = 82f;
+        spawnPointY = 7f;
         dialogBox = new Sprite();
         dialogBox.setBounds(getX(), getY(), 112 / AdventureGame.PPM, 75 / AdventureGame.PPM);
         xp = 0;
@@ -254,6 +257,9 @@ public class Player extends Sprite {
     }
 
     public void update(float dt) {
+        if(chargeEffect.isFullyCharged()){
+            animations.flashPlayerSprite();
+        }
         if (spellCooldownTimer > 0) {
             spellCooldownTimer -= dt;
             canCastSpell = false;
@@ -590,7 +596,6 @@ public class Player extends Sprite {
 
     public void attack() {
         b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
-
         if (attackTimer < 0) {
             attackTimer = ATTACK_TIME;
             if (swordFixture == null) {
@@ -688,10 +693,12 @@ public class Player extends Sprite {
     private void launchSpellBall() {
         if (canCastSpell) {
             if (chargeEffect.isFullyCharged()) {
+
             }
             castTimer = CAST_TIME;
             chargeEffect.reset();
-            screen.getSpritesToAdd().add(new SpellBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, runningRight, true, spellCharge));
+//            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f , getY() + getHeight() / 2, runningRight, true, spellCharge));
+            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f , getY() + getHeight() / 2, runningRight, true, spellCharge));
             spellCharge = 0;
             spellCooldownTimer = SPELL_COOLDOWN_TIME;
             canCastSpell = false;
@@ -889,6 +896,8 @@ public class Player extends Sprite {
             case AdventureGame.SWORD:
                 upgradeSword();
                 itemPickupTimer = 2f;
+                break;
+            case AdventureGame.GOLD_COIN:
                 break;
             default:
                 break;

@@ -33,7 +33,7 @@ public class Charge extends Effects {
         TextureRegion region = screen.getAtlas().findRegion("charge");
         Array<TextureRegion> frames = new Array<TextureRegion>();
         for (int j = 0; j < 9; j++) {
-            for (int i = 0; i <12; i++) {
+            for (int i = 0; i < 12; i++) {
                 frames.add(new TextureRegion(
                         region,
                         i * WIDTH,
@@ -48,7 +48,7 @@ public class Charge extends Effects {
         setScale(CHARGE_SCALE);
     }
 
-    private void initializeFullyChargedAnimation(){
+    private void initializeFullyChargedAnimation() {
         TextureRegion region = screen.getAtlas().findRegion("blue_flame");
         Array<TextureRegion> frames = new Array<TextureRegion>();
         for (int j = 0; j < 5; j++) {
@@ -62,22 +62,26 @@ public class Charge extends Effects {
                 ));
             }
         }
-       fullyChargedAnimation = new Animation(TIME_PER_FRAME_CHARGED, frames, Animation.PlayMode.LOOP);
+        fullyChargedAnimation = new Animation(TIME_PER_FRAME_CHARGED, frames, Animation.PlayMode.LOOP);
     }
 
     @Override
     public void update(float dt) {
-        if(animation.isAnimationFinished(dt + 0.08f)){
-            if(!fullyCharged){
+        if (animation.isAnimationFinished(dt + 0.08f)) {
+            setAlpha(0);
+            if (!fullyCharged) {
                 fullyCharged = true;
-                setBounds(getX(), getY(), 20 / AdventureGame.PPM, 40 / AdventureGame.PPM);
-                setScale(1f);
             }
-            setPosition(player.getXCoord() + 0.2f, player.getYCoord() + 0.12f);
-            setRegion(fullyChargedAnimation.getKeyFrame(dt));
+//            if(!fullyCharged){
+//                fullyCharged = true;
+//                setBounds(getX(), getY(), 20 / AdventureGame.PPM, 40 / AdventureGame.PPM);
+//                setScale(1f);
+//            }
+//            setPosition(player.getXCoord() + 0.2f, player.getYCoord() + 0.12f);
+//            setRegion(fullyChargedAnimation.getKeyFrame(dt));
 
-        }else {
-            setPosition(player.getXCoord(), player.getYCoord() -0.05f);
+        } else {
+            setPosition(player.getXCoord(), player.getYCoord() - 0.05f);
             setRegion(animation.getKeyFrame(dt));
 
         }
@@ -86,10 +90,11 @@ public class Charge extends Effects {
     public boolean isFullyCharged() {
         return fullyCharged;
     }
-    public void reset(){
+
+    public void reset() {
         fullyCharged = false;
         setBounds(getX(), getY(), WIDTH / AdventureGame.PPM, HEIGHT / AdventureGame.PPM);
-
+        setAlpha(1);
         setScale(CHARGE_SCALE);
     }
 }

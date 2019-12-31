@@ -1,5 +1,6 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.items;
 
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,6 +13,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.UpdatableSprite;
+import com.mygdx.adventuregame.tools.AnimationGenerationTool;
 
 
 public class Item extends Sprite implements UpdatableSprite {
@@ -36,6 +39,7 @@ public class Item extends Sprite implements UpdatableSprite {
 
     private float openedTimer;
     private int itemType;
+    private Animation<TextureRegion> itemAnimation;
 
     public Item(PlayScreen screen, float x, float y, int itemType) {
         this.world = screen.getWorld();
@@ -49,7 +53,15 @@ public class Item extends Sprite implements UpdatableSprite {
         currentState = State.CLOSED;
         previousState = currentState;
         isClosed = true;
-        setItemTexture(itemType);
+        if(itemType != AdventureGame.GOLD_COIN){
+            setItemTexture(itemType);
+        }else {
+            itemAnimation = AnimationGenerationTool.generateAnimation(screen.getAtlas().findRegion("gold_coin"),
+                    6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+            itemAnimation.setPlayMode(Animation.PlayMode.LOOP);
+            setScale(0.8f);
+        }
+
         b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
     }
 
@@ -89,7 +101,13 @@ public class Item extends Sprite implements UpdatableSprite {
     }
 
     public void update(float dt) {
-        setRegion(itemTexture);
+        stateTimer += dt;
+        if(itemType != AdventureGame.GOLD_COIN){
+            setRegion(itemTexture);
+        }else {
+            setRegion(itemAnimation.getKeyFrame(stateTimer));
+        }
+
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
         if(dontPickupTimer > 0){
             dontPickupTimer -= dt;

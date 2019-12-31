@@ -14,10 +14,12 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.Effects.Xplosion;
 
 public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectile, PlayerProjectile  {
     private boolean setToDestroyHitBox = false;
-
+    private static final float PROJECTILE_SPEED = 2.5f;
+    private int health = 2;
     private enum State{ARMED, IMPACT}
     private static final float FULL_CHARGE = 2.55f;
     private State currentState = State.ARMED;
@@ -42,6 +44,8 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
     private static final float MAX_CHARGE = 1.2f;
     private float existTimer = 0;
     private boolean hitBoxDestroyed = false;
+    private float startX;
+    private float startY;
 
     private Animation<TextureRegion> projectile;
     public SpellBall(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
@@ -49,6 +53,8 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
         this.world = screen.getWorld();
         this.screen = screen;
         this.charge = charge;
+        this.startX = x;
+        this.startY = y;
         setPosition(x, y);
         this.isFriendly = isFriendly;
         defineProjectile();
@@ -94,6 +100,7 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
         }
 
         if(aliveTimer < 0 && !destroyed){
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             setToDestroy();
         }
 
@@ -124,7 +131,7 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
     }
 
     public void setGoingRight(boolean status){
-        float speed = 2f;
+        float speed = PROJECTILE_SPEED;
 
         if(status){
             b2body.setLinearVelocity(new Vector2(speed, 0));
@@ -163,11 +170,7 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
         shape.setRadius(4 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
-        if(charge > MAX_CHARGE){
-            fixtureDef.density = 75f;
-        }else {
-            fixtureDef.density = charge * 5f;
-        }
+
 
         b2body.createFixture(fixtureDef).setUserData(this);
         b2body.setGravityScale(0);
@@ -178,6 +181,19 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
     }
     public void setToDestroy(){
         setToDestroy = true;
+        float x = getX();
+        float y = getY();
+        setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+
+        if(charge > MAX_CHARGE){
+            screen.getSpritesToAdd().add(new Xplosion(screen, getX()
+                    ,getY()));
+        }else {
+            screen.getSpritesToAdd().add(new Explosion(screen, getX()
+                    ,getY() + 0.2f));
+
+        }
+
     }
 
     private Animation<TextureRegion> generateAnimation(
@@ -215,6 +231,15 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
             return  9;
         }else {
             return(int)( charge * 2f) + 2;
+        }
+    }
+
+    @Override
+    public void targetHit() {
+        if(health > 1){
+            health -= 1;
+        }else {
+            setToDestroy();
         }
     }
 }

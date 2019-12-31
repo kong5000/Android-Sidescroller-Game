@@ -117,6 +117,10 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
         }
     }
 
+    public void setVelocity(float x, float y){
+        b2body.setLinearVelocity(x, y);
+    }
+
 
     private State getState(){
         if (setToDestroy) {

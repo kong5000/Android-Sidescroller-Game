@@ -14,6 +14,7 @@ public class PlayerAnimations {
     private Animation<TextureRegion> playerDownAttack;
     private Animation<TextureRegion> playerRunDamaged;
     private Animation<TextureRegion> playerIdle;
+    private Animation<TextureRegion> playerIdleDamaged;
     private Animation<TextureRegion> playerFall;
     private Animation<TextureRegion> playerFallDamaged;
     private Animation<TextureRegion> playerJump;
@@ -64,6 +65,9 @@ public class PlayerAnimations {
         playerRunDamaged = generateAnimation(textureAtlas.findRegion("player_run_bright"), 6, 52, 39, 0.1f);
         playerRunDamaged.setPlayMode(Animation.PlayMode.LOOP);
         playerIdle = generateAnimation(textureAtlas.findRegion("player_idle1"), 3, 52, 39, 0.2f);
+        playerIdle.setPlayMode(Animation.PlayMode.LOOP);
+        playerIdleDamaged = generateAnimation(textureAtlas.findRegion("player_idle1_bright"), 3, 52, 39, 0.2f);
+        playerIdleDamaged.setPlayMode(Animation.PlayMode.LOOP);
         playerFall = generateAnimation(textureAtlas.findRegion("player_fall"), 2, 52, 39, 0.1f);
         playerFallDamaged = generateAnimation(textureAtlas.findRegion("player_fall_bright"), 2, 52, 39, 0.1f);
         playerJump = generateAnimation(textureAtlas.findRegion("player_jump"), 4, 52, 39, 0.1f);
@@ -173,7 +177,7 @@ public class PlayerAnimations {
                 break;
             case STANDING:
             default:
-                region = playerIdle.getKeyFrame(stateTimer, true);
+                region = selectBrightFrameOrRegularFrame(playerIdle, playerIdleDamaged, stateTimer);
                 break;
         }
 
