@@ -1,11 +1,7 @@
-package com.mygdx.adventuregame.sprites.Enemies;
-
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -14,57 +10,42 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Effects.GreenFlame;
-import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
-import com.mygdx.adventuregame.sprites.Effects.Vortex;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.sprites.FireBall;
-import com.mygdx.adventuregame.sprites.GreenProjectile;
 
-
-public class Necromancer extends Enemy {
-    private int teleportCounter = 0;
-    private float damageCounter = 0;
-    private boolean canTeleport = false;
-    private float SUMMON_ATTACK_TIME = 3f;
-    private float PROJECTILE_COOLDOWN = 1.5f;
-    private float BULLET_ANGLE_INCREMENT = 45;
-    private float BULLET_SPEED = 1.25f;
-    private float startingAngle = -45;
-
-    private enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, SUMMON, CHARGING, CAST}
-
-    private State currentState;
-    private State previousState;
-    private static final float[] KOBOLD_HITBOX = {
-            -0.17f, 0.09f,
-            -0.17f, -0.3f,
-            0f, -0.3f,
-            0f, 0.09f};
+public class Ghoul extends Enemy {
+    private static final float[] REAPER_HITBOX = {
+            -0.17f, 0.1f,
+            -0.17f, -0.15f,
+            0.15f, -0.15f,
+            0.15f, 0.1f};
     private static final float[] SPEAR_HITBOX_RIGHT = {
-            0.3f, -0.1f,
-            0.3f, 0.00f,
-            0.1f, -0.1f,
-            0.1f, 0.00f};
+            -0.19f, 0.1f,
+            -0.19f, -0.15f,
+            0.17f, -0.15f,
+            0.17f, 0.1f};
     private static final float[] SPEAR_HITBOX_LEFT = {
-            -0.3f, -0.1f,
-            -0.3f, 0.00f,
-            -0.1f, -0.1f,
-            -0.1f, 0.00f};
+            -0.19f, 0.1f,
+            -0.19f, -0.15f,
+            0.17f, -0.15f,
+            0.17f, 0.1f};
     private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
 
-    private static final int WIDTH_PIXELS = 62;
-    private static final int HEIGHT_PIXELS = 63;
+    private static final int WIDTH_PIXELS = 50;
+    private static final int HEIGHT_PIXELS = 48;
 
-    private static final float CORPSE_EXISTS_TIME = 1f;
+    private static final float CORPSE_EXISTS_TIME = 1.1f;
     private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.4f;
+    private static final float MOVE_TIME = 0.2f;
+    private static final float HORIZONTAL_MOVE_TIME = 0.35f;
 
     private float attackTimer;
+    private float movementTimer = 0;
+    private float x_movementTimer = 0;
 
-    private float projectileTimer = 0;
     private float deathTimer;
+    private boolean active = false;
 
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> deathAnimation;
@@ -72,56 +53,58 @@ public class Necromancer extends Enemy {
     private Animation<TextureRegion> hurtAnimation;
     private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> summonAnimation;
 
     private boolean setToDie = false;
 
     private Fixture attackFixture;
-    private float facingRightTimer;
-    private float facingLeftTimer;
-    private float summonTimer;
-    private boolean activated = false;
 
-    public Necromancer(PlayScreen screen, float x, float y) {
+
+    public Ghoul(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_die"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_attack"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_run"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_die"),
+                11, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_attack"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        summonAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_summon"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
         setToDestroy = false;
         destroyed = false;
-        currentState = State.IDLE;
+        currentState = Enemy.State.IDLE;
         previousState = State.IDLE;
-        attackTimer = ATTACK_RATE;
+        attackTimer = 0;
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 50;
+        health = 4;
         barYOffset = 0.09f;
-
     }
 
     @Override
     public void update(float dt) {
-        if(playerInAttackRange()){
+        if(!active && playerInActivationRange()){
+            active = true;
+        }
+        if (currentState != State.DYING && active) {
+            if (movementTimer > 0) {
+                movementTimer -= dt;
+            } else {
+                movementTimer = MOVE_TIME;
+                chasePlayerVertical();
+            }
+            if (x_movementTimer > 0) {
+                x_movementTimer -= dt;
+            } else {
+                x_movementTimer = HORIZONTAL_MOVE_TIME;
+                chasePlayerHorizontal();
+            }
+        }
 
-            activated = true;
-        }
-        if (summonTimer > 0) {
-//            summonTimer -= dt;
-        }
         if (runningRight) {
             barXOffset = -0.15f;
         } else {
@@ -133,13 +116,14 @@ public class Necromancer extends Enemy {
             }
         }
         if (currentState == State.DYING) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x *0.97f, b2body.getLinearVelocity().y*0.97f );
             if (deathAnimation.isAnimationFinished(stateTimer)) {
             }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
                 if (!destroyed) {
-                    screen.getSpritesToAdd().add(new Vortex(screen, getX() - getWidth() / 4, getY() -0.25f));
+//                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
                 }
             }
         }
@@ -149,23 +133,14 @@ public class Necromancer extends Enemy {
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
-            setRegion(getFrame(dt));
-            if (runningRight) {
-                setPosition(b2body.getPosition().x - 0.25f, b2body.getPosition().y - getHeight() / 2);
-            } else {
-                setPosition(b2body.getPosition().x - 0.6f, b2body.getPosition().y - getHeight() / 2);
-
-            }
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
-
+            setRegion(getFrame(dt));
             act();
         }
     }
 
     private void updateStateTimers(float dt) {
-        if (projectileTimer > 0) {
-            projectileTimer -= dt;
-        }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
         }
@@ -184,37 +159,21 @@ public class Necromancer extends Enemy {
         }
     }
 
-    private void launchProjectiles() {
-        startingAngle += 20f;
-        for (int i = 0; i < 8; i++) {
-            GreenProjectile fireBall = new GreenProjectile(screen, getX() + getWidth() / 2, getY() + getHeight() / 2 + 0.15f, false, false);
-            screen.getSpritesToAdd().add(fireBall);
-
-            float angle = startingAngle + BULLET_ANGLE_INCREMENT * i;
-
-            fireBall.setRotation(angle + 180);
-
-            float x = BULLET_SPEED * MathUtils.cos(angle * MathUtils.degreesToRadians);
-            float y = BULLET_SPEED * MathUtils.sin(angle * MathUtils.degreesToRadians);
-            fireBall.setVelocity(x, y);
-        }
-    }
-
     private void act() {
-        if (canTeleport) {
-            canTeleport = false;
-            teleport();
-        }
-        if (currentState == State.SUMMON) {
-            if (projectileTimer <= 0) {
-                launchProjectiles();
-                projectileTimer = PROJECTILE_COOLDOWN;
-            }
-
-        }
         if (currentState == State.CHASING) {
+
+            if (playerInAttackRange()) {
+                goIntoAttackState();
+                lungeAtPlayer();
+            }
         }
         if (currentState == State.ATTACKING) {
+            if (currentFrameIsAnAttack()) {
+                enableAttackHitBox();
+            }
+            if (attackFramesOver()) {
+                disableAttackHitBox();
+            }
         }
     }
 
@@ -242,14 +201,11 @@ public class Necromancer extends Enemy {
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = hurtAnimation.getKeyFrame(stateTimer);
+                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
                 break;
             case CHASING:
                 attackEnabled = false;
                 texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case SUMMON:
-                texture = summonAnimation.getKeyFrame(stateTimer, true);
                 break;
             case IDLE:
             default:
@@ -257,7 +213,7 @@ public class Necromancer extends Enemy {
                 texture = idleAnimation.getKeyFrame(stateTimer, true);
                 break;
         }
-        orientTextureTowardsPlayer(texture, dt);
+        orientTextureTowardsPlayer(texture);
 
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
@@ -285,7 +241,20 @@ public class Necromancer extends Enemy {
         }
     }
 
-    private void chasePlayer() {
+    private void chasePlayerVertical() {
+        System.out.println(getVectorToPlayer().y);
+        if (playerIsAbove()) {
+            moveDown();
+        } else if (playerIsBelow()) {
+            moveUp();
+        } else {
+
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0);
+
+        }
+    }
+
+    private void chasePlayerHorizontal() {
         if (playerIsToTheRight()) {
             runRight();
         } else {
@@ -293,69 +262,13 @@ public class Necromancer extends Enemy {
         }
     }
 
-    private void teleport() {
-        teleportCounter++;
-        screen.getSpritesToAdd().add(new GreenFlame(screen, getX(), getY()));
-        world.destroyBody(b2body);
-        generateBody();
-        screen.getSpritesToAdd().add(new GreenFlame(screen, b2body.getPosition().x - 0.5f, b2body.getPosition().y));
-    }
-
-    private Body generateBody() {
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(getTeleportX(), getTeleportY());
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        Body body = world.createBody(bodyDef);
-
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT
-                | AdventureGame.FIRE_SPELL_BIT;
-        Shape hitBox = getHitBoxShape();
-        fixtureDef.shape = hitBox;
-        body.createFixture(fixtureDef).setUserData(this);
-        return body;
-    }
-
-    private float getTeleportX() {
-        switch (teleportCounter) {
-            case 1:
-                return b2body.getPosition().x + 3;
-            case 2:
-                return b2body.getPosition().x;
-            case 3:
-                return b2body.getPosition().x - 3;
-            case 4:
-            default:
-                return b2body.getPosition().x;
-        }
-    }
-
-    private float getTeleportY() {
-        switch (teleportCounter) {
-            case 1:
-                return b2body.getPosition().y;
-            case 2:
-                return b2body.getPosition().y - 2;
-            case 3:
-                return b2body.getPosition().y;
-            case 4:
-            default:
-                return b2body.getPosition().y + 3;
-        }
-    }
 
     private State getState() {
         if (setToDie) {
             return State.DYING;
-        } else if (hurtTimer > 0) {
-            return State.HURT;
-        } else if (activated) {
-            return State.SUMMON;
-        }else if (summonTimer > 0) {
-            return State.SUMMON;
+        }
+        else if (!active) {
+            return State.IDLE;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
         } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
@@ -375,20 +288,6 @@ public class Necromancer extends Enemy {
 
     @Override
     public void damage(int amount) {
-        if(currentState != State.DYING){
-
-
-        damageCounter += amount;
-        projectileTimer += 0.2f;
-        if (damageCounter > 10) {
-            if(teleportCounter == 4){
-                health = 7;
-            }else {
-                damageCounter = 0;
-                canTeleport = true;
-            }
-
-        }
         if (invincibilityTimer < 0) {
             health -= amount;
             invincibilityTimer = INVINCIBILITY_TIME;
@@ -400,8 +299,9 @@ public class Necromancer extends Enemy {
         screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
                 , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
         showHealthBar = true;
+
         b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
-        }
+
     }
 
     @Override
@@ -432,22 +332,10 @@ public class Necromancer extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region, float dt) {
+    private void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
-            if (vectorToPlayer.x > 0) {
-                facingRightTimer += dt;
-                facingLeftTimer = 0;
-            } else {
-                facingLeftTimer += dt;
-                facingRightTimer = 0;
-            }
-            if (facingRightTimer > 0.3) {
-                runningRight = true;
-            } else if (facingLeftTimer > 0.3) {
-                runningRight = false;
-            }
-//            runningRight = vectorToPlayer.x > 0;
+            runningRight = vectorToPlayer.x > 0;
 
             if (!runningRight && region.isFlipX()) {
                 region.flip(true, false);
@@ -462,6 +350,14 @@ public class Necromancer extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
+    private void moveDown() {
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1);
+    }
+
+    private void moveUp() {
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, -1);
+    }
+
     private void runRight() {
         b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
     }
@@ -471,7 +367,20 @@ public class Necromancer extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
+    }
+
+    private boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
+    }
+
+    private boolean playerIsBelow() {
+        float y = getVectorToPlayer().y;
+        return (y < -0.2);
+    }
+
+    private boolean playerIsAbove() {
+        return (getVectorToPlayer().y > -0.1);
     }
 
     private void jumpingAttackLeft() {
@@ -500,13 +409,26 @@ public class Necromancer extends Enemy {
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
-        shape.set(KOBOLD_HITBOX);
+        shape.set(REAPER_HITBOX);
         return shape;
     }
 
-    private void beginSummonAttack() {
-        summonTimer = SUMMON_ATTACK_TIME;
-        projectileTimer = PROJECTILE_COOLDOWN;
+    @Override
+    protected void defineEnemy() {
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.position.set(getX(), getY());
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        b2body = world.createBody(bodyDef);
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
+        fixtureDef.filter.maskBits =
+                AdventureGame.PLAYER_SWORD_BIT
+                        | AdventureGame.PLAYER_PROJECTILE_BIT
+                        | AdventureGame.FIRE_SPELL_BIT;
+        Shape hitBox = getHitBoxShape();
+        fixtureDef.shape = hitBox;
+        b2body.createFixture(fixtureDef).setUserData(this);
     }
 
 }

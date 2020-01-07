@@ -8,7 +8,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
-import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
@@ -16,21 +15,21 @@ import com.mygdx.adventuregame.sprites.Enemy;
 
 
 public class Mimic extends Enemy {
-    private static final float[] KOBOLD_HITBOX = {
+    private static final float[] MIMIC_HITBOX = {
             -0.17f, 0.1f,
             -0.17f, -0.15f,
             0.15f, -0.15f,
             0.15f, 0.1f};
     private static final float[] SPEAR_HITBOX_RIGHT = {
-            0.3f, -0.1f,
-            0.3f, 0.00f,
-            0.1f, -0.1f,
-            0.1f, 0.00f};
+            -0.17f, 0.1f,
+            -0.17f, -0.15f,
+            0.15f, -0.15f,
+            0.15f, 0.1f};
     private static final float[] SPEAR_HITBOX_LEFT = {
-            -0.3f, -0.1f,
-            -0.3f, 0.00f,
-            -0.1f, -0.1f,
-            -0.1f, 0.00f};
+            -0.17f, 0.1f,
+            -0.17f, -0.15f,
+            0.15f, -0.15f,
+            0.15f, 0.1f};
     private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.5f;
 
@@ -95,6 +94,7 @@ public class Mimic extends Enemy {
         health = 7;
         barYOffset = 0.09f;
         transformTimer = 0;
+        attackDamage = 3;
     }
 
     @Override
@@ -381,7 +381,7 @@ public class Mimic extends Enemy {
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
-        shape.set(KOBOLD_HITBOX);
+        shape.set(MIMIC_HITBOX);
         return shape;
     }
 

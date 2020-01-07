@@ -13,9 +13,12 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.items.Coin;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
+import com.mygdx.adventuregame.sprites.Enemies.Reaper;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Enemies.FireElemental;
 import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
@@ -87,6 +90,16 @@ public class B2WorldCreator {
             screen.getSpritesToAdd().add(lever);
             levers.add(lever);
 
+        }
+        for (MapObject object : map.getLayers().get(23).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            screen.getSpritesToAdd().add(new Item(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM,AdventureGame.GOLD_COIN));
+        }
+        for (MapObject object : map.getLayers().get(24).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Reaper(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
         }
         for (MapObject object : map.getLayers().get(19).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();

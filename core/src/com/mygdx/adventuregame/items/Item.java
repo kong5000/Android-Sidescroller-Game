@@ -21,8 +21,6 @@ public class Item extends Sprite implements UpdatableSprite {
     private enum State {CLOSED, OPEN}
 
     private State currentState;
-    private State previousState;
-    private boolean isClosed;
     private World world;
     private PlayScreen screen;
     public Body b2body;
@@ -30,7 +28,7 @@ public class Item extends Sprite implements UpdatableSprite {
     public boolean safeToRemove = false;
     private boolean setToDestroy = false;
 
-    private float dontPickupTimer = 0.03f;
+    private float dontPickupTimer = 0.35f;
     private float stateTimer;
     private static final int WIDTH_PIXELS = 16;
     private static final int HEIGHT_PIXELS = 16;
@@ -51,8 +49,7 @@ public class Item extends Sprite implements UpdatableSprite {
         openedTimer = 0;
         stateTimer = 0;
         currentState = State.CLOSED;
-        previousState = currentState;
-        isClosed = true;
+
         if(itemType != AdventureGame.GOLD_COIN){
             setItemTexture(itemType);
         }else {

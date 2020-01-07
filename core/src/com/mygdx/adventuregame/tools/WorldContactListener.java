@@ -214,6 +214,24 @@ public class WorldContactListener implements ContactListener {
         int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
         switch (cDef) {
+            case AdventureGame.ITEM_BIT | AdventureGame.PLAYER_BIT:
+                contact.setEnabled(false);
+                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
+                    Item item = ((Item) fixB.getUserData());
+                    if (item.canPickup()) {
+                        item.pickedUp();
+                        ((Player) fixA.getUserData()).pickupItem(item.getItemType());
+                    }
+
+
+                } else {
+                    Item item = ((Item) fixA.getUserData());
+                    if (item.canPickup()) {
+                        item.pickedUp();
+                        ((Player) fixB.getUserData()).pickupItem(item.getItemType());
+                    }
+                }
+                break;
             case AdventureGame.GROUND_BIT | AdventureGame.MOVING_BLOCK_SENSOR:
                 if (fixA.getFilterData().categoryBits == AdventureGame.MOVING_BLOCK_SENSOR) {
                     ((SpikeBlock) fixA.getUserData()).sensorOn();

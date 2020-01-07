@@ -31,6 +31,7 @@ import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Enemies.Necromancer;
+import com.mygdx.adventuregame.sprites.Enemies.Reaper;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
@@ -184,6 +185,7 @@ public class PlayScreen implements Screen {
 
         shapeRenderer = new ShapeRenderer();
         enemyList.add(new Necromancer(this, 80f, 5f));
+        enemyList.add(new Reaper(this, 5f, 8f));
 
 
 

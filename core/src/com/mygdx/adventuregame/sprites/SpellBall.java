@@ -165,9 +165,14 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
         }
-
+        float radius = 4f;
         CircleShape shape = new CircleShape();
-        shape.setRadius(4 / AdventureGame.PPM);
+        if(charge >= MAX_CHARGE){
+            radius = 6f;
+        }else if(charge >= MAX_CHARGE / 2){
+            radius = 4.5f;
+        }
+        shape.setRadius(radius / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
 

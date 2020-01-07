@@ -224,11 +224,11 @@ public class Player extends Sprite {
 //        spawnPointX = 10.05f;
 //        spawnPointY = 5.65f;
 
-//        spawnPointX = 2f;
-//        spawnPointY = 9f;
+        spawnPointX = 2f;
+        spawnPointY = 9f;
         //bossroom
-        spawnPointX = 82f;
-        spawnPointY = 7f;
+//        spawnPointX = 82f;
+//        spawnPointY = 7f;
         dialogBox = new Sprite();
         dialogBox.setBounds(getX(), getY(), 112 / AdventureGame.PPM, 75 / AdventureGame.PPM);
         xp = 0;
@@ -698,7 +698,11 @@ public class Player extends Sprite {
             castTimer = CAST_TIME;
             chargeEffect.reset();
 //            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f , getY() + getHeight() / 2, runningRight, true, spellCharge));
-            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f , getY() + getHeight() / 2, runningRight, true, spellCharge));
+            float x_offset = 0.1f;
+            if(!runningRight){
+                x_offset *= -1;
+            }
+            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f + x_offset , getY() + getHeight() / 2, runningRight, true, spellCharge));
             spellCharge = 0;
             spellCooldownTimer = SPELL_COOLDOWN_TIME;
             canCastSpell = false;
