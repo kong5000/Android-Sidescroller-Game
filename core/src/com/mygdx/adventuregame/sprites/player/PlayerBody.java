@@ -157,7 +157,8 @@ public class PlayerBody {
                 | AdventureGame.PLATFORM_BIT
                 | AdventureGame.SPIKE_BIT
                 | AdventureGame.ITEM_BIT
-                | AdventureGame.MOVING_BLOCK_BIT;
+                | AdventureGame.MOVING_BLOCK_BIT
+                | AdventureGame.BOSS_ATTACK_BIT;
         fixtureDef.isSensor = false;
         fixtureDef.friction = 0;
         b2body.createFixture(fixtureDef).setUserData(player);

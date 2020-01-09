@@ -229,7 +229,7 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         b2body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.BOSS_PROJECTILE_BIT;
+        fixtureDef.filter.categoryBits = AdventureGame.BOSS_ATTACK_BIT;
 //        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
         fixtureDef.filter.maskBits =  AdventureGame.PLAYER_BIT;
 

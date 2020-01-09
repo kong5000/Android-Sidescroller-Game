@@ -108,7 +108,7 @@ public class Necromancer extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 50;
+        health = 70;
         barYOffset = 0.09f;
 
     }

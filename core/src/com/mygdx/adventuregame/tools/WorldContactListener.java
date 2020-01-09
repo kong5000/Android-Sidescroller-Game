@@ -159,20 +159,15 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
-            case AdventureGame.BOSS_PROJECTILE_BIT | AdventureGame.PLAYER_BIT:
+            case AdventureGame.BOSS_ATTACK_BIT | AdventureGame.PLAYER_BIT:
                 contact.setEnabled(false);
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
-
-                    ((Player) fixA.getUserData()).hurt(9);
-                    ((EnemyProjectile) fixB.getUserData()).setToDestroy();
-                    ((EnemyProjectile) fixB.getUserData()).explode();
-
-                } else if (fixA.getFilterData().categoryBits == AdventureGame.BOSS_PROJECTILE_BIT) {
-                    ((Player) fixB.getUserData()).hurt(9);
-                    ((EnemyProjectile) fixA.getUserData()).setToDestroy();
-                    ((EnemyProjectile) fixA.getUserData()).explode();
+                    ((Player) fixA.getUserData()).hurt(4);
+                    ((Player) fixA.getUserData()).knockedBack();
+                } else if (fixA.getFilterData().categoryBits == AdventureGame.BOSS_ATTACK_BIT) {
+                    ((Player) fixB.getUserData()).hurt(4);
+                    ((Player) fixB.getUserData()).knockedBack();
                 }
-
 
         }
     }

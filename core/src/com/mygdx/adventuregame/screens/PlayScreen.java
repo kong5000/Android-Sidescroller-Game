@@ -125,8 +125,8 @@ public class PlayScreen implements Screen {
 
 
 //        map = mapLoader.load("forest_castle.tmx");
-//        map = mapLoader.load("forest_castle.tmx", params);
-        map = mapLoader.load("temple.tmx", params);
+        map = mapLoader.load("forest_castle_1.tmx", params);
+//        map = mapLoader.load("temple.tmx", params);
 
 
 

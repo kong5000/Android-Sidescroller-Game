@@ -229,6 +229,10 @@ public class Player extends Sprite {
         //bossroom
 //        spawnPointX = 82f;
 //        spawnPointY = 7f;
+
+//        spawnPointX = 55f;
+//        spawnPointY = 9f;
+
         dialogBox = new Sprite();
         dialogBox.setBounds(getX(), getY(), 112 / AdventureGame.PPM, 75 / AdventureGame.PPM);
         xp = 0;
@@ -1212,5 +1216,9 @@ public class Player extends Sprite {
     public float getYCoord() {
         updateAnimationCoords();
         return animationCenterY;
+    }
+
+    public void knockedBack(){
+        b2body.applyLinearImpulse(new Vector2(0, 5f), b2body.getWorldCenter(), true);
     }
 }

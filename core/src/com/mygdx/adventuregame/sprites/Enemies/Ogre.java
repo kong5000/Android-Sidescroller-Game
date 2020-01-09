@@ -22,17 +22,17 @@ public class Ogre extends Enemy {
             0.12f, -0.2f,
             0.12f, 0.1f};
     private static final float[] SWORD_HITBOX_RIGHT = {
-            0.2f, -0.2f,
-            0.2f, 0.1f,
+            0.3f, -0.2f,
+            0.3f, 0.1f,
             0.1f, -0.2f,
             0f, 0.15f};
     private static final float[] SWORD_HITBOX_LEFT = {
-            -0.2f, -0.2f,
-            -0.2f, 0.1f,
+            -0.3f, -0.2f,
+            -0.3f, 0.1f,
             -0.1f, -0.2f,
             0f, 0.15f};
 
-    private static final float ATTACK_RATE = 1.75f;
+    private static final float ATTACK_RATE = 1.1f;
 
     private static final int WIDTH_PIXELS = 58;
     private static final int HEIGHT_PIXELS = 42;
@@ -122,7 +122,11 @@ public class Ogre extends Enemy {
                 }
             }
         }
-
+        if(currentState == State.ATTACKING){
+            if(attackAnimation.isAnimationFinished(stateTimer -0.2f)){
+                attackTimer = -1;
+            }
+        }
         if (setToDestroy && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
@@ -152,7 +156,7 @@ public class Ogre extends Enemy {
             chasePlayer();
             if (playerInAttackRange()) {
                 goIntoAttackState();
-                lungeAtPlayer();
+//                lungeAtPlayer();
             }
         }
         if (currentState == State.ATTACKING) {
@@ -335,15 +339,15 @@ public class Ogre extends Enemy {
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
+        b2body.setLinearVelocity(1.15f, b2body.getLinearVelocity().y);
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
+        b2body.setLinearVelocity(-1.15f, b2body.getLinearVelocity().y);
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 70 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
