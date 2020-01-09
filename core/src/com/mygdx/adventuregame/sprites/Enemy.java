@@ -174,5 +174,14 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     public int getExperiencePoints(){
         return experiencePoints;
     }
+
+    public void dispose(){
+        if(b2body != null){
+            world.destroyBody(b2body);
+        }
+    }
+    public void setToDestroy(){
+        setToDestroy = true;
+    };
 }
 

@@ -32,7 +32,7 @@ public class Player extends Sprite {
     private CheckPoint currentCheckPoint;
 
     public float currentSpeed = 1.3f;
-    private static float MAX_RUN_SPEED = 1.3f;
+    private static float MAX_RUN_SPEED = 1.1f;
     private static float CROUCH_SPEED = 0.8f;
     private boolean negativeYInput = false;
     private boolean positiveYInput = false;
@@ -691,6 +691,8 @@ public class Player extends Sprite {
     }
 
     private void launchSpellBall() {
+        screen.changeMap();
+        animations.endPlayerFlash();
         if (canCastSpell) {
             if (chargeEffect.isFullyCharged()) {
 
@@ -1118,6 +1120,7 @@ public class Player extends Sprite {
         currentCheckPoint = checkPoint;
         spawnPointY = checkPoint.getYPos();
         spawnPointX = checkPoint.getXPos();
+        playerBody.setSpawnPoint(spawnPointX, spawnPointY);
     }
 
     public CheckPoint getCurrentCheckPoint() {

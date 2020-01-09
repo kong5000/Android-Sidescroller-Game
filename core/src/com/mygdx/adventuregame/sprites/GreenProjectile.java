@@ -187,4 +187,9 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
     public boolean safeToRemove() {
         return safeToRemove;
     }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
 }

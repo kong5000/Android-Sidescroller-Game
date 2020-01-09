@@ -58,4 +58,8 @@ public class FireSpinEffect extends Effects {
 
         return  new Animation(secondsPerFrame, frames, Animation.PlayMode.LOOP);
     }
+    @Override
+    public void dispose() {
+        setToDestroy();
+    }
 }

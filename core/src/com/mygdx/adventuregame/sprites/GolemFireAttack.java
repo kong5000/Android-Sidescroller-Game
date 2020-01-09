@@ -291,4 +291,11 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         Vector2 playerVector = new Vector2(screen.getPlayer().getX(), screen.getPlayer().getY());
         return playerVector.sub(enemyPosition);
     }
+
+    @Override
+    public void dispose() {
+        if(b2body != null){
+            world.destroyBody(b2body);
+        }
+    }
 }

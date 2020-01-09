@@ -1,3 +1,5 @@
+package com.mygdx.adventuregame.sprites.Enemies;
+
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -14,10 +16,10 @@ import com.mygdx.adventuregame.sprites.Enemy;
 
 public class Ghoul extends Enemy {
     private static final float[] REAPER_HITBOX = {
-            -0.17f, 0.1f,
-            -0.17f, -0.15f,
-            0.15f, -0.15f,
-            0.15f, 0.1f};
+            -0.17f, 0.08f,
+            -0.17f, -0.07f,
+            0.15f, -0.07f,
+            0.15f, 0.08f};
     private static final float[] SPEAR_HITBOX_RIGHT = {
             -0.19f, 0.1f,
             -0.19f, -0.15f,
@@ -31,8 +33,8 @@ public class Ghoul extends Enemy {
     private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
 
-    private static final int WIDTH_PIXELS = 50;
-    private static final int HEIGHT_PIXELS = 48;
+    private static final int WIDTH_PIXELS = 53;
+    private static final int HEIGHT_PIXELS = 22;
 
     private static final float CORPSE_EXISTS_TIME = 1.1f;
     private static final float INVINCIBILITY_TIME = 0.35f;
@@ -62,9 +64,9 @@ public class Ghoul extends Enemy {
     public Ghoul(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_run"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         deathAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_die"),
-                11, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         attackAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_attack"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_idle"),
@@ -87,6 +89,11 @@ public class Ghoul extends Enemy {
 
     @Override
     public void update(float dt) {
+        if(currentState == State.ATTACKING){
+            if(attackAnimation.isAnimationFinished(stateTimer)){
+                attackTimer = -1;
+            }
+        }
         if(!active && playerInActivationRange()){
             active = true;
         }
@@ -351,11 +358,11 @@ public class Ghoul extends Enemy {
     }
 
     private void moveDown() {
-        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1);
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0.7f);
     }
 
     private void moveUp() {
-        b2body.setLinearVelocity(b2body.getLinearVelocity().x, -1);
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0);
     }
 
     private void runRight() {
@@ -425,7 +432,8 @@ public class Ghoul extends Enemy {
         fixtureDef.filter.maskBits =
                 AdventureGame.PLAYER_SWORD_BIT
                         | AdventureGame.PLAYER_PROJECTILE_BIT
-                        | AdventureGame.FIRE_SPELL_BIT;
+                        | AdventureGame.FIRE_SPELL_BIT
+                        | AdventureGame.GROUND_BIT;
         Shape hitBox = getHitBoxShape();
         fixtureDef.shape = hitBox;
         b2body.createFixture(fixtureDef).setUserData(this);

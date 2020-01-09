@@ -50,6 +50,13 @@ public class HealthBar extends Sprite implements UpdatableSprite{
         return safeToRemove;
     }
 
+    @Override
+    public void dispose() {
+        safeToRemove =true;
+    }
 
-
+    @Override
+    public void setToDestroy() {
+        safeToRemove = true;
+    }
 }

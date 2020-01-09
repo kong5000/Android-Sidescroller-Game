@@ -28,18 +28,16 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.CheckPoint;
-import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Enemies.Executioner;
+import com.mygdx.adventuregame.sprites.Enemies.Ghoul;
 import com.mygdx.adventuregame.sprites.Enemies.Necromancer;
-import com.mygdx.adventuregame.sprites.Enemies.Reaper;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.FireBall;
 
-import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;
-import com.mygdx.adventuregame.sprites.Enemies.Mimic;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.player.Player;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
@@ -95,8 +93,10 @@ public class PlayScreen implements Screen {
     private Color fadeScreenColor = Color.BLACK;
     private float fadeTickTimer = 0;
     private float fadeScreenAlpha = 0;
-
+    private B2WorldCreator worldCreator;
     private ShapeRenderer shapeRenderer;
+    private boolean tearDownComplete = true;
+
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
         assetManager.load("game_sprites.pack", TextureAtlas.class);
@@ -179,13 +179,15 @@ public class PlayScreen implements Screen {
         topLayerSprites = new Array<>();
         topLayerSpritesToAdd = new Array<>();
 
-        new B2WorldCreator(world, map, this);
+        worldCreator = new B2WorldCreator(world, map, this);
 
 //        sprites.add(new Item(this, 5f, 5f, 1));
 
         shapeRenderer = new ShapeRenderer();
         enemyList.add(new Necromancer(this, 80f, 5f));
-        enemyList.add(new Reaper(this, 5f, 8f));
+        enemyList.add(new Executioner(this, 5f, 8f));
+        enemyList.add(new Ghoul(this, 5f, 8f));
+
 
 
 
@@ -196,12 +198,27 @@ public class PlayScreen implements Screen {
     }
 
     public void update(float dt){
+        if(!tearDownComplete){
+            for(CheckPoint checkPoint : checkPoints){
+                checkPoint.destroy();
+                checkPoints.removeValue(checkPoint, true);
+            }
+            worldCreator.destroyBodies();
+            if(worldCreator.tearDownComplete()){
+                tearDownComplete = true;
+            }
+            if(tearDownComplete){
+                worldCreator = new B2WorldCreator(world, map, this);
+            }
+        }
         controller.handleInput();
         controller.update(dt);
         world.step(1/60f, 6, 2);
         player.update(dt);
         background.setPosition(player.b2body.getPosition().x * -10, player.b2body.getPosition().y * - 5);
-//        backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
+        if(backgroundFar != null){
+            backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
+        }
         for(UpdatableSprite sprite : sprites){
             sprite.update(dt);
         }
@@ -292,7 +309,9 @@ public class PlayScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-//        backgroundFar.draw(game.batch);
+        if(backgroundFar != null){
+            backgroundFar.draw(game.batch);
+        }
         background.draw(game.batch);
 
         game.batch.end();
@@ -604,4 +623,37 @@ public class PlayScreen implements Screen {
     public Array<UpdatableSprite> getTopLayerSpritesToAdd(){ return topLayerSpritesToAdd;}
     public Array<UpdatableSprite> getTopLayerSprites(){ return topLayerSprites;}
     public Array<CheckPoint> getCheckPoints(){return checkPoints;}
+
+
+    public void changeMap() {
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                tearDownComplete = false;
+                renderer.getMap().dispose(); //dispose the old map
+                map = mapLoader.load("forest_castle_1.tmx"); //load the new map
+                renderer.setMap(map); //set the map in your renderer
+                removeEntities();
+
+                Texture bgTexture = new Texture("BackgroundLong.png");
+                background = new Sprite(bgTexture);
+                Texture bgTextureFar = new Texture("BackgroundCloud.png");
+                backgroundFar = new Sprite(bgTextureFar);
+//
+            }
+        });
+
+    }
+
+    private void removeEntities(){
+        for(Enemy enemy : enemyList){
+            enemy.setToDestroy();
+//            enemyList.removeValue(enemy, true);
+        }
+        for(UpdatableSprite sprite : sprites){
+            sprite.setToDestroy();
+//            sprites.removeValue(sprite, true);
+        }
+
+    }
 }

@@ -31,7 +31,7 @@ public abstract class Effects extends Sprite implements UpdatableSprite {
 
     @Override
     public boolean safeToRemove() {
-        return false;
+        return safeToRemove;
     }
 
     @Override
@@ -65,6 +65,8 @@ public abstract class Effects extends Sprite implements UpdatableSprite {
         Animation<TextureRegion> animation = new Animation<TextureRegion>(secondsPerFrame, frames);
         return animation;
     }
-
-
+    @Override
+    public void dispose() {
+        setToDestroy();
+    }
 }

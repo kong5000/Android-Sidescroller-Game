@@ -13,11 +13,12 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
-import com.mygdx.adventuregame.items.Coin;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
+import com.mygdx.adventuregame.sprites.Enemies.Executioner;
+import com.mygdx.adventuregame.sprites.Enemies.Ghoul;
 import com.mygdx.adventuregame.sprites.Enemies.Reaper;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Enemies.FireElemental;
@@ -33,6 +34,8 @@ import com.mygdx.adventuregame.sprites.Enemies.Slime;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
 import com.mygdx.adventuregame.sprites.Lever;
 
+import java.util.ArrayList;
+
 public class B2WorldCreator {
     private PlayScreen screen;
     private int chestCounter = 1;
@@ -42,11 +45,15 @@ public class B2WorldCreator {
     private Body body;
     private World world;
     private Array<Lever> levers;
+    private Array<Body> bodies;
+    private Array<MonsterTile> monsterTiles;
 
     public B2WorldCreator(World world, TiledMap map, PlayScreen screen) {
         this.screen = screen;
         this.world = world;
         levers = new Array<>();
+        bodies = new Array<>();
+        monsterTiles = new Array<>();
 //        BodyDef bodyDef = new BodyDef();
 //        PolygonShape shape = new PolygonShape();
 //        FixtureDef fixtureDef = new FixtureDef();
@@ -57,7 +64,8 @@ public class B2WorldCreator {
         for (MapObject object : map.getLayers().get(13).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             MonsterTile monsterTile = new MonsterTile(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
-            screen.monsterTiles.add(monsterTile);
+            monsterTiles.add(monsterTile);
+            screen.getSpritesToAdd().add(monsterTile);
         }
 
         for (MapObject object : map.getLayers().get(16).getObjects().getByType(RectangleMapObject.class)) {
@@ -101,6 +109,18 @@ public class B2WorldCreator {
             screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
             screen.getEnemyList().add(enemy);
         }
+        for (MapObject object : map.getLayers().get(25).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Ghoul(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for (MapObject object : map.getLayers().get(26).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Executioner(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
         for (MapObject object : map.getLayers().get(19).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             SpikeBlock spikeBlock = new SpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
@@ -137,7 +157,7 @@ public class B2WorldCreator {
                 shape.setAsBox((rect.getWidth() / 2) / AdventureGame.PPM, (rect.getHeight() / 2) / AdventureGame.PPM);
                 fixtureDef.shape = shape;
                 body.createFixture(fixtureDef);
-
+                bodies.add(body);
             } else if (object instanceof PolygonMapObject) {
                 PolygonShape shape = new PolygonShape();
                 Polygon polygon = ((PolygonMapObject) object).getPolygon();
@@ -159,7 +179,9 @@ public class B2WorldCreator {
 //                body = world.createBody(bodyDef);
 //                fixtureDef.shape = shape;
 //                body.createFixture(fixtureDef);
+                bodies.add(body);
             }
+
         }
         for (MapObject object : map.getLayers().get(14).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -201,7 +223,7 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Enemy enemy = new Slime(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
             screen.getEnemyList().add(enemy);
-            screen.getHealthBars().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
         }
         for (MapObject object : map.getLayers().get(7).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -214,6 +236,7 @@ public class B2WorldCreator {
             Enemy enemy = new Minotaur(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
             screen.getEnemyList().add(enemy);
             screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            ((Minotaur )enemy).attachNearbyTiles(monsterTiles);
         }
         for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
@@ -248,6 +271,23 @@ public class B2WorldCreator {
     private boolean isAtLocation(float currentChest, float location) {
         return (Math.abs(currentChest - location) < 0.01f);
     }
+    public void destroyBodies(){
+        int i = 0;
+        for(Body body : bodies){
+            bodies.removeValue(body, true);
+            world.destroyBody(body);
+            i++;
+        }
+        for(Lever lever : levers){
+            levers.removeValue(lever, true);
+        }
+        for(MonsterTile monsterTile: monsterTiles){
+            monsterTiles.removeValue(monsterTile, true);
+        }
+    }
 
+    public boolean tearDownComplete(){
+        return bodies.isEmpty();
+    }
 
 }

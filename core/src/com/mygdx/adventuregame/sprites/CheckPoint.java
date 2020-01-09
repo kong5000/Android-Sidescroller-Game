@@ -60,4 +60,8 @@ public class CheckPoint {
             screen.getSpritesToAdd().add(new BlueFlame(screen, getXPos(), getYPos() + 0.75f));
         }
     }
+
+    public void destroy(){
+        world.destroyBody(b2body);
+    }
 }

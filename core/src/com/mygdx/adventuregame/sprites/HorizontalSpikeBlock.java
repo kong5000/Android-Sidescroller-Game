@@ -82,4 +82,9 @@ public class HorizontalSpikeBlock extends SpikeBlock {
         b2body.setGravityScale(0f);
 
     }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
 }

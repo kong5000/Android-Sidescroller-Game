@@ -215,4 +215,9 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     public void targetHit() {
         setToDestroy();
     }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
 }

@@ -43,7 +43,9 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
     private boolean paused = false;
     private float travelTime = 2f;
     private Lever lever;
-
+    private boolean safeToRemove = false;
+    private boolean setToDestroy = false;
+    private boolean destroyed = false;
 
     public SpikeBlock(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -106,8 +108,26 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
 
     @Override
     public void update(float dt) {
-        if(hasALever()){
-            if(lever.leverOn()){
+        if (setToDestroy && !destroyed) {
+            world.destroyBody(b2body);
+            world.destroyBody(sensorBody);
+            destroyed = true;
+
+        } else if (!destroyed) {
+            if(hasALever()){
+                if(lever.leverOn()){
+                    if(movementTimer < 1){
+                        moveDown();
+                    }else if(movementTimer >= 1){
+                        move();
+                    }
+                    if(movementTimer > 0){
+                        movementTimer -= dt;
+                    }
+                }else{
+                    pauseMovement();
+                }
+            }else {
                 if(movementTimer < 1){
                     moveDown();
                 }else if(movementTimer >= 1){
@@ -116,21 +136,10 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
                 if(movementTimer > 0){
                     movementTimer -= dt;
                 }
-            }else{
-                pauseMovement();
             }
-        }else {
-            if(movementTimer < 1){
-                moveDown();
-            }else if(movementTimer >= 1){
-                move();
-            }
-            if(movementTimer > 0){
-                movementTimer -= dt;
-            }
-        }
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
 
-        setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+        }
 
     }
 
@@ -150,7 +159,7 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
 
     @Override
     public boolean safeToRemove() {
-        return false;
+        return safeToRemove;
     }
 
     public void sensorOn(){
@@ -167,4 +176,14 @@ public class SpikeBlock extends Sprite implements UpdatableSprite {
         return (lever != null);
     }
 
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
+
+    @Override
+    public void setToDestroy() {
+       setToDestroy = true;
+       safeToRemove = true;
+    }
 }

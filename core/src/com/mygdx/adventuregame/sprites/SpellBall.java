@@ -247,6 +247,11 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
             setToDestroy();
         }
     }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
 }
 
 

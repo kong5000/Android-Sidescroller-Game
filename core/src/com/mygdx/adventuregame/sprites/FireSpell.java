@@ -272,4 +272,9 @@ public class FireSpell extends Sprite implements UpdatableSprite{
     public boolean safeToRemove() {
         return safeToRemove;
     }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
 }

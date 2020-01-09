@@ -153,15 +153,15 @@ public class FireGolem extends Enemy {
     }
 
     private void startFireShield() {
-        fireSpinEffect = new FireSpinEffect(screen, getX(), getY(), this);
-//        createShieldAttack();
-        screen.getSpritesToAdd().add(fireSpinEffect);
+//        fireSpinEffect = new FireSpinEffect(screen, getX(), getY(), this);
+////        createShieldAttack();
+//        screen.getSpritesToAdd().add(fireSpinEffect);
     }
 
     private void stopFireShield() {
-        disableFireShieldHitBox();
-        fireSpinEffect.setToDestroy();
-        fireSpinEffect = null;
+//        disableFireShieldHitBox();
+//        fireSpinEffect.setToDestroy();
+//        fireSpinEffect = null;
     }
 
     private void startFireAttack() {

@@ -246,7 +246,6 @@ public class Reaper extends Enemy {
     }
 
     private void chasePlayerVertical() {
-        System.out.println(getVectorToPlayer().y);
         if (playerIsAbove()) {
             moveDown();
         } else if (playerIsBelow()) {

@@ -18,12 +18,12 @@ import com.mygdx.adventuregame.sprites.Effects.Vortex;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 
-public class Minotaur extends Enemy {
+public class Executioner extends Enemy {
     private static final float[] MINOTAUR_HITBOX = {
-            -0.15f, 0.1f,
-            -0.15f, -0.35f,
-            0.15f, -0.35f,
-            0.15f, 0.1f};
+            -0.15f, 0.08f,
+            -0.15f, -0.275f,
+            0.15f, -0.275f,
+            0.15f, 0.08f};
     private static final float[] SWORD_HITBOX_RIGHT = {
             0.4f, -0.4f,
             0.4f, 0.1f,
@@ -37,19 +37,17 @@ public class Minotaur extends Enemy {
 
     private static final float ATTACK_RATE = 1.75f;
 
-    private static final int WIDTH_PIXELS = 98;
-    private static final int HEIGHT_PIXELS = 79;
+    private static final int WIDTH_PIXELS = 87;
+    private static final int HEIGHT_PIXELS = 59;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
     private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.3f;
     private static final float STUN_TIME = 0.5f;
-
     private float attackTimer;
 
     private float deathTimer;
     private int damageForStun = 0;
-
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
@@ -66,28 +64,28 @@ public class Minotaur extends Enemy {
 
     private Fixture attackFixture;
 
-    public Minotaur(PlayScreen screen, float x, float y) {
+    public Executioner(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_run"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_run_bright"),
+        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_run_bright"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_die"),
-                8, 96, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_attack_slow_bright"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_hurt"),
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_die"),
+                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_attack"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_attack_bright"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_hurt_bright"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_hurt_bright"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("minotaur_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("minotaur_idle_bright"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_idle_bright"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -101,10 +99,11 @@ public class Minotaur extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 25;
+        health = 15;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
-        setScale(1.2f);
+        attachNearbyTiles();
+        setScale(1.1f);
     }
 
     @Override
@@ -136,7 +135,7 @@ public class Minotaur extends Enemy {
             destroyed = true;
             stateTimer = 0;
             for (MonsterTile monsterTile : monsterTiles) {
-                    monsterTile.setToDestroy();
+                monsterTile.setToDestroy();
             }
         } else if (!destroyed) {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
@@ -163,7 +162,7 @@ public class Minotaur extends Enemy {
             chasePlayer();
             if (playerInAttackRange()) {
                 goIntoAttackState();
-                lungeAtPlayer();
+//                lungeAtPlayer();
             }
         }
         if (currentState == State.ATTACKING) {
@@ -394,19 +393,19 @@ public class Minotaur extends Enemy {
     }
 
     private boolean currentFrameIsAnAttack() {
-        return (currentState == State.ATTACKING && stateTimer > 0.5f);
+        return (currentState == State.ATTACKING && stateTimer > 0.3f);
     }
 
     private boolean attackFramesOver() {
         if (currentState == State.ATTACKING) {
-            return stateTimer > 0.7f;
+            return stateTimer > 0.5f;
         }
         return false;
     }
 
 
-    public void attachNearbyTiles(Array<MonsterTile> worldTiles){
-        for (MonsterTile monsterTile : worldTiles) {
+    private void attachNearbyTiles(){
+        for (MonsterTile monsterTile : screen.monsterTiles) {
             Vector2 enemyPosition = new Vector2(this.getX(), this.getY());
             Vector2 tileVector = new Vector2(monsterTile.getX(), monsterTile.getY());
             float distance = enemyPosition.sub(tileVector).len();

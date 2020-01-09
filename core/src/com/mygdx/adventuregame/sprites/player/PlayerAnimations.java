@@ -52,12 +52,14 @@ public class PlayerAnimations {
 
     private TextureAtlas textureAtlas;
     private Player player;
-    public PlayerAnimations(TextureAtlas textureAtlas, Player player){
+
+    public PlayerAnimations(TextureAtlas textureAtlas, Player player) {
         this.textureAtlas = textureAtlas;
         this.player = player;
         initializeAnimations();
     }
-    private void initializeAnimations(){
+
+    private void initializeAnimations() {
         playerDownAttack = generateAnimation(textureAtlas.findRegion("player_fall_attack"), 2, 52, 39, 0.1f);
         playerCrouchWalk = generateAnimation(textureAtlas.findRegion("player_crouch_walk"), 6, 52, 39, 0.1f);
         playerRun = generateAnimation(textureAtlas.findRegion("player_run"), 6, 52, 39, 0.1f);
@@ -103,7 +105,7 @@ public class PlayerAnimations {
         playerWallClimb.setPlayMode(Animation.PlayMode.LOOP);
     }
 
-    public TextureRegion getFrame(float dt){
+    public TextureRegion getFrame(float dt) {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
@@ -189,6 +191,7 @@ public class PlayerAnimations {
 
         return region;
     }
+
     private TextureRegion selectBrightFrameOrRegularFrame(Animation<TextureRegion> animation, Animation<TextureRegion> brightAnimation, float stateTimer) {
         TextureRegion textureRegion;
         if (flashRedTimer > 0) {
@@ -212,6 +215,7 @@ public class PlayerAnimations {
         }
         return textureRegion;
     }
+
     private Animation<TextureRegion> generateAnimation(
             TextureRegion textureRegion,
             int numberOfFrames,
@@ -232,29 +236,34 @@ public class PlayerAnimations {
         return animation;
     }
 
-    public void flashPlayerSprite(){
-        if (flashRedTimer < 0) {
+    public void flashPlayerSprite() {
+        if (flashRedTimer <= 0) {
             flashRedTimer = FLASH_RED_TIME;
         }
     }
 
-    public void pauseChargingAnimation(){
+    public void endPlayerFlash() {
+        flashRedTimer = -1;
+    }
+
+    public void pauseChargingAnimation() {
         playerChargeBow.setFrameDuration(10f);
     }
-    public void restartChargingAnimation(){
+
+    public void restartChargingAnimation() {
         playerChargeBow.setFrameDuration(0.1f);
     }
 
-    public boolean reviveAnimationDone(float stateTimer){
-       return playerRevive.isAnimationFinished(stateTimer);
+    public boolean reviveAnimationDone(float stateTimer) {
+        return playerRevive.isAnimationFinished(stateTimer);
     }
 
-    public boolean attackAnimationFinished(int attackNumber, float stateTimer){
-        if(attackNumber == 1){
+    public boolean attackAnimationFinished(int attackNumber, float stateTimer) {
+        if (attackNumber == 1) {
             return playerAttack.isAnimationFinished(stateTimer);
-        }else if(attackNumber == 2){
+        } else if (attackNumber == 2) {
             return playerAttack2.isAnimationFinished(stateTimer);
-        }else {
+        } else {
             return playerAttack3.isAnimationFinished(stateTimer);
         }
     }

@@ -175,4 +175,9 @@ public class Item extends Sprite implements UpdatableSprite {
     public boolean canPickup(){
         return dontPickupTimer < 0;
     }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
+    }
 }

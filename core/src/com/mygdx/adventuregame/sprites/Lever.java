@@ -32,8 +32,6 @@ public class Lever extends Enemy implements UpdatableSprite {
     private PlayScreen screen;
     public Body b2body;
     protected boolean destroyed;
-    public boolean safeToRemove = false;
-    private boolean setToDestroy = false;
 
     private float stateTimer;
     private static final int WIDTH_PIXELS = 32;
@@ -62,10 +60,17 @@ public class Lever extends Enemy implements UpdatableSprite {
     }
 
     public void update(float dt) {
-        setRegion(getFrame(dt));
-        if(canBeSwitchedTimer > 0){
-            canBeSwitchedTimer -= dt;
+        if(setToDestroy && !destroyed){
+            world.destroyBody(b2body);
+            destroyed = true;
+            safeToRemove = true;
+        }else {
+            setRegion(getFrame(dt));
+            if(canBeSwitchedTimer > 0){
+                canBeSwitchedTimer -= dt;
+            }
         }
+
     }
 
     @Override
@@ -171,5 +176,10 @@ public class Lever extends Enemy implements UpdatableSprite {
     }
     public void setOneTimeSwitch(boolean state){
         canBeToggled = state;
+    }
+
+    @Override
+    public void dispose() {
+        world.destroyBody(b2body);
     }
 }
