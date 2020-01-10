@@ -125,7 +125,8 @@ public class PlayScreen implements Screen {
 
 
 //        map = mapLoader.load("forest_castle.tmx");
-        map = mapLoader.load("forest_castle_1.tmx", params);
+//        map = mapLoader.load("forest_castle_1.tmx", params);
+        map = mapLoader.load("dungeon_1.tmx", params);
 //        map = mapLoader.load("temple.tmx", params);
 
 
@@ -184,11 +185,6 @@ public class PlayScreen implements Screen {
 //        sprites.add(new Item(this, 5f, 5f, 1));
 
         shapeRenderer = new ShapeRenderer();
-        enemyList.add(new Necromancer(this, 80f, 5f));
-        enemyList.add(new Executioner(this, 5f, 8f));
-        enemyList.add(new Ghoul(this, 5f, 8f));
-
-
 
 
         spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));

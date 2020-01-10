@@ -115,18 +115,20 @@ public class WorldContactListener implements ContactListener {
                 break;
             case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_PROJECTILE_BIT) {
-//                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
-                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
+                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
                 } else {
-                    ((PlayerProjectile) fixB.getUserData()).setToDestroy();
-//                    ((PlayerProjectile) fixB.getUserData()).setToDestroyHitBox();
+//                    ((PlayerProjectile) fixB.getUserData()).setToDestroy();
+                    ((PlayerProjectile) fixB.getUserData()).setToDestroyHitBox();
                 }
                 break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_PROJECTILE_BIT) {
                     ((EnemyProjectile) fixA.getUserData()).setToDestroy();
+                    ((EnemyProjectile) fixA.getUserData()).explode();
                 } else {
                     ((EnemyProjectile) fixB.getUserData()).setToDestroy();
+                    ((EnemyProjectile) fixB.getUserData()).explode();
                 }
                 break;
             case AdventureGame.FIRE_SPELL_BIT | AdventureGame.ENEMY_BIT:
@@ -321,12 +323,14 @@ public class WorldContactListener implements ContactListener {
                     if (((Player) fixA.getUserData()).notInvincible()) {
                         ((Player) fixA.getUserData()).hurt(3);
                         ((EnemyProjectile) fixB.getUserData()).setToDestroy();
+                        ((EnemyProjectile) fixB.getUserData()).explode();
                     }
 
                 } else {
                     if (((Player) fixB.getUserData()).notInvincible()) {
                         ((Player) fixB.getUserData()).hurt(3);
                         ((EnemyProjectile) fixA.getUserData()).setToDestroy();
+                        ((EnemyProjectile) fixA.getUserData()).explode();
                     }
                 }
 

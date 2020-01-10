@@ -80,19 +80,19 @@ public class Player extends Sprite {
     }
 
     public void beginRangedAttack() {
-//        if(spellBallTimer < 0){
-//            fireBow();
-//        }else {
-//            firingSpell = true;
-//        }
-        chargingTimer = 0;
-//        if (mana > 0) {
-//            firingSpell = true;
-//        }
-        if (mana > 0 && canCastSpell) {
-
-            launchSpellBall();
+        if(spellBallTimer < 0){
+            fireBow();
+        }else {
+            firingSpell = true;
         }
+        chargingTimer = 0;
+////        if (mana > 0) {
+////            firingSpell = true;
+////        }
+//        if (mana > 0 && canCastSpell) {
+//
+//            launchSpellBall();
+//        }
     }
 
     public boolean isFullyCharge() {
@@ -112,7 +112,7 @@ public class Player extends Sprite {
 
     private boolean canWallRun = false;
     //    private Spell equipedSpell = Spell.NONE;
-    private Spell equipedSpell = Spell.FIREBALL;
+    private Spell equipedSpell = Spell.BOW;
     public State currentState;
     public State previousState;
     public World world;
@@ -695,7 +695,7 @@ public class Player extends Sprite {
     }
 
     private void launchSpellBall() {
-        screen.changeMap();
+//        screen.changeMap();
         animations.endPlayerFlash();
         if (canCastSpell) {
             if (chargeEffect.isFullyCharged()) {
@@ -863,7 +863,7 @@ public class Player extends Sprite {
     }
 
     public boolean canMove() {
-        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT && currentState != State.CHARGING_BOW && currentState != State.CASTING);
+        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT && currentState != State.CHARGING_BOW && currentState != State.CASTING && currentState != State.ATTACKING);
     }
 
     public void pickupItem(int itemID) {

@@ -216,6 +216,10 @@ public class Controller implements InputProcessor {
                 player.endRangedAttack();
 //                player.endChargingSpell();
                 stopSpell = true;
+                if (player.chargingBow) {
+                    player.bowAttack();
+                    player.chargingBow = false;
+                }
             }
         });
         bButtonImage.addListener(new InputListener() {
@@ -514,10 +518,6 @@ public class Controller implements InputProcessor {
             }
             gestureStarted = false;
         }
-
-        System.out.printf("END VALUE IS " + Integer.toString(touchEndX) + "\n");
-        System.out.printf("START VALUE IS " + Integer.toString(touchStartX) + "\n");
-
         return false;
     }
 
