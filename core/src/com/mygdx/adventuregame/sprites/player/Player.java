@@ -224,7 +224,7 @@ public class Player extends Sprite {
 //        spawnPointX = 10.05f;
 //        spawnPointY = 5.65f;
 
-        spawnPointX = 2f;
+        spawnPointX = 3f;
         spawnPointY = 9f;
         //bossroom
 //        spawnPointX = 82f;

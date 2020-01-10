@@ -513,7 +513,7 @@ public class Minotaur extends Enemy {
         return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
     }
     private boolean playerInChargeRange() {
-        return (Math.abs(getVectorToPlayer().x) > 130 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) > 30 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {

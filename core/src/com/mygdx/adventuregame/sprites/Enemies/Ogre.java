@@ -40,9 +40,12 @@ public class Ogre extends Enemy {
     private static final float CORPSE_EXISTS_TIME = 1f;
     private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.3f;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
+    private static final float MAX_VERTICAL_SPEED = 3;
+    private static final float JUMP_COOLDOWN = 2;
 
     private float attackTimer;
-
+    private float jumpTimer = -1f;
     private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
@@ -117,13 +120,13 @@ public class Ogre extends Enemy {
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
-                if(!destroyed){
-                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth()/4, getY() - getHeight() - 0.1f));
+                if (!destroyed) {
+                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
                 }
             }
         }
-        if(currentState == State.ATTACKING){
-            if(attackAnimation.isAnimationFinished(stateTimer -0.2f)){
+        if (currentState == State.ATTACKING) {
+            if (attackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
                 attackTimer = -1;
             }
         }
@@ -140,6 +143,9 @@ public class Ogre extends Enemy {
     }
 
     private void updateStateTimers(float dt) {
+        if (jumpTimer > 0) {
+            jumpTimer -= dt;
+        }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
         }
@@ -153,11 +159,21 @@ public class Ogre extends Enemy {
 
     private void act(float dt) {
         if (currentState == State.CHASING) {
-            chasePlayer();
+
             if (playerInAttackRange()) {
                 goIntoAttackState();
+                jumpTimer = JUMP_COOLDOWN;
 //                lungeAtPlayer();
+            } else {
+                if (Math.abs(b2body.getLinearVelocity().x) < 0.01) {
+                    if (jumpTimer < 0) {
+                        jump();
+                        jumpTimer = JUMP_COOLDOWN;
+                    }
+                }
             }
+            limitSpeed();
+            chasePlayer();
         }
         if (currentState == State.ATTACKING) {
             if (currentFrameIsAnAttack()) {
@@ -170,6 +186,23 @@ public class Ogre extends Enemy {
 
         if (attackTimer > 0) {
             attackTimer -= dt;
+        }
+    }
+
+    private void jump() {
+        b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
+
+    }
+
+    private void limitSpeed() {
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
         }
     }
 
@@ -339,11 +372,14 @@ public class Ogre extends Enemy {
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1.15f, b2body.getLinearVelocity().y);
+//        b2body.setLinearVelocity(1.15f, b2body.getLinearVelocity().y);
+        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
+
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1.15f, b2body.getLinearVelocity().y);
+//        b2body.setLinearVelocity(-1.15f, b2body.getLinearVelocity().y);
+        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
     }
 
     private boolean playerInAttackRange() {
