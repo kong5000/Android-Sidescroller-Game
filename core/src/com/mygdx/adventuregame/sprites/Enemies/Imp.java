@@ -15,9 +15,7 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.sprites.GreenProjectile;
 import com.mygdx.adventuregame.sprites.Projectiles.ImpSpell;
-import com.mygdx.adventuregame.sprites.player.Player;
 
 
 public class Imp extends Enemy {
@@ -489,6 +487,7 @@ public class Imp extends Enemy {
     private void launchProjectiles() {
         float startingAngle = getVectorToPlayer().angle();
         ImpSpell fireBall = new ImpSpell(screen, getX() + getWidth() / 2, getY() + getHeight() / 2 + 0.15f, false, false);
+
         screen.getSpritesToAdd().add(fireBall);
 
         float angle = startingAngle;

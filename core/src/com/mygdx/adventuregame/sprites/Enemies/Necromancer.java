@@ -17,7 +17,7 @@ import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.GreenFlame;
 import com.mygdx.adventuregame.sprites.Effects.Vortex;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.sprites.GreenProjectile;
+import com.mygdx.adventuregame.sprites.Projectiles.GreenProjectile;
 
 
 public class Necromancer extends Enemy {

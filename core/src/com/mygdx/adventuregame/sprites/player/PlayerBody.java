@@ -178,7 +178,7 @@ public class PlayerBody {
     public Fixture createAttack() {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = AdventureGame.PLAYER_SWORD_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.ENEMY_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.ENEMY_BIT | AdventureGame.ENEMY_PROJECTILE_BIT;
         PolygonShape polygonShape = new PolygonShape();
         float[] hitbox;
         switch (player.getCurrentState()) {

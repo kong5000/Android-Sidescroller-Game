@@ -15,7 +15,7 @@ import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.sprites.GreenProjectile;
+import com.mygdx.adventuregame.sprites.Projectiles.GreenProjectile;
 
 public class Slug extends Enemy {
     private static final float[] OGRE_HITBOX = {

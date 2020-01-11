@@ -1,9 +1,10 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Projectiles;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -14,8 +15,15 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.Effects.IceShatter;
+import com.mygdx.adventuregame.sprites.EnemyProjectile;
+import com.mygdx.adventuregame.sprites.UpdatableSprite;
+import com.mygdx.adventuregame.sprites.player.Player;
 
-public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyProjectile {
+public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyProjectile {
+    private static final float BULLET_SPEED = 1;
+    private Vector2 vectorToPlayer;
+    private Player player;
     private enum State {ARMED, IMPACT}
 
     private State currentState = State.ARMED;
@@ -30,24 +38,22 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
     private Animation<TextureRegion> projectileAnimation;
     private float aliveTimer;
     private float stateTimer;
-    private static final float TIME_ALIVE = 5f;
-    private static final int WIDTH_PIXELS = 36;
-    private static final int HEIGHT_PIXELS = 11;
+    private static final float TIME_ALIVE = 3f;
+    private static final int WIDTH_PIXELS = 31;
+    private static final int HEIGHT_PIXELS = 20;
     private boolean isFriendly;
 
-    private Animation<TextureRegion> projectile;
 
-    public GreenProjectile(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly) {
+    public ShadeProjectile(PlayScreen screen, float x, float y, boolean goingRight) {
         this.world = screen.getWorld();
         this.screen = screen;
         setPosition(x, y);
-        this.isFriendly = isFriendly;
         defineProjectile();
         attackEnabled = false;
         aliveTimer = TIME_ALIVE;
         stateTimer = 0;
-        projectileAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_projectile")
-                , 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        projectileAnimation = generateAnimation(screen.getAtlas().findRegion("shade_projectile")
+                , 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.06f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
         if (isFriendly) {
@@ -59,10 +65,14 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
     public void update(float dt) {
         aliveTimer -= dt;
         setRegion(getFrame(dt));
+        findPlayer();
         setPosition(b2body.getPosition().x - getWidth() / 2 , b2body.getPosition().y -0.05f );
         if ((aliveTimer < 0 || setToDestroy) && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
+            if(aliveTimer < 0){
+                explode();
+            }
         }
 
 
@@ -93,7 +103,9 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
                 break;
         }
 //        flipFramesIfNeeded(texture);
-
+        if (!texture.isFlipX()) {
+            texture.flip(true, false);
+        }
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
         return texture;
@@ -143,7 +155,7 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
         FixtureDef fixtureDef = new FixtureDef();
 
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.PLAYER_SWORD_BIT;
 
 
         CircleShape shape = new CircleShape();
@@ -178,10 +190,11 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
         return animation;
     }
 
-    public void explode() {
-        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
-                , getY() - getHeight() / 2 - 0.05f));
+    public void explode(){
+        screen.getSpritesToAdd().add(new IceShatter(screen, getX() -  0.25f
+                ,getY() - getHeight() / 2 -0.4f));
     }
+
 
     @Override
     public boolean safeToRemove() {
@@ -192,4 +205,21 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
     public void dispose() {
         world.destroyBody(b2body);
     }
+
+    private void findPlayer(){
+        vectorToPlayer = getVectorToPlayer();
+        this.setRotation(vectorToPlayer.angle());
+        float x =  BULLET_SPEED * MathUtils.cos(getRotation() * MathUtils.degreesToRadians);
+        float y =  BULLET_SPEED * MathUtils.sin(getRotation() * MathUtils.degreesToRadians);
+
+        b2body.setLinearVelocity(x, y);
+        b2body.setTransform(b2body.getWorldCenter(), vectorToPlayer.angle() *MathUtils.degreesToRadians);
+    }
+
+    private Vector2 getVectorToPlayer() {
+        Vector2 enemyPosition = new Vector2(b2body.getPosition().x, b2body.getPosition().y);
+        Vector2 playerVector = new Vector2(screen.getPlayer().b2body.getPosition().x, screen.getPlayer().b2body.getPosition().y);
+        return playerVector.sub(enemyPosition);
+    }
+
 }

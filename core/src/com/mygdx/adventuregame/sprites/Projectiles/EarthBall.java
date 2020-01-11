@@ -146,7 +146,7 @@ public class EarthBall extends Sprite implements UpdatableSprite, EnemyProjectil
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
         }else{
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT | AdventureGame.PLAYER_SWORD_BIT;;
         }
 
         CircleShape shape = new CircleShape();

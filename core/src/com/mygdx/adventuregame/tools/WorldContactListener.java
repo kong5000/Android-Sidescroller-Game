@@ -346,7 +346,17 @@ public class WorldContactListener implements ContactListener {
                         ((EnemyProjectile) fixA.getUserData()).explode();
                     }
                 }
+            case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.PLAYER_SWORD_BIT:
+                contact.setEnabled(false);
+                if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_PROJECTILE_BIT) {
+                    ((EnemyProjectile) fixA.getUserData()).setToDestroy();
+                    ((EnemyProjectile) fixA.getUserData()).explode();
 
+                } else {
+                    ((EnemyProjectile) fixB.getUserData()).setToDestroy();
+                    ((EnemyProjectile) fixB.getUserData()).explode();
+                }
+                break;
             case AdventureGame.SPIKE_BIT | AdventureGame.PLAYER_BIT:
                 contact.setEnabled(false);
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {

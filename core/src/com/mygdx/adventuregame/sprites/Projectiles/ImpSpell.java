@@ -146,7 +146,7 @@ public class ImpSpell extends Sprite implements UpdatableSprite, EnemyProjectile
         FixtureDef fixtureDef = new FixtureDef();
 
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.GROUND_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT;;
 
 
         CircleShape shape = new CircleShape();
