@@ -14,12 +14,13 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.Effects.Xplosion;
 
 import static com.badlogic.gdx.math.MathUtils.cos;
 import static com.badlogic.gdx.math.MathUtils.degreesToRadians;
 import static com.badlogic.gdx.math.MathUtils.sin;
 
-public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyProjectile{
+public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyProjectile, BossAttack{
     private enum State {ARMED, IMPACT}
 
     private State currentState = State.ARMED;
@@ -128,20 +129,7 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
                 float xVelocity = 2 * cos(angleToPlayer * degreesToRadians);
                 float yVelocity = 2 * sin(angleToPlayer * degreesToRadians);
                 defineProjectile();
-//                if(goingRight){
-//                    b2body.setLinearVelocity(new Vector2(xVelocity, yVelocity));
-//                }
-//                else{
-//                    b2body.setLinearVelocity(new Vector2(-2f, 1f));
-//                }
                 b2body.setLinearVelocity(new Vector2(xVelocity, yVelocity));
-
-
-//                if (goingRight) {
-//                    b2body.setLinearVelocity(new Vector2(3f, 0));
-//                } else {
-//                    b2body.setLinearVelocity(new Vector2(-3f, 0));
-//                }
                 launched = true;
             }
             aliveTimer -= dt;
@@ -231,11 +219,12 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.filter.categoryBits = AdventureGame.BOSS_ATTACK_BIT;
 //        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-        fixtureDef.filter.maskBits =  AdventureGame.PLAYER_BIT;
+        fixtureDef.filter.maskBits =  AdventureGame.PLAYER_BIT
+        | AdventureGame.GROUND_BIT;
 
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(8 / AdventureGame.PPM);
+        shape.setRadius(14 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
@@ -267,8 +256,10 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
     }
 
     public void explode() {
-        screen.getExplosionsToAdd().add(new Explosion(screen, b2body.getPosition().x -0.5f
-                , b2body.getPosition().y - 0.35f ));
+        screen.getSpritesToAdd().add(new Xplosion(screen, getX()
+                ,getY()));
+//        screen.getExplosionsToAdd().add(new Explosion(screen, b2body.getPosition().x -0.5f
+//                , b2body.getPosition().y - 0.35f ));
     }
 
     public void stopCharging() {
@@ -297,5 +288,11 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         if(b2body != null){
             world.destroyBody(b2body);
         }
+    }
+
+    @Override
+    public void onPlayerHit() {
+        setToDestroy();
+        explode();
     }
 }

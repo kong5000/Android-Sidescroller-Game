@@ -6,6 +6,7 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.sprites.BossAttack;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
@@ -45,7 +46,7 @@ public class WorldContactListener implements ContactListener {
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
                     CheckPoint checkPoint = ((CheckPoint) fixB.getUserData());
                     Player player = ((Player) fixA.getUserData());
-                    if(checkPoint != player.getCurrentCheckPoint()){
+                    if (checkPoint != player.getCurrentCheckPoint()) {
                         checkPoint.playAnimation();
                     }
                     player.setRespawnPoint(checkPoint);
@@ -53,7 +54,7 @@ public class WorldContactListener implements ContactListener {
                 } else {
                     CheckPoint checkPoint = ((CheckPoint) fixA.getUserData());
                     Player player = ((Player) fixB.getUserData());
-                    if(checkPoint != player.getCurrentCheckPoint()){
+                    if (checkPoint != player.getCurrentCheckPoint()) {
                         checkPoint.playAnimation();
                     }
                     player.setRespawnPoint(checkPoint);
@@ -161,15 +162,27 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
+            case AdventureGame.GROUND_BIT | AdventureGame.BOSS_ATTACK_BIT:
+                contact.setEnabled(false);
+                if (fixA.getFilterData().categoryBits == AdventureGame.BOSS_ATTACK_BIT) {
+                    ((BossAttack) fixA.getUserData()).onPlayerHit();
+                } else if (fixB.getFilterData().categoryBits == AdventureGame.BOSS_ATTACK_BIT) {
+                    ((BossAttack) fixB.getUserData()).onPlayerHit();
+                }
+                break;
+
             case AdventureGame.BOSS_ATTACK_BIT | AdventureGame.PLAYER_BIT:
                 contact.setEnabled(false);
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
                     ((Player) fixA.getUserData()).hurt(4);
                     ((Player) fixA.getUserData()).knockedBack();
+                    ((BossAttack) fixB.getUserData()).onPlayerHit();
                 } else if (fixA.getFilterData().categoryBits == AdventureGame.BOSS_ATTACK_BIT) {
                     ((Player) fixB.getUserData()).hurt(4);
                     ((Player) fixB.getUserData()).knockedBack();
+                    ((BossAttack) fixA.getUserData()).onPlayerHit();
                 }
+                break;
 
         }
     }

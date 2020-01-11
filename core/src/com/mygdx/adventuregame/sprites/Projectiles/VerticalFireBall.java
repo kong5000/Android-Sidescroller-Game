@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Projectiles;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -14,8 +14,10 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.EnemyProjectile;
+import com.mygdx.adventuregame.sprites.UpdatableSprite;
 
-public class VerticalFireBall extends Sprite implements UpdatableSprite, EnemyProjectile  {
+public class VerticalFireBall extends Sprite implements UpdatableSprite, EnemyProjectile {
     private enum State{ARMED, IMPACT}
     private State currentState = State.ARMED;
     private State previousState = State.ARMED;
