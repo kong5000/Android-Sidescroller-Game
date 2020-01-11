@@ -437,11 +437,11 @@ necromancer_run
   orig: 372, 63
   offset: 0, 0
   index: -1
-fire_elemental_die
+imp_attack
   rotate: false
-  xy: 3955, 359
-  size: 496, 43
-  orig: 496, 43
+  xy: 3955, 352
+  size: 500, 50
+  orig: 500, 50
   offset: 0, 0
   index: -1
 minotaur_jump
@@ -465,151 +465,179 @@ golem_run
   orig: 456, 59
   offset: 0, 0
   index: -1
-earth_elemental_attack
+imp_die
   rotate: false
-  xy: 4272, 1725
-  size: 470, 43
-  orig: 470, 43
+  xy: 4272, 1718
+  size: 500, 50
+  orig: 500, 50
   offset: 0, 0
   index: -1
-slug_attack1
+fire_elemental_die
   rotate: false
-  xy: 4272, 1684
-  size: 474, 41
-  orig: 474, 41
-  offset: 0, 0
-  index: -1
-ghoul_die
-  rotate: false
-  xy: 4272, 1662
-  size: 424, 22
-  orig: 424, 22
-  offset: 0, 0
-  index: -1
-necromancer_summon
-  rotate: false
-  xy: 4372, 1599
-  size: 372, 63
-  orig: 372, 63
+  xy: 4272, 1675
+  size: 496, 43
+  orig: 496, 43
   offset: 0, 0
   index: -1
 fire_golem_run
   rotate: false
-  xy: 4372, 1540
+  xy: 4372, 1616
   size: 396, 59
   orig: 396, 59
   offset: 0, 0
   index: -1
 ice_golem_run
   rotate: false
-  xy: 4372, 1483
+  xy: 4372, 1559
   size: 432, 57
   orig: 432, 57
   offset: 0, 0
   index: -1
 red_ogre_run
   rotate: false
-  xy: 4376, 1435
+  xy: 4372, 1511
   size: 450, 48
   orig: 450, 48
   offset: 0, 0
   index: -1
+earth_elemental_attack
+  rotate: false
+  xy: 4376, 1468
+  size: 470, 43
+  orig: 470, 43
+  offset: 0, 0
+  index: -1
+slug_attack1
+  rotate: false
+  xy: 4376, 1427
+  size: 474, 41
+  orig: 474, 41
+  offset: 0, 0
+  index: -1
 slug_die
   rotate: false
-  xy: 4376, 1394
+  xy: 4376, 1386
   size: 474, 41
   orig: 474, 41
   offset: 0, 0
   index: -1
 mimic_die
   rotate: false
-  xy: 4376, 1357
+  xy: 4376, 1349
   size: 490, 37
   orig: 490, 37
   offset: 0, 0
   index: -1
 kobold_die
   rotate: false
-  xy: 4376, 1322
+  xy: 4376, 1314
   size: 476, 35
   orig: 476, 35
   offset: 0, 0
   index: -1
 ogre_attack
   rotate: false
-  xy: 4376, 1280
+  xy: 4376, 1272
   size: 406, 42
   orig: 406, 42
   offset: 0, 0
   index: -1
 ogre_attack_bright
   rotate: false
-  xy: 4376, 1238
+  xy: 4376, 1230
   size: 406, 42
   orig: 406, 42
   offset: 0, 0
   index: -1
 kobold_run
   rotate: false
-  xy: 4376, 1203
+  xy: 4376, 1195
   size: 408, 35
   orig: 408, 35
   offset: 0, 0
   index: -1
 golem_idle
   rotate: false
-  xy: 4376, 1144
+  xy: 4376, 1136
   size: 380, 59
   orig: 380, 59
   offset: 0, 0
   index: -1
-slug_move
+necromancer_summon
   rotate: false
-  xy: 4376, 1103
-  size: 395, 41
-  orig: 395, 41
-  offset: 0, 0
-  index: -1
-earth_elemental_die
-  rotate: false
-  xy: 4376, 1060
-  size: 376, 43
-  orig: 376, 43
+  xy: 4376, 1073
+  size: 372, 63
+  orig: 372, 63
   offset: 0, 0
   index: -1
 ice_golem_idle
   rotate: false
-  xy: 4376, 1003
+  xy: 4376, 1016
   size: 360, 57
   orig: 360, 57
   offset: 0, 0
   index: -1
 executioner_idle
   rotate: false
-  xy: 4376, 944
+  xy: 4376, 957
   size: 348, 59
   orig: 348, 59
   offset: 0, 0
   index: -1
 executioner_idle_bright
   rotate: false
-  xy: 4376, 885
+  xy: 4376, 898
   size: 348, 59
   orig: 348, 59
   offset: 0, 0
   index: -1
+earth_elemental_die
+  rotate: false
+  xy: 4376, 855
+  size: 376, 43
+  orig: 376, 43
+  offset: 0, 0
+  index: -1
+slug_move
+  rotate: false
+  xy: 4376, 814
+  size: 395, 41
+  orig: 395, 41
+  offset: 0, 0
+  index: -1
+ghoul_die
+  rotate: false
+  xy: 4376, 792
+  size: 424, 22
+  orig: 424, 22
+  offset: 0, 0
+  index: -1
+player_die
+  rotate: false
+  xy: 4376, 753
+  size: 364, 39
+  orig: 364, 39
+  offset: 0, 0
+  index: -1
 ogre_run
   rotate: false
-  xy: 4376, 843
+  xy: 4366, 711
   size: 348, 42
   orig: 348, 42
   offset: 0, 0
   index: -1
 ogre_run_bright
   rotate: false
-  xy: 4376, 801
+  xy: 4366, 669
   size: 348, 42
   orig: 348, 42
+  offset: 0, 0
+  index: -1
+player_revive
+  rotate: false
+  xy: 4366, 632
+  size: 350, 37
+  orig: 350, 37
   offset: 0, 0
   index: -1
 necromancer_attack
@@ -617,27 +645,6 @@ necromancer_attack
   xy: 1678, 547
   size: 310, 63
   orig: 310, 63
-  offset: 0, 0
-  index: -1
-player_die
-  rotate: false
-  xy: 4376, 762
-  size: 364, 39
-  orig: 364, 39
-  offset: 0, 0
-  index: -1
-fire_golem_idle
-  rotate: false
-  xy: 4366, 703
-  size: 330, 59
-  orig: 330, 59
-  offset: 0, 0
-  index: -1
-fire_golem_launch_ball
-  rotate: false
-  xy: 4366, 644
-  size: 330, 59
-  orig: 330, 59
   offset: 0, 0
   index: -1
 golem_launch_ball
@@ -654,37 +661,30 @@ golem_single_attack
   orig: 304, 59
   offset: 0, 0
   index: -1
-ghoul_run
+slug_idle
   rotate: false
-  xy: 4366, 622
-  size: 318, 22
-  orig: 318, 22
+  xy: 4398, 591
+  size: 316, 41
+  orig: 316, 41
   offset: 0, 0
   index: -1
-fire_elemental_idle
+executioner_hurt
   rotate: false
-  xy: 4398, 579
-  size: 248, 43
-  orig: 248, 43
+  xy: 3298, 323
+  size: 261, 59
+  orig: 261, 59
   offset: 0, 0
   index: -1
-wasp_die
+fire_golem_idle
   rotate: false
-  xy: 3298, 327
-  size: 264, 55
-  orig: 264, 55
-  offset: 0, 0
-  index: -1
-player_revive
-  rotate: false
-  xy: 3562, 341
-  size: 350, 37
-  orig: 350, 37
+  xy: 3559, 319
+  size: 330, 59
+  orig: 330, 59
   offset: 0, 0
   index: -1
 kobold_attack
   rotate: false
-  xy: 3562, 306
+  xy: 3889, 317
   size: 340, 35
   orig: 340, 35
   offset: 0, 0
@@ -696,16 +696,37 @@ player_attack1
   orig: 260, 39
   offset: 0, 0
   index: -1
-slug_idle
+necromancer_idle
   rotate: false
-  xy: 3912, 318
-  size: 316, 41
-  orig: 316, 41
+  xy: 4470, 528
+  size: 248, 63
+  orig: 248, 63
+  offset: 0, 0
+  index: -1
+executioner_hurt_bright
+  rotate: false
+  xy: 4482, 469
+  size: 261, 59
+  orig: 261, 59
+  offset: 0, 0
+  index: -1
+fire_golem_launch_ball
+  rotate: false
+  xy: 4492, 410
+  size: 330, 59
+  orig: 330, 59
+  offset: 0, 0
+  index: -1
+ghoul_run
+  rotate: false
+  xy: 4492, 388
+  size: 318, 22
+  orig: 318, 22
   offset: 0, 0
   index: -1
 player_crouch_walk
   rotate: false
-  xy: 3902, 279
+  xy: 4455, 349
   size: 312, 39
   orig: 312, 39
   offset: 0, 0
@@ -745,18 +766,25 @@ player_air_attack1
   orig: 208, 39
   offset: 0, 0
   index: -1
-executioner_hurt
+red_ogre_hurt
   rotate: false
-  xy: 4228, 300
-  size: 261, 59
-  orig: 261, 59
+  xy: 4229, 304
+  size: 225, 48
+  orig: 225, 48
   offset: 0, 0
   index: -1
-mimic_run
+player_run
   rotate: false
-  xy: 4214, 263
-  size: 294, 37
-  orig: 294, 37
+  xy: 4454, 310
+  size: 312, 39
+  orig: 312, 39
+  offset: 0, 0
+  index: -1
+player_run_bright
+  rotate: false
+  xy: 4454, 271
+  size: 312, 39
+  orig: 312, 39
   offset: 0, 0
   index: -1
 necromancer_hurt
@@ -764,48 +792,6 @@ necromancer_hurt
   xy: 4724, 2193
   size: 186, 63
   orig: 186, 63
-  offset: 0, 0
-  index: -1
-executioner_hurt_bright
-  rotate: false
-  xy: 4470, 520
-  size: 261, 59
-  orig: 261, 59
-  offset: 0, 0
-  index: -1
-wasp_idle
-  rotate: false
-  xy: 4482, 465
-  size: 264, 55
-  orig: 264, 55
-  offset: 0, 0
-  index: -1
-necromancer_idle
-  rotate: false
-  xy: 4492, 402
-  size: 248, 63
-  orig: 248, 63
-  offset: 0, 0
-  index: -1
-fire_elemental_run
-  rotate: false
-  xy: 4451, 359
-  size: 248, 43
-  orig: 248, 43
-  offset: 0, 0
-  index: -1
-golem_hurt
-  rotate: false
-  xy: 4489, 300
-  size: 228, 59
-  orig: 228, 59
-  offset: 0, 0
-  index: -1
-mimic_transform
-  rotate: false
-  xy: 4508, 263
-  size: 294, 37
-  orig: 294, 37
   offset: 0, 0
   index: -1
 fire_golem_hurt
@@ -829,116 +815,102 @@ chest_open
   orig: 196, 37
   offset: 0, 0
   index: -1
-player_run
-  rotate: false
-  xy: 3176, 288
-  size: 312, 39
-  orig: 312, 39
-  offset: 0, 0
-  index: -1
-player_run_bright
-  rotate: false
-  xy: 3176, 249
-  size: 312, 39
-  orig: 312, 39
-  offset: 0, 0
-  index: -1
 player_wall_climb
   rotate: false
-  xy: 3134, 210
+  xy: 3176, 284
   size: 312, 39
   orig: 312, 39
   offset: 0, 0
   index: -1
 player_attack2
   rotate: false
-  xy: 3134, 173
+  xy: 3176, 247
   size: 300, 37
   orig: 300, 37
   offset: 0, 0
   index: -1
 red_ogre_idle
   rotate: false
-  xy: 3110, 125
+  xy: 3134, 199
   size: 300, 48
   orig: 300, 48
   offset: 0, 0
   index: -1
 player_attack2_bright
   rotate: false
-  xy: 3110, 88
+  xy: 3134, 162
   size: 300, 37
   orig: 300, 37
   offset: 0, 0
   index: -1
 player_attack3
   rotate: false
-  xy: 3488, 269
+  xy: 3110, 125
   size: 300, 37
   orig: 300, 37
   offset: 0, 0
   index: -1
 player_attack3_bright
   rotate: false
-  xy: 3488, 232
+  xy: 3110, 88
   size: 300, 37
   orig: 300, 37
   offset: 0, 0
   index: -1
+mimic_run
+  rotate: false
+  xy: 3488, 282
+  size: 294, 37
+  orig: 294, 37
+  offset: 0, 0
+  index: -1
+mimic_transform
+  rotate: false
+  xy: 3476, 245
+  size: 294, 37
+  orig: 294, 37
+  offset: 0, 0
+  index: -1
 kobold_idle
   rotate: false
-  xy: 3446, 197
+  xy: 3434, 210
   size: 272, 35
   orig: 272, 35
   offset: 0, 0
   index: -1
-ghoul_attack
-  rotate: false
-  xy: 3434, 175
-  size: 265, 22
-  orig: 265, 22
-  offset: 0, 0
-  index: -1
 player_attack1_bright
   rotate: false
-  xy: 3434, 136
+  xy: 3434, 171
   size: 260, 39
   orig: 260, 39
   offset: 0, 0
   index: -1
-reaper_attack
+ghoul_attack
   rotate: false
-  xy: 3410, 88
-  size: 250, 48
-  orig: 250, 48
+  xy: 3434, 149
+  size: 265, 22
+  orig: 265, 22
   offset: 0, 0
   index: -1
-player_bow
+imp_idle
   rotate: false
-  xy: 3200, 51
-  size: 250, 37
-  orig: 250, 37
+  xy: 3410, 99
+  size: 250, 50
+  orig: 250, 50
   offset: 0, 0
   index: -1
-player_bow_bright
+imp_move
   rotate: false
-  xy: 3200, 14
-  size: 250, 37
-  orig: 250, 37
+  xy: 3410, 49
+  size: 250, 50
+  orig: 250, 50
   offset: 0, 0
   index: -1
-red_ogre_hurt
+mimic_idle
   rotate: false
-  xy: 3450, 40
-  size: 225, 48
-  orig: 225, 48
-  offset: 0, 0
-  index: -1
-player_dodge
-  rotate: false
-  xy: 3450, 3
-  size: 250, 37
-  orig: 250, 37
+  xy: 3021, 32
+  size: 196, 37
+  orig: 196, 37
   offset: 0, 0
   index: -1
 necromancer_projectile
@@ -955,18 +927,25 @@ executioner_fall
   orig: 174, 59
   offset: 0, 0
   index: -1
+water_elemental_idle
+  rotate: false
+  xy: 3200, 0
+  size: 164, 32
+  orig: 164, 32
+  offset: 0, 0
+  index: -1
+reaper_attack
+  rotate: false
+  xy: 3364, 1
+  size: 250, 48
+  orig: 250, 48
+  offset: 0, 0
+  index: -1
 gold_coin
   rotate: false
   xy: 384, 0
   size: 96, 16
   orig: 96, 16
-  offset: 0, 0
-  index: -1
-player_charge_bow
-  rotate: false
-  xy: 3021, 32
-  size: 150, 37
-  orig: 150, 37
   offset: 0, 0
   index: -1
 slime_attack
@@ -983,186 +962,312 @@ executioner_jump
   orig: 174, 59
   offset: 0, 0
   index: -1
-ogre_idle
+fire_elemental_idle
   rotate: false
-  xy: 4664, 1935
-  size: 240, 44
-  orig: 240, 44
+  xy: 4664, 1936
+  size: 248, 43
+  orig: 248, 43
   offset: 0, 0
   index: -1
-ogre_idle_bright
+fire_elemental_run
   rotate: false
-  xy: 4664, 1891
-  size: 240, 44
-  orig: 240, 44
+  xy: 4664, 1893
+  size: 248, 43
+  orig: 248, 43
   offset: 0, 0
   index: -1
 earth_elemental_idle
   rotate: false
-  xy: 4734, 1848
+  xy: 4734, 1850
   size: 188, 43
   orig: 188, 43
   offset: 0, 0
   index: -1
 earth_elemental_move
   rotate: false
-  xy: 4734, 1805
+  xy: 4734, 1807
   size: 188, 43
   orig: 188, 43
   offset: 0, 0
   index: -1
-mimic_hurt
+player_hurt
   rotate: false
   xy: 4728, 1768
-  size: 147, 37
-  orig: 147, 37
+  size: 156, 39
+  orig: 156, 39
   offset: 0, 0
   index: -1
-earth_elemental_hurt
+player_hurt_bright
   rotate: false
-  xy: 4742, 1725
-  size: 141, 43
-  orig: 141, 43
+  xy: 3217, 49
+  size: 156, 39
+  orig: 156, 39
   offset: 0, 0
   index: -1
-golem_fall
+player_bow
   rotate: false
-  xy: 4746, 1666
-  size: 152, 59
-  orig: 152, 59
-  offset: 0, 0
-  index: -1
-golem_jump_ready
-  rotate: false
-  xy: 4744, 1607
-  size: 152, 59
-  orig: 152, 59
-  offset: 0, 0
-  index: -1
-fire_golem_fall
-  rotate: false
-  xy: 4768, 1548
-  size: 132, 59
-  orig: 132, 59
-  offset: 0, 0
-  index: -1
-player_dodge_bright
-  rotate: false
-  xy: 3788, 242
+  xy: 3782, 280
   size: 250, 37
   orig: 250, 37
   offset: 0, 0
   index: -1
-slug_hurt
+player_bow_bright
   rotate: false
-  xy: 3788, 201
-  size: 237, 41
-  orig: 237, 41
-  offset: 0, 0
-  index: -1
-ogre_hurt
-  rotate: false
-  xy: 4038, 237
-  size: 174, 42
-  orig: 174, 42
-  offset: 0, 0
-  index: -1
-orgre_idle
-  rotate: false
-  xy: 4212, 221
-  size: 232, 42
-  orig: 232, 42
-  offset: 0, 0
-  index: -1
-player_cast
-  rotate: false
-  xy: 4444, 224
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-ghoul_idle
-  rotate: false
-  xy: 4444, 202
-  size: 212, 22
-  orig: 212, 22
+  xy: 3770, 243
+  size: 250, 37
+  orig: 250, 37
   offset: 0, 0
   index: -1
 fire_elemental_hurt
   rotate: false
-  xy: 4025, 194
+  xy: 4032, 274
   size: 186, 43
   orig: 186, 43
   offset: 0, 0
   index: -1
-player_cast_bright
+orgre_idle
   rotate: false
-  xy: 4211, 182
+  xy: 4218, 262
+  size: 232, 42
+  orig: 232, 42
+  offset: 0, 0
+  index: -1
+player_dodge
+  rotate: false
+  xy: 4450, 234
+  size: 250, 37
+  orig: 250, 37
+  offset: 0, 0
+  index: -1
+player_dodge_bright
+  rotate: false
+  xy: 3706, 206
+  size: 250, 37
+  orig: 250, 37
+  offset: 0, 0
+  index: -1
+golem_hurt
+  rotate: false
+  xy: 3699, 147
+  size: 228, 59
+  orig: 228, 59
+  offset: 0, 0
+  index: -1
+bar_border
+  rotate: false
+  xy: 3660, 47
+  size: 200, 100
+  orig: 200, 100
+  offset: 0, 0
+  index: -1
+ogre_idle
+  rotate: false
+  xy: 3614, 3
+  size: 240, 44
+  orig: 240, 44
+  offset: 0, 0
+  index: -1
+fire_elemental_hurt_bright
+  rotate: false
+  xy: 4020, 231
+  size: 186, 43
+  orig: 186, 43
+  offset: 0, 0
+  index: -1
+ogre_idle_bright
+  rotate: false
+  xy: 4206, 218
+  size: 240, 44
+  orig: 240, 44
+  offset: 0, 0
+  index: -1
+slug_hurt
+  rotate: false
+  xy: 4446, 193
+  size: 237, 41
+  orig: 237, 41
+  offset: 0, 0
+  index: -1
+ghoul_idle
+  rotate: false
+  xy: 3956, 209
+  size: 212, 22
+  orig: 212, 22
+  offset: 0, 0
+  index: -1
+player_cast
+  rotate: false
+  xy: 3956, 170
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
+player_cast_bright
+  rotate: false
+  xy: 3927, 131
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+green_bar
+  rotate: false
+  xy: 3860, 31
+  size: 200, 100
+  orig: 200, 100
+  offset: 0, 0
+  index: -1
 player_flip
   rotate: false
-  xy: 4419, 163
+  xy: 4168, 179
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
 player_flip_bright
   rotate: false
-  xy: 4652, 224
+  xy: 4164, 140
   size: 208, 39
   orig: 208, 39
-  offset: 0, 0
-  index: -1
-kobold_hurt
-  rotate: false
-  xy: 4656, 189
-  size: 204, 35
-  orig: 204, 35
   offset: 0, 0
   index: -1
 player_idle1
   rotate: false
-  xy: 4627, 150
+  xy: 4135, 101
   size: 208, 39
   orig: 208, 39
   offset: 0, 0
   index: -1
-fire_elemental_hurt_bright
+red_bar
   rotate: false
-  xy: 4646, 579
-  size: 186, 43
-  orig: 186, 43
+  xy: 4060, 1
+  size: 200, 100
+  orig: 200, 100
   offset: 0, 0
   index: -1
 ghoul_hurt
   rotate: false
-  xy: 4684, 622
+  xy: 3854, 9
   size: 159, 22
   orig: 159, 22
   offset: 0, 0
   index: -1
-fire_golem_jump
+imp_projectile
   rotate: false
-  xy: 4731, 520
+  xy: 3854, 0
+  size: 102, 9
+  orig: 102, 9
+  offset: 0, 0
+  index: -1
+fire_golem_fall
+  rotate: false
+  xy: 4772, 1709
   size: 132, 59
   orig: 132, 59
   offset: 0, 0
   index: -1
-fire_golem_jump_ready
+golem_fall
   rotate: false
-  xy: 4746, 461
+  xy: 4768, 1650
+  size: 152, 59
+  orig: 152, 59
+  offset: 0, 0
+  index: -1
+slime_die
+  rotate: false
+  xy: 4768, 1623
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+earth_elemental_hurt
+  rotate: false
+  xy: 4782, 1271
+  size: 141, 43
+  orig: 141, 43
+  offset: 0, 0
+  index: -1
+slime_hurt
+  rotate: false
+  xy: 4782, 1244
+  size: 136, 27
+  orig: 136, 27
+  offset: 0, 0
+  index: -1
+fire_golem_jump
+  rotate: false
+  xy: 4784, 1185
   size: 132, 59
   orig: 132, 59
+  offset: 0, 0
+  index: -1
+golem_jump_ready
+  rotate: false
+  xy: 4771, 1126
+  size: 152, 59
+  orig: 152, 59
+  offset: 0, 0
+  index: -1
+ogre_hurt
+  rotate: false
+  xy: 4748, 1084
+  size: 174, 42
+  orig: 174, 42
+  offset: 0, 0
+  index: -1
+ogre_hurt_bright
+  rotate: false
+  xy: 4748, 1042
+  size: 174, 42
+  orig: 174, 42
+  offset: 0, 0
+  index: -1
+water_elemental_move
+  rotate: false
+  xy: 4736, 1010
+  size: 164, 32
+  orig: 164, 32
   offset: 0, 0
   index: -1
 ice_golem_fall
   rotate: false
-  xy: 4740, 404
+  xy: 4724, 953
   size: 144, 57
   orig: 144, 57
+  offset: 0, 0
+  index: -1
+imp_hurt
+  rotate: false
+  xy: 4724, 903
+  size: 150, 50
+  orig: 150, 50
+  offset: 0, 0
+  index: -1
+red_ogre_fall
+  rotate: false
+  xy: 4752, 855
+  size: 150, 48
+  orig: 150, 48
+  offset: 0, 0
+  index: -1
+mimic_hurt
+  rotate: false
+  xy: 4771, 818
+  size: 147, 37
+  orig: 147, 37
+  offset: 0, 0
+  index: -1
+water_elemental_hurt
+  rotate: false
+  xy: 4800, 786
+  size: 123, 32
+  orig: 123, 32
+  offset: 0, 0
+  index: -1
+spike_box_3_side
+  rotate: false
+  xy: 4804, 1559
+  size: 80, 64
+  orig: 80, 64
   offset: 0, 0
   index: -1
 nercomancer_fall
@@ -1172,18 +1277,53 @@ nercomancer_fall
   orig: 124, 63
   offset: 0, 0
   index: -1
-ice_golem_jump
+fire_golem_jump_ready
   rotate: false
-  xy: 1678, 165
-  size: 144, 57
-  orig: 144, 57
+  xy: 1678, 163
+  size: 132, 59
+  orig: 132, 59
   offset: 0, 0
   index: -1
-player_hurt
+player_fall
   rotate: false
-  xy: 1678, 126
-  size: 156, 39
-  orig: 156, 39
+  xy: 1678, 124
+  size: 104, 39
+  orig: 104, 39
+  offset: 0, 0
+  index: -1
+player_idle1_bright
+  rotate: false
+  xy: 4376, 154
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+player_jump
+  rotate: false
+  xy: 4372, 115
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+player_jump_bright
+  rotate: false
+  xy: 4343, 76
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: -1
+reaper_idle
+  rotate: false
+  xy: 4260, 28
+  size: 200, 48
+  orig: 200, 48
+  offset: 0, 0
+  index: -1
+slime_move
+  rotate: false
+  xy: 4260, 1
+  size: 136, 27
+  orig: 136, 27
   offset: 0, 0
   index: -1
 1
@@ -1193,34 +1333,6 @@ player_hurt
   orig: 75, 75
   offset: 0, 0
   index: -1
-mimic_hurt_bright
-  rotate: false
-  xy: 4740, 367
-  size: 147, 37
-  orig: 147, 37
-  offset: 0, 0
-  index: -1
-reaper_idle
-  rotate: false
-  xy: 4717, 319
-  size: 200, 48
-  orig: 200, 48
-  offset: 0, 0
-  index: -1
-2
-  rotate: false
-  xy: 4782, 1247
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-bar_border
-  rotate: false
-  xy: 4696, 662
-  size: 200, 100
-  orig: 200, 100
-  offset: 0, 0
-  index: -1
 pearl_01a
   rotate: false
   xy: 3032, 69
@@ -1228,95 +1340,39 @@ pearl_01a
   orig: 48, 48
   offset: 0, 0
   index: -1
-player_idle1_bright
+ice_golem_jump
   rotate: false
-  xy: 3718, 162
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-player_jump
-  rotate: false
-  xy: 3694, 123
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-kobold_hurt_bright
-  rotate: false
-  xy: 3660, 88
-  size: 204, 35
-  orig: 204, 35
-  offset: 0, 0
-  index: -1
-reaper_run
-  rotate: false
-  xy: 3675, 40
-  size: 200, 48
-  orig: 200, 48
-  offset: 0, 0
-  index: -1
-mimic_idle
-  rotate: false
-  xy: 3700, 3
-  size: 196, 37
-  orig: 196, 37
-  offset: 0, 0
-  index: -1
-player_jump_bright
-  rotate: false
-  xy: 3926, 155
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: -1
-player_throw
-  rotate: false
-  xy: 3902, 116
-  size: 208, 39
-  orig: 208, 39
-  offset: 0, 0
-  index: 1
-green_bar
-  rotate: false
-  xy: 3896, 16
-  size: 200, 100
-  orig: 200, 100
-  offset: 0, 0
-  index: -1
-player_crouch
-  rotate: false
-  xy: 4134, 145
-  size: 200, 37
-  orig: 200, 37
-  offset: 0, 0
-  index: -1
-red_bar
-  rotate: false
-  xy: 4110, 45
-  size: 200, 100
-  orig: 200, 100
-  offset: 0, 0
-  index: -1
-ogre_hurt_bright
-  rotate: false
-  xy: 4096, 3
-  size: 174, 42
-  orig: 174, 42
-  offset: 0, 0
-  index: -1
-spike_box_3_side
-  rotate: false
-  xy: 1768, 290
-  size: 80, 64
-  orig: 80, 64
+  xy: 4460, 19
+  size: 144, 57
+  orig: 144, 57
   offset: 0, 0
   index: -1
 ogre_fall
   rotate: false
-  xy: 4802, 277
+  xy: 4584, 151
   size: 116, 42
   orig: 116, 42
+  offset: 0, 0
+  index: -1
+mimic_hurt_bright
+  rotate: false
+  xy: 4580, 114
+  size: 147, 37
+  orig: 147, 37
+  offset: 0, 0
+  index: -1
+player_crouch
+  rotate: false
+  xy: 4551, 77
+  size: 200, 37
+  orig: 200, 37
+  offset: 0, 0
+  index: -1
+reaper_run
+  rotate: false
+  xy: 4604, 29
+  size: 200, 48
+  orig: 200, 48
   offset: 0, 0
   index: -1
 player_charge_bow_air
@@ -1326,214 +1382,165 @@ player_charge_bow_air
   orig: 100, 37
   offset: 0, 0
   index: -1
-wasp_attack
+player_charge_bow
   rotate: false
-  xy: 4804, 1493
-  size: 88, 55
-  orig: 88, 55
+  xy: 4740, 749
+  size: 150, 37
+  orig: 150, 37
   offset: 0, 0
   index: -1
-ghoul_jump
+player_throw
   rotate: false
-  xy: 3788, 284
-  size: 106, 22
-  orig: 106, 22
+  xy: 4714, 710
+  size: 208, 39
+  orig: 208, 39
+  offset: 0, 0
+  index: 1
+kobold_hurt
+  rotate: false
+  xy: 4714, 675
+  size: 204, 35
+  orig: 204, 35
   offset: 0, 0
   index: -1
-3
+kobold_hurt_bright
   rotate: false
-  xy: 4334, 107
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-red_ogre_fall
-  rotate: false
-  xy: 4409, 115
-  size: 150, 48
-  orig: 150, 48
-  offset: 0, 0
-  index: -1
-player_hurt_bright
-  rotate: false
-  xy: 4409, 76
-  size: 156, 39
-  orig: 156, 39
-  offset: 0, 0
-  index: -1
-water_elemental_idle
-  rotate: false
-  xy: 4559, 118
-  size: 164, 32
-  orig: 164, 32
+  xy: 4716, 640
+  size: 204, 35
+  orig: 204, 35
   offset: 0, 0
   index: -1
 red_ogre_jump
   rotate: false
-  xy: 4565, 70
+  xy: 4716, 592
   size: 150, 48
   orig: 150, 48
   offset: 0, 0
   index: -1
 ogre_jump
   rotate: false
-  xy: 4723, 108
+  xy: 4718, 550
   size: 116, 42
   orig: 116, 42
   offset: 0, 0
   index: -1
-wasp_hurt
+ghoul_jump
   rotate: false
-  xy: 4715, 53
-  size: 132, 55
-  orig: 132, 55
-  offset: 0, 0
-  index: -1
-4
-  rotate: false
-  xy: 4310, 32
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-water_elemental_move
-  rotate: false
-  xy: 4270, 0
-  size: 164, 32
-  orig: 164, 32
-  offset: 0, 0
-  index: -1
-slime_die
-  rotate: false
-  xy: 4385, 49
-  size: 136, 27
-  orig: 136, 27
-  offset: 0, 0
-  index: -1
-slime_hurt
-  rotate: false
-  xy: 4521, 43
-  size: 136, 27
-  orig: 136, 27
-  offset: 0, 0
-  index: -1
-5
-  rotate: false
-  xy: 4784, 1172
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-6
-  rotate: false
-  xy: 4771, 1097
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-player_fall
-  rotate: false
-  xy: 4752, 1058
-  size: 104, 39
-  orig: 104, 39
-  offset: 0, 0
-  index: -1
-wasp_move
-  rotate: false
-  xy: 4736, 1003
-  size: 132, 55
-  orig: 132, 55
-  offset: 0, 0
-  index: -1
-slime_move
-  rotate: false
-  xy: 4724, 976
-  size: 136, 27
-  orig: 136, 27
-  offset: 0, 0
-  index: -1
-water_elemental_hurt
-  rotate: false
-  xy: 4724, 944
-  size: 123, 32
-  orig: 123, 32
-  offset: 0, 0
-  index: -1
-7
-  rotate: false
-  xy: 4724, 869
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-8
-  rotate: false
-  xy: 4799, 869
-  size: 75, 75
-  orig: 75, 75
+  xy: 4718, 528
+  size: 106, 22
+  orig: 106, 22
   offset: 0, 0
   index: -1
 player_fall_attack
   rotate: false
-  xy: 4724, 830
-  size: 104, 39
-  orig: 104, 39
-  offset: 0, 0
-  index: -1
-9
-  rotate: false
-  xy: 4846, 1097
-  size: 75, 75
-  orig: 75, 75
-  offset: 0, 0
-  index: -1
-player_fall_bright
-  rotate: false
-  xy: 4740, 791
+  xy: 4743, 489
   size: 104, 39
   orig: 104, 39
   offset: 0, 0
   index: -1
 sword_02b
   rotate: false
-  xy: 2800, 1962
+  xy: 4822, 1511
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
-monster_block
+2
   rotate: false
-  xy: 3864, 91
-  size: 32, 32
-  orig: 32, 32
+  xy: 4700, 196
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+player_fall_bright
+  rotate: false
+  xy: 4700, 157
+  size: 104, 39
+  orig: 104, 39
+  offset: 0, 0
+  index: -1
+player_fire_bow
+  rotate: false
+  xy: 4727, 120
+  size: 100, 37
+  orig: 100, 37
   offset: 0, 0
   index: -1
 player_got_item
   rotate: false
-  xy: 3372, 1442
+  xy: 2800, 1973
   size: 50, 37
   orig: 50, 37
   offset: 0, 0
   index: -1
+3
+  rotate: false
+  xy: 4767, 313
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+4
+  rotate: false
+  xy: 4775, 238
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+5
+  rotate: false
+  xy: 4822, 414
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+6
+  rotate: false
+  xy: 4842, 339
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+7
+  rotate: false
+  xy: 4804, 163
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+8
+  rotate: false
+  xy: 4827, 88
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+9
+  rotate: false
+  xy: 4804, 13
+  size: 75, 75
+  orig: 75, 75
+  offset: 0, 0
+  index: -1
+monster_block
+  rotate: false
+  xy: 3372, 1447
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
 switch_left
   rotate: false
-  xy: 4847, 944
+  xy: 3373, 56
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 switch_right
   rotate: false
-  xy: 4875, 1773
+  xy: 4884, 1775
   size: 32, 32
   orig: 32, 32
-  offset: 0, 0
-  index: -1
-player_fire_bow
-  rotate: false
-  xy: 4657, 16
-  size: 100, 37
-  orig: 100, 37
   offset: 0, 0
   index: -1
 arrow
@@ -1545,7 +1552,7 @@ arrow
   index: -1
 bow
   rotate: false
-  xy: 4724, 814
+  xy: 3860, 131
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -1559,56 +1566,56 @@ fire_spellbook
   index: -1
 large_health
   rotate: false
-  xy: 512, 0
+  xy: 3876, 131
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 medium_health
   rotate: false
-  xy: 528, 0
+  xy: 512, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ring_of_double_jump
   rotate: false
-  xy: 544, 0
+  xy: 3892, 131
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ring_of_protection
   rotate: false
-  xy: 560, 0
+  xy: 528, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 ring_of_regeneration
   rotate: false
-  xy: 576, 0
+  xy: 3908, 131
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 small_health
   rotate: false
-  xy: 592, 0
+  xy: 544, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 sword
   rotate: false
-  xy: 608, 0
+  xy: 560, 0
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 shuriken
   rotate: false
-  xy: 980, 159
+  xy: 4756, 1180
   size: 15, 15
   orig: 15, 15
   offset: 0, 0
