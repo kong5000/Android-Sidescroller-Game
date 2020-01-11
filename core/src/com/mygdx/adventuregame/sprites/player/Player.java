@@ -10,12 +10,10 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.Arrow;
+import com.mygdx.adventuregame.sprites.Projectiles.Arrow;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Charge;
-import com.mygdx.adventuregame.sprites.Effects.GreenFlame;
-import com.mygdx.adventuregame.sprites.Effects.IceShatter;
 import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
 import com.mygdx.adventuregame.sprites.FireSpell;
@@ -677,7 +675,7 @@ public class Player extends Sprite {
         if (shootingTimer <= 0 && currentState != State.SHOOTING && arrowCooldown <= 0) {
             animations.restartChargingAnimation();
             shootArrow();
-            arrowCooldown = ARROW_COOLDOWN_TIME;
+            arrowCooldown = ARROW_COOLDOWN_TIME - arrowCharge;
             arrowLaunched = false;
         }
     }

@@ -29,12 +29,9 @@ import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Enemies.Executioner;
-import com.mygdx.adventuregame.sprites.Enemies.Ghoul;
-import com.mygdx.adventuregame.sprites.Enemies.Necromancer;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
-import com.mygdx.adventuregame.sprites.FireBall;
+import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
 
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.sprites.HealthBar;

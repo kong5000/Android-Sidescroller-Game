@@ -19,6 +19,7 @@ import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.Enemies.Executioner;
 import com.mygdx.adventuregame.sprites.Enemies.Ghoul;
+import com.mygdx.adventuregame.sprites.Enemies.Golem;
 import com.mygdx.adventuregame.sprites.Enemies.Reaper;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Enemies.FireElemental;
@@ -118,6 +119,12 @@ public class B2WorldCreator {
         for (MapObject object : map.getLayers().get(26).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Enemy enemy = new Executioner(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for (MapObject object : map.getLayers().get(27).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Golem(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
             screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
             screen.getEnemyList().add(enemy);
         }

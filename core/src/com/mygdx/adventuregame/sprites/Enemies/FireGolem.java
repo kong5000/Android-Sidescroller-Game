@@ -15,7 +15,6 @@ import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.Vortex;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.sprites.FireBall;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.VerticalFireBall;
 
@@ -53,7 +52,7 @@ public class FireGolem extends Enemy {
             -0.1f, -0.4f,
             0.2f, 0.3f};
 
-    private static final float MAX_HORIZONTAL_SPEED = 0.9f;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
     private static final float MAX_VERTICAL_SPEED = 3;
 
     private static final float ATTACK_RATE = 1.75f;

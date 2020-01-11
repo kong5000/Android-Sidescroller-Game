@@ -11,13 +11,14 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Projectiles.EarthBall;
 import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
 
 
-public class FireElemental extends Enemy {
-    private static final float ATTACK_RATE = 2f;
+public class EarthElemental extends Enemy {
+    private static final float ATTACK_RATE = 3f;
 
-    private static final int WIDTH_PIXELS = 62;
+    private static final int WIDTH_PIXELS = 47;
     private static final int HEIGHT_PIXELS = 43;
 
     private static final float CORPSE_EXISTS_TIME = 1.1f;
@@ -38,22 +39,23 @@ public class FireElemental extends Enemy {
     private boolean canFireProjectile = true;
 
     private boolean specialDrop = false;
+    private static final float ALIVE_TIME = 6;
+    private float aliveTimer = ALIVE_TIME;
 
-
-    public FireElemental(PlayScreen screen, float x, float y, boolean specialDrop) {
+    public EarthElemental(PlayScreen screen, float x, float y, boolean spawnRight) {
         super(screen, x, y);
         this.specialDrop = specialDrop;
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_run"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_die"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_move"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.085f);
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_die"),
                 8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_attack"),
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_attack"),
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_hurt"),
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("fire_elemental_hurt_bright"),
+        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("earth_elemental_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_idle"),
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
@@ -63,18 +65,27 @@ public class FireElemental extends Enemy {
         destroyed = false;
         currentState = State.IDLE;
         previousState = State.IDLE;
-        attackTimer = ATTACK_RATE;
+        attackTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         health = 5;
         barXOffset = -0.065f;
         barYOffset = 0.075f;
 
+        if(!spawnRight){
+            b2body.applyLinearImpulse(new Vector2(1.5f, 2), b2body.getWorldCenter(), true);
+        }else {
+            b2body.applyLinearImpulse(new Vector2(-1.5f, 2), b2body.getWorldCenter(), true);
+        }
+
     }
 
     @Override
     public void update(float dt) {
         if (health <= 0) {
+            setToDestroy = true;
+        }
+        if(aliveTimer <= 0){
             setToDestroy = true;
         }
         if (setToDestroy && !destroyed) {
@@ -95,19 +106,22 @@ public class FireElemental extends Enemy {
     }
 
     private void updateStateTimers(float dt) {
-        if (hurtTimer > 0) {
+        if(aliveTimer >= 0){
+            aliveTimer -= dt;
+        }
+        if (hurtTimer >= 0) {
             hurtTimer -= dt;
         }
-        if (invincibilityTimer > 0) {
+        if (invincibilityTimer >= 0) {
             invincibilityTimer -= dt;
         }
-        if (flashRedTimer > 0) {
+        if (flashRedTimer >= 0) {
             flashRedTimer -= dt;
         }
-        if (attackTimer > 0) {
+        if (attackTimer >= 0) {
             attackTimer -= dt;
         }
-        if (attackCooldown > 0) {
+        if (attackCooldown >= 0) {
             attackCooldown -= dt;
         }
     }
@@ -142,7 +156,7 @@ public class FireElemental extends Enemy {
 
     private void launchFireBall() {
         boolean playerToRight = getVectorToPlayer().x > 0;
-        screen.projectilesToSpawn.add(new FireBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, playerToRight, false));
+        screen.getSpritesToAdd().add(new EarthBall(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, playerToRight, false));
     }
 
     @Override
@@ -285,7 +299,7 @@ public class FireElemental extends Enemy {
     @Override
     protected Shape getHitBoxShape() {
         CircleShape shape = new CircleShape();
-        shape.setRadius(12 / AdventureGame.PPM);
+        shape.setRadius(16 / AdventureGame.PPM);
         return shape;
     }
 }
