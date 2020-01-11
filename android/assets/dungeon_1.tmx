@@ -656,9 +656,7 @@
  <objectgroup id="40" name="chest"/>
  <objectgroup id="41" name="mimic"/>
  <objectgroup id="48" name="ogre"/>
- <objectgroup id="56" name="fire golem">
-  <object id="1810" x="672" y="1088" width="16" height="16"/>
- </objectgroup>
+ <objectgroup id="56" name="fire golem"/>
  <objectgroup id="63" name="spike block"/>
  <objectgroup id="64" name="horizontal spike block"/>
  <objectgroup id="65" name="environment sensor"/>
