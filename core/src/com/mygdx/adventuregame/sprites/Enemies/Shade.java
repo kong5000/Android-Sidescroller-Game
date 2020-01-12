@@ -11,6 +11,7 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
 import com.mygdx.adventuregame.sprites.Projectiles.ShadeProjectile;
@@ -24,12 +25,12 @@ public class Shade extends Enemy {
             0.05f, -0.22f,
             0.05f, 0.1f};
 
-    private static final float ATTACK_RATE = 2f;
+    private static final float ATTACK_RATE = 3.5f;
 
     private static final int WIDTH_PIXELS = 59;
     private static final int HEIGHT_PIXELS = 50;
 
-    private static final float CORPSE_EXISTS_TIME = 1.1f;
+    private static final float CORPSE_EXISTS_TIME = 0.9f;
     private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.4f;
     private static final float HURT_TIME = 0.3f;
@@ -47,7 +48,8 @@ public class Shade extends Enemy {
     private boolean canFireProjectile = false;
 
     private boolean specialDrop = false;
-
+    private float deathTimer;
+    private boolean setToDie;
 
     public Shade(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -75,38 +77,36 @@ public class Shade extends Enemy {
         attackTimer = ATTACK_RATE;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 5;
+        health = 6;
         barXOffset = -0.065f;
         barYOffset = 0.075f;
+        setScale(1.15f);
 
     }
 
     @Override
     public void update(float dt) {
         if (health <= 0) {
-            setToDestroy = true;
+            if (!setToDie) {
+                setToDie = true;
+            }
         }
         if (setToDestroy && !destroyed) {
-            if(specialDrop){
-                Chest chest = new Chest(screen, b2body.getPosition().x, b2body.getPosition().y, AdventureGame.FIRE_SPELLBOOK);
-                chest.b2body.applyLinearImpulse(new Vector2(0, 3f), chest.b2body.getWorldCenter(), true);
-                screen.getSpritesToAdd().add(chest);
-            }
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
             setRegion(getFrame(dt));
-            if (runningRight) {
+            if(runningRight){
                 setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            } else {
-                setPosition(b2body.getPosition().x - 0.5f, b2body.getPosition().y - getHeight() / 2);
+            }else {
+                setPosition(b2body.getPosition().x - getWidth() / 2  -0.2f, b2body.getPosition().y - getHeight() / 2);
             }
-
             updateStateTimers(dt);
+
+            act(dt);
         }
 
-        act();
     }
 
     private void updateStateTimers(float dt) {
@@ -119,15 +119,18 @@ public class Shade extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
-        if (attackTimer > 0) {
-            attackTimer -= dt;
+        if(currentState == State.ATTACKING){
+            if (attackTimer > 0) {
+                attackTimer -= dt;
+            }
         }
+
         if (attackCooldown > 0) {
             attackCooldown -= dt;
         }
     }
 
-    private void act() {
+    private void act(float dt) {
         if (currentState == State.ATTACKING) {
             if (attackAnimation.isAnimationFinished(stateTimer)) {
                 attackTimer = -1f;
@@ -153,6 +156,17 @@ public class Shade extends Enemy {
                 canFireProjectile = false;
             }
         }
+        if (currentState == State.DYING) {
+            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            }
+            deathTimer += dt;
+            if (deathTimer > CORPSE_EXISTS_TIME) {
+                setToDestroy = true;
+                if (!destroyed) {
+                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
+                }
+            }
+        }
     }
 
     private void launchFireBall() {
@@ -162,7 +176,7 @@ public class Shade extends Enemy {
 
     @Override
     public void draw(Batch batch) {
-        if (!destroyed || stateTimer < CORPSE_EXISTS_TIME) {
+        if (!destroyed) {
             super.draw(batch);
         } else {
             safeToRemove = true;
@@ -215,15 +229,12 @@ public class Shade extends Enemy {
     }
 
     private State getState() {
-        if (setToDestroy) {
+        if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 250 / AdventureGame.PPM
-                && Math.abs(getVectorToPlayer().x) > 150 / AdventureGame.PPM) {
-            return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
         } else {
@@ -261,10 +272,13 @@ public class Shade extends Enemy {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
-
             if (!runningRight && region.isFlipX()) {
                 region.flip(true, false);
             }
+            if (runningRight && !region.isFlipX()) {
+                region.flip(true, false);
+            }
+        } else {
             if (runningRight && !region.isFlipX()) {
                 region.flip(true, false);
             }
@@ -284,11 +298,12 @@ public class Shade extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 140 / AdventureGame.PPM);
 
     }
 
     private void goIntoAttackState() {
+        stateTimer = 0;
         attackTimer = ATTACK_RATE;
     }
 

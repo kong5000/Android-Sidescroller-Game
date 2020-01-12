@@ -42,6 +42,8 @@ public class Reaper extends Enemy {
     private static final float FLASH_RED_TIME = 0.4f;
     private static final float MOVE_TIME = 0.2f;
     private static final float HORIZONTAL_MOVE_TIME = 0.35f;
+    private static final float MAX_VERTICAL_SPEED = 0.65f;
+    private static final float MAX_HORIZONTAL_SPEED = 0.65f;
 
     private float attackTimer;
     private float movementTimer = 0;
@@ -354,19 +356,19 @@ public class Reaper extends Enemy {
     }
 
     private void moveDown() {
-        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1);
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
     }
 
     private void moveUp() {
-        b2body.setLinearVelocity(b2body.getLinearVelocity().x, -1);
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, -MAX_VERTICAL_SPEED);
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
+        b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
+        b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
     }
 
     private boolean playerInAttackRange() {

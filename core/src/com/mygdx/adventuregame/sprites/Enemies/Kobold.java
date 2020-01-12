@@ -19,8 +19,8 @@ public class Kobold extends Enemy {
     private static final float[] KOBOLD_HITBOX = {
             -0.17f, 0.1f,
             -0.17f, -0.15f,
-            0.15f, -0.15f,
-            0.15f, 0.1f};
+            0f, -0.15f,
+            0f, 0.1f};
     private static final float[] SPEAR_HITBOX_RIGHT = {
             0.3f, -0.1f,
             0.3f, 0.00f,
@@ -31,9 +31,12 @@ public class Kobold extends Enemy {
             -0.3f, 0.00f,
             -0.1f, -0.1f,
             -0.1f, 0.00f};
+    private float jumpTimer = -1f;
+    private static final float JUMP_COOLDOWN = 2;
     private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
-
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
+    private static final float MAX_VERTICAL_SPEED = 3;
     private static final int WIDTH_PIXELS = 68;
     private static final int HEIGHT_PIXELS = 35;
 
@@ -42,7 +45,8 @@ public class Kobold extends Enemy {
     private static final float FLASH_RED_TIME = 0.4f;
 
     private float attackTimer;
-
+    private float idleTimer = -1f;
+    private static final float IDLE_TIME = 0.5f;
 
     private float deathTimer;
 
@@ -85,7 +89,7 @@ public class Kobold extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 4;
+        health = 3;
         barYOffset = 0.09f;
     }
 
@@ -118,14 +122,24 @@ public class Kobold extends Enemy {
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
-            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
             setRegion(getFrame(dt));
+            if (runningRight) {
+                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+            } else {
+                setPosition(b2body.getPosition().x - 0.5f, b2body.getPosition().y - getHeight() / 2);
+            }
             act();
         }
     }
 
     private void updateStateTimers(float dt) {
+        if (jumpTimer > 0) {
+            jumpTimer -= dt;
+        }
+        if (idleTimer > 0) {
+            idleTimer -= dt;
+        }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
         }
@@ -146,11 +160,16 @@ public class Kobold extends Enemy {
 
     private void act() {
         if (currentState == State.CHASING) {
-            chasePlayer();
             if (playerInAttackRange()) {
                 goIntoAttackState();
                 lungeAtPlayer();
+            }else if (Math.abs(b2body.getLinearVelocity().x) < 0.01) {
+                if (jumpTimer < 0) {
+                    jump();
+                    jumpTimer = JUMP_COOLDOWN;
+                }
             }
+            chasePlayer();
         }
         if (currentState == State.ATTACKING) {
             if (currentFrameIsAnAttack()) {
@@ -159,7 +178,14 @@ public class Kobold extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
+            if (attackAnimation.isAnimationFinished(stateTimer)) {
+                disableAttackHitBox();
+                idleTimer = IDLE_TIME;
+                jumpTimer = JUMP_COOLDOWN / 2;
+                attackTimer = -1f;
+            }
         }
+        limitSpeed();
     }
 
     @Override
@@ -239,7 +265,10 @@ public class Kobold extends Enemy {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
-        } else if (attackTimer > 0) {
+        }else if (idleTimer > 0) {
+            return State.IDLE;
+        }
+        else if (attackTimer > 0) {
             return State.ATTACKING;
         } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
             return State.CHASING;
@@ -323,11 +352,11 @@ public class Kobold extends Enemy {
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
+        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
+        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
     }
 
     private boolean playerInAttackRange() {
@@ -347,7 +376,7 @@ public class Kobold extends Enemy {
     }
 
     private boolean currentFrameIsAnAttack() {
-        return (currentState == State.ATTACKING && stateTimer > 0.5f);
+        return (currentState == State.ATTACKING && stateTimer > 0.2f);
     }
 
     private boolean attackFramesOver() {
@@ -364,4 +393,23 @@ public class Kobold extends Enemy {
         return shape;
     }
 
+    private void jump() {
+        if(runningRight){
+            b2body.applyLinearImpulse(new Vector2(1, 2.6f), b2body.getWorldCenter(), true);
+        }else {
+            b2body.applyLinearImpulse(new Vector2(-1, 2.6f), b2body.getWorldCenter(), true);
+
+        }
+    }
+    private void limitSpeed() {
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+    }
 }

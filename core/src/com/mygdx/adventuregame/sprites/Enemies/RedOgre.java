@@ -15,12 +15,12 @@ import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
 import com.mygdx.adventuregame.sprites.Enemy;
 
-public class Ogre extends Enemy {
+public class RedOgre extends Enemy {
     private static final float[] OGRE_HITBOX = {
-            -0.12f, 0.1f,
+            -0.12f, 0.2f,
             -0.12f, -0.2f,
-            0.12f, -0.2f,
-            0.12f, 0.1f};
+            0.11f, -0.2f,
+            0.11f, 0.2f};
     private static final float[] SWORD_HITBOX_RIGHT = {
             0.3f, -0.2f,
             0.3f, 0.1f,
@@ -34,8 +34,8 @@ public class Ogre extends Enemy {
 
     private static final float ATTACK_RATE = 1.1f;
 
-    private static final int WIDTH_PIXELS = 58;
-    private static final int HEIGHT_PIXELS = 42;
+    private static final int WIDTH_PIXELS = 75;
+    private static final int HEIGHT_PIXELS = 48;
 
     private static final float CORPSE_EXISTS_TIME = 1f;
     private static final float INVINCIBILITY_TIME = 0.35f;
@@ -47,7 +47,7 @@ public class Ogre extends Enemy {
     private float attackTimer;
     private float jumpTimer = -1f;
     private float deathTimer;
-
+    private boolean active;
     private Animation<TextureRegion> walkAnimation;
     private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
@@ -57,34 +57,37 @@ public class Ogre extends Enemy {
     private Animation<TextureRegion> hurtAnimationDamaged;
     private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> idleAnimationDamaged;
+    private Animation<TextureRegion> jumpAnimation;
 
     private boolean setToDie = false;
 
     private Fixture attackFixture;
 
-    public Ogre(PlayScreen screen, float x, float y) {
+    public RedOgre(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_run"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("red_ogre_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_run_bright"),
+        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("red_ogre_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_die"),
-                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_attack"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_attack_bright"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_hurt_bright"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("red_ogre_die"),
+                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("red_ogre_attack"),
+                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("red_ogre_attack"),
+                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("red_ogre_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("red_ogre_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("red_ogre_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_idle_bright"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-
+        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("red_ogre_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        jumpAnimation = generateAnimation(screen.getAtlas().findRegion("red_ogre_jump"),
+                2, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        jumpAnimation.setPlayMode(Animation.PlayMode.LOOP);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
@@ -99,47 +102,62 @@ public class Ogre extends Enemy {
         attackDamage = 3;
         health = 9;
         barYOffset = 0.02f;
-        setScale(1.3f);
+        setScale(1.1f);
     }
 
     @Override
     public void update(float dt) {
-        if (runningRight) {
-            barXOffset = -0.2f;
-        } else {
-            barXOffset = -0.05f;
-        }
-        if (health <= 0) {
-            if (!setToDie) {
-                setToDie = true;
+        if (!active) {
+            if (playerInActivationRange()) {
+                active = true;
+                jumpTimer = JUMP_COOLDOWN;
             }
         }
-        if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
+
+            if (runningRight) {
+                barXOffset = -0.2f;
+            } else {
+                barXOffset = -0.05f;
             }
-            deathTimer += dt;
-            if (deathTimer > CORPSE_EXISTS_TIME) {
-                setToDestroy = true;
-                if (!destroyed) {
-                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
+            if (health <= 0) {
+                if (!setToDie) {
+                    setToDie = true;
                 }
             }
-        }
-        if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
-                attackTimer = -1;
+            if (currentState == State.DYING) {
+                if (deathAnimation.isAnimationFinished(stateTimer)) {
+                }
+                deathTimer += dt;
+                if (deathTimer > CORPSE_EXISTS_TIME) {
+                    setToDestroy = true;
+                    if (!destroyed) {
+                        screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
+                    }
+                }
             }
-        }
-        if (setToDestroy && !destroyed) {
-            world.destroyBody(b2body);
-            destroyed = true;
-            stateTimer = 0;
-        } else if (!destroyed) {
-            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            updateStateTimers(dt);
-            setRegion(getFrame(dt));
-            act(dt);
-        }
+            if (currentState == State.ATTACKING) {
+                if (attackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
+                    attackTimer = -1;
+                }
+            }
+            if (setToDestroy && !destroyed) {
+                world.destroyBody(b2body);
+                destroyed = true;
+                stateTimer = 0;
+            } else if (!destroyed) {
+                if (runningRight) {
+                    setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+                } else {
+                    setPosition(b2body.getPosition().x - getWidth() / 2 - 0.1f, b2body.getPosition().y - getHeight() / 2);
+
+                }
+                updateStateTimers(dt);
+                setRegion(getFrame(dt));
+                if (active) {
+                    act(dt);
+                }
+
+            }
     }
 
     private void updateStateTimers(float dt) {
@@ -173,6 +191,9 @@ public class Ogre extends Enemy {
                 }
             }
             limitSpeed();
+            chasePlayer();
+        }
+        if (currentState == State.JUMPING) {
             chasePlayer();
         }
         if (currentState == State.ATTACKING) {
@@ -223,6 +244,10 @@ public class Ogre extends Enemy {
             case DYING:
                 attackEnabled = false;
                 texture = deathAnimation.getKeyFrame(stateTimer);
+                break;
+            case JUMPING:
+                attackEnabled = false;
+                texture = jumpAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
                 texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
@@ -285,7 +310,9 @@ public class Ogre extends Enemy {
             return State.HURT;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (b2body.getLinearVelocity().y > 0) {
+            return State.JUMPING;
+        } else if ( active && Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -383,7 +410,7 @@ public class Ogre extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 70 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 60 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
@@ -414,5 +441,9 @@ public class Ogre extends Enemy {
         PolygonShape shape = new PolygonShape();
         shape.set(OGRE_HITBOX);
         return shape;
+    }
+
+    private boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
     }
 }

@@ -98,7 +98,7 @@ public class IceGolem extends Enemy {
     private Fixture attackFixture;
     private Fixture chargeFixture;
     private static final float CHARGE_COOLDOWN = 9;
-    private float SPECIAL_COOLDOWN = 0.7f;
+    private float SPECIAL_COOLDOWN = 1f;
     private float specialCooldownTimer = SPECIAL_COOLDOWN;
     private float specialAttackTimer = -1;
     private static final float SPECIAL_ATTACK_TIME = 3;
@@ -156,7 +156,7 @@ public class IceGolem extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 40;
+        health = 60;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         setScale(1.25f);

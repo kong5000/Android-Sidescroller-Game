@@ -24,19 +24,19 @@ public class Slug extends Enemy {
             0.2f, -0.175f,
             0.2f, 0.12f};
     private static final float[] SWORD_HITBOX_RIGHT = {
-            0.6f, -0.2f,
-            0.6f, 0.1f,
+            0.3f, -0.2f,
+            0.3f, 0.1f,
             0.1f, -0.2f,
             0f, 0.15f};
     private static final float[] SWORD_HITBOX_LEFT = {
-            -0.6f, -0.2f,
-            -0.6f, 0.1f,
+            -0.3f, -0.2f,
+            -0.3f, 0.1f,
             -0.1f, -0.2f,
             0f, 0.15f};
     private static final float BULLET_SPEED = 1;
     private static final float BULLET_ANGLE_INCREMENT = 35;
     private float startingAngle = 0;
-    private static final float ATTACK_RATE = 1.75f;
+    private static final float ATTACK_RATE = 2.75f;
 
     private static final int WIDTH_PIXELS = 79;
     private static final int HEIGHT_PIXELS = 41;
@@ -65,7 +65,7 @@ public class Slug extends Enemy {
     private boolean setToDie = false;
 
     private Fixture attackFixture;
-
+    private boolean active;
     public Slug(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("slug_move"),
@@ -75,10 +75,10 @@ public class Slug extends Enemy {
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         deathAnimation = generateAnimation(screen.getAtlas().findRegion("slug_die"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("slug_attack_spit"),
-                15, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_attack_spit"),
-                15, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("slug_attack1"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_attack1"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         hurtAnimation = generateAnimation(screen.getAtlas().findRegion("slug_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_hurt"),
@@ -101,13 +101,18 @@ public class Slug extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 10;
+        health = 12;
         barYOffset = 0.02f;
         setScale(1.3f);
     }
 
     @Override
     public void update(float dt) {
+        if(!active){
+            if(playerInActivationRange()){
+                active = true;
+            }
+        }
         if (runningRight) {
             barXOffset = -0.2f;
         } else {
@@ -154,9 +159,11 @@ public class Slug extends Enemy {
                 setPosition(b2body.getPosition().x - getWidth() / 2 - 0.2f, b2body.getPosition().y - getHeight() / 2);
             }
             updateStateTimers(dt);
-            act(dt);
-            setRegion(getFrame(dt));
 
+            setRegion(getFrame(dt));
+            if(active){
+                act(dt);
+            }
         }
 
     }
@@ -382,7 +389,6 @@ public class Slug extends Enemy {
             if (runningRight && !region.isFlipX()) {
                 region.flip(true, false);
             }
-
         }
     }
 
@@ -402,7 +408,7 @@ public class Slug extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 70 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 55 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
@@ -448,5 +454,9 @@ public class Slug extends Enemy {
             float y = BULLET_SPEED * MathUtils.sin(angle * MathUtils.degreesToRadians);
             fireBall.setVelocity(x, y);
         }
+    }
+
+    private boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
     }
 }

@@ -1578,6 +1578,13 @@ player_fall_bright
   orig: 104, 39
   offset: 0, 0
   index: -1
+cage
+  rotate: false
+  xy: 3372, 1415
+  size: 48, 64
+  orig: 48, 64
+  offset: 0, 0
+  index: -1
 player_got_item
   rotate: false
   xy: 4898, 781
@@ -1594,7 +1601,7 @@ pearl_01a
   index: -1
 sword_02b
   rotate: false
-  xy: 3372, 1431
+  xy: 4924, 2208
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -1622,14 +1629,14 @@ player_fire_bow
   index: -1
 switch_left
   rotate: false
-  xy: 4908, 749
+  xy: 3372, 1383
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 switch_right
   rotate: false
-  xy: 3372, 1399
+  xy: 4908, 749
   size: 32, 32
   orig: 32, 32
   offset: 0, 0

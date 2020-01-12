@@ -21,7 +21,7 @@ import com.mygdx.adventuregame.sprites.UpdatableSprite;
 import com.mygdx.adventuregame.sprites.player.Player;
 
 public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyProjectile {
-    private static final float BULLET_SPEED = 1;
+    private static final float BULLET_SPEED = 0.8f;
     private Vector2 vectorToPlayer;
     private Player player;
     private enum State {ARMED, IMPACT}
@@ -38,7 +38,7 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
     private Animation<TextureRegion> projectileAnimation;
     private float aliveTimer;
     private float stateTimer;
-    private static final float TIME_ALIVE = 3f;
+    private static final float TIME_ALIVE = 2f;
     private static final int WIDTH_PIXELS = 31;
     private static final int HEIGHT_PIXELS = 20;
     private boolean isFriendly;

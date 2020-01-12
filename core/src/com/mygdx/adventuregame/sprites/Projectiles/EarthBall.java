@@ -182,8 +182,9 @@ public class EarthBall extends Sprite implements UpdatableSprite, EnemyProjectil
     }
 
     public void explode(){
-        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
-                ,getY() - getHeight() / 2 -0.05f));
+        //Todo earth explosione effect
+//        screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
+//                ,getY() - getHeight() / 2 -0.05f));
     }
 
     @Override

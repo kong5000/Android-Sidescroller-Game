@@ -101,7 +101,7 @@ public class Imp extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 4;
+        health = 6;
         barYOffset = 0.09f;
         b2body.setGravityScale(0);
         active = true;

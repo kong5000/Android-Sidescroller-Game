@@ -211,7 +211,7 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     }
 
     public int getDamage(){
-        return (int)( charge * 8.5f) + 2;
+        return (int)( charge * 4.5f) + 3;
     }
 
     @Override

@@ -105,12 +105,10 @@ public class WorldContactListener implements ContactListener {
                     int damage = ((PlayerProjectile) fixB.getUserData()).getDamage();
                     ((PlayerProjectile) fixB.getUserData()).targetHit();
                     ((Enemy) fixA.getUserData()).damage(damage);
-                    ((Enemy) fixA.getUserData()).hitByFire();
                 } else {
                     int damage = ((PlayerProjectile) fixA.getUserData()).getDamage();
                     ((PlayerProjectile) fixA.getUserData()).targetHit();
                     ((Enemy) fixB.getUserData()).damage(damage);
-                    ((Enemy) fixB.getUserData()).hitByFire();
 
                 }
                 break;

@@ -27,11 +27,12 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.scenes.Hud;
+import com.mygdx.adventuregame.sprites.Cage;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Enemies.Imp;
-import com.mygdx.adventuregame.sprites.Enemies.Shade;
-import com.mygdx.adventuregame.sprites.Enemies.Slug;
+import com.mygdx.adventuregame.sprites.Enemies.Kobold;
+import com.mygdx.adventuregame.sprites.Enemies.RedOgre;
+import com.mygdx.adventuregame.sprites.Enemies.Satyr;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
@@ -188,7 +189,7 @@ public class PlayScreen implements Screen {
 
 
         spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
-        enemyList.add(new Shade(this, 4, 5.2f));
+//        enemyList.add(new RedOgre(this, 4, 5.2f));
 //        enemyList.add(new Slug(this, 4, 7f));
 //        enemyList.add(new Slug(this, 5, 7f));
 //        checkPoints.add(new CheckPoint(this, 5, 5));

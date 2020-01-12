@@ -91,7 +91,7 @@ public class Mimic extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 7;
+        health = 9;
         barYOffset = 0.09f;
         transformTimer = 0;
         attackDamage = 3;

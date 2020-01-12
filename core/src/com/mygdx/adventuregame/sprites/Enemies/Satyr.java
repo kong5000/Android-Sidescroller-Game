@@ -11,80 +11,76 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
 import com.mygdx.adventuregame.sprites.Enemy;
 
-public class Ogre extends Enemy {
-    private static final float[] OGRE_HITBOX = {
-            -0.12f, 0.1f,
-            -0.12f, -0.2f,
-            0.12f, -0.2f,
-            0.12f, 0.1f};
-    private static final float[] SWORD_HITBOX_RIGHT = {
-            0.3f, -0.2f,
-            0.3f, 0.1f,
-            0.1f, -0.2f,
-            0f, 0.15f};
-    private static final float[] SWORD_HITBOX_LEFT = {
-            -0.3f, -0.2f,
-            -0.3f, 0.1f,
+
+public class Satyr extends Enemy {
+    private static final float[] KOBOLD_HITBOX = {
+            -0.22f, 0.1f,
+            -0.22f, -0.22f,
+            0.08f, -0.22f,
+            0.08f, 0.1f};
+    private static final float[] SPEAR_HITBOX_RIGHT = {
+            0.2f, -0.175f,
+            0.2f, 0.175f,
             -0.1f, -0.2f,
-            0f, 0.15f};
-
-    private static final float ATTACK_RATE = 1.1f;
-
-    private static final int WIDTH_PIXELS = 58;
-    private static final int HEIGHT_PIXELS = 42;
-
-    private static final float CORPSE_EXISTS_TIME = 1f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.3f;
+            -0.1f, 0.2f};
+    private static final float[] SPEAR_HITBOX_LEFT = {
+            -0.35f, -0.175f,
+            -0.35f, 0.175f,
+            0.05f, -0.2f,
+            0.05f, 0.2f};
     private static final float MAX_HORIZONTAL_SPEED = 1.1f;
     private static final float MAX_VERTICAL_SPEED = 3;
+    private float jumpTimer = -1f;
     private static final float JUMP_COOLDOWN = 2;
+    private static final float HURT_TIME = 0.3f;
+    private static final float ATTACK_RATE = 1.75f;
+
+    private static final int WIDTH_PIXELS = 68;
+    private static final int HEIGHT_PIXELS = 46;
+
+    private static final float CORPSE_EXISTS_TIME = 0.5f;
+    private static final float INVINCIBILITY_TIME = 0.35f;
+    private static final float FLASH_RED_TIME = 0.4f;
 
     private float attackTimer;
-    private float jumpTimer = -1f;
+
+
     private float deathTimer;
 
     private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
     private Animation<TextureRegion> deathAnimation;
     private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
+    private Animation<TextureRegion> hurtAnimationBright;
     private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
+    private Animation<TextureRegion> jumpAnimation;
 
     private boolean setToDie = false;
 
     private Fixture attackFixture;
+    private float idleTimer = -1f;
+    private static final float IDLE_TIME = 0.5f;
 
-    public Ogre(PlayScreen screen, float x, float y) {
+
+    public Satyr(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_run"),
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_run_bright"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_die"),
-                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_attack"),
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_die"),
+                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_attack"),
                 7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_attack_bright"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_hurt"),
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_hurt_bright"),
+        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("satyr_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_idle_bright"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        jumpAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_jump"),
+                2, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
@@ -96,18 +92,16 @@ public class Ogre extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        attackDamage = 3;
-        health = 9;
-        barYOffset = 0.02f;
-        setScale(1.3f);
+        health = 3;
+        barYOffset = 0.09f;
     }
 
     @Override
     public void update(float dt) {
         if (runningRight) {
-            barXOffset = -0.2f;
+            barXOffset = -0.15f;
         } else {
-            barXOffset = -0.05f;
+            barXOffset = 0f;
         }
         if (health <= 0) {
             if (!setToDie) {
@@ -125,26 +119,30 @@ public class Ogre extends Enemy {
                 }
             }
         }
-        if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
-                attackTimer = -1;
-            }
-        }
+
         if (setToDestroy && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
-            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act(dt);
+            if (runningRight) {
+                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+            } else {
+                setPosition(b2body.getPosition().x - 0.5f, b2body.getPosition().y - getHeight() / 2);
+            }
+            updateStateTimers(dt);
+
+            act();
         }
     }
 
     private void updateStateTimers(float dt) {
         if (jumpTimer > 0) {
             jumpTimer -= dt;
+        }
+        if (idleTimer > 0) {
+            idleTimer -= dt;
         }
         if (hurtTimer > 0) {
             hurtTimer -= dt;
@@ -155,25 +153,27 @@ public class Ogre extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
+
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+        }
+        if (affectedBySpellTimer > 0) {
+            affectedBySpellTimer -= dt;
+        }
     }
 
-    private void act(float dt) {
+    private void act() {
         if (currentState == State.CHASING) {
-
             if (playerInAttackRange()) {
                 goIntoAttackState();
-                jumpTimer = JUMP_COOLDOWN;
-//                lungeAtPlayer();
-            } else {
-                if (Math.abs(b2body.getLinearVelocity().x) < 0.01) {
-                    if (jumpTimer < 0) {
-                        jump();
-                        jumpTimer = JUMP_COOLDOWN;
-                    }
+            } else if (Math.abs(b2body.getLinearVelocity().x) < 0.01) {
+                if (jumpTimer < 0) {
+                    jump();
+                    jumpTimer = JUMP_COOLDOWN;
                 }
             }
-            limitSpeed();
             chasePlayer();
+
         }
         if (currentState == State.ATTACKING) {
             if (currentFrameIsAnAttack()) {
@@ -182,28 +182,13 @@ public class Ogre extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
+            if (attackAnimation.isAnimationFinished(stateTimer - 0.1f)) {
+                idleTimer = IDLE_TIME;
+                jumpTimer = JUMP_COOLDOWN / 2;
+                attackTimer = -1f;
+            }
         }
-
-        if (attackTimer > 0) {
-            attackTimer -= dt;
-        }
-    }
-
-    private void jump() {
-        b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
-
-    }
-
-    private void limitSpeed() {
-        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
-        }
-        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
-        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
+        limitSpeed();
     }
 
     @Override
@@ -225,21 +210,25 @@ public class Ogre extends Enemy {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
+                texture = attackAnimation.getKeyFrame(stateTimer);
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
+                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer, true);
+                break;
+            case JUMPING:
+                attackEnabled =false;
+                texture = jumpAnimation.getKeyFrame(stateTimer,true);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
+                texture = idleAnimation.getKeyFrame(stateTimer, true);
                 break;
         }
         orientTextureTowardsPlayer(texture);
@@ -283,9 +272,13 @@ public class Ogre extends Enemy {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
+        } else if(b2body.getLinearVelocity().y > 0){
+           return State.JUMPING;
+        }  else if (idleTimer > 0) {
+            return State.IDLE;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -294,35 +287,30 @@ public class Ogre extends Enemy {
         }
     }
 
-
-    @Override
-    public void hitByFire() {
-        screen.getExplosions().add(new Explosion(screen, getX(), getY()));
-
-    }
-
     @Override
     public void hitOnHead() {
         damage(2);
-
     }
 
 
     @Override
     public void damage(int amount) {
-        if (isAlive()) {
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
+        if (invincibilityTimer < 0) {
+            health -= amount;
+            invincibilityTimer = INVINCIBILITY_TIME;
+            hurtTimer = HURT_TIME;
         }
+        if (flashRedTimer < 0) {
+            flashRedTimer = FLASH_RED_TIME;
+        }
+        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
+                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+        showHealthBar = true;
+        if (amount >= 9) {
+            deathTimer = CORPSE_EXISTS_TIME;
+        }
+        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
+
     }
 
     @Override
@@ -346,9 +334,9 @@ public class Ogre extends Enemy {
     private float[] getAttackHitbox() {
         float[] hitbox;
         if (runningRight) {
-            hitbox = SWORD_HITBOX_RIGHT;
+            hitbox = SPEAR_HITBOX_RIGHT;
         } else {
-            hitbox = SWORD_HITBOX_LEFT;
+            hitbox = SPEAR_HITBOX_LEFT;
         }
         return hitbox;
     }
@@ -372,26 +360,24 @@ public class Ogre extends Enemy {
     }
 
     private void runRight() {
-//        b2body.setLinearVelocity(1.15f, b2body.getLinearVelocity().y);
         b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
-
     }
 
     private void runLeft() {
-//        b2body.setLinearVelocity(-1.15f, b2body.getLinearVelocity().y);
         b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
+
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 70 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
-        b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void jumpingAttackRight() {
-        b2body.applyLinearImpulse(new Vector2(.5f, 2f), b2body.getWorldCenter(), true);
+        b2body.applyLinearImpulse(new Vector2(.2f, 0), b2body.getWorldCenter(), true);
     }
 
     private void goIntoAttackState() {
@@ -412,7 +398,28 @@ public class Ogre extends Enemy {
     @Override
     protected Shape getHitBoxShape() {
         PolygonShape shape = new PolygonShape();
-        shape.set(OGRE_HITBOX);
+        shape.set(KOBOLD_HITBOX);
         return shape;
+    }
+
+    private void limitSpeed() {
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+    }
+
+    private void jump() {
+        if(runningRight){
+            b2body.applyLinearImpulse(new Vector2(1, 2.6f), b2body.getWorldCenter(), true);
+        }else {
+            b2body.applyLinearImpulse(new Vector2(-1, 2.6f), b2body.getWorldCenter(), true);
+
+        }
     }
 }

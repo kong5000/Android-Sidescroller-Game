@@ -15,13 +15,19 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Cage;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.Chest;
 import com.mygdx.adventuregame.sprites.Enemies.Executioner;
 import com.mygdx.adventuregame.sprites.Enemies.Ghoul;
 import com.mygdx.adventuregame.sprites.Enemies.Golem;
 import com.mygdx.adventuregame.sprites.Enemies.IceGolem;
+import com.mygdx.adventuregame.sprites.Enemies.Imp;
 import com.mygdx.adventuregame.sprites.Enemies.Reaper;
+import com.mygdx.adventuregame.sprites.Enemies.RedOgre;
+import com.mygdx.adventuregame.sprites.Enemies.Satyr;
+import com.mygdx.adventuregame.sprites.Enemies.Shade;
+import com.mygdx.adventuregame.sprites.Enemies.Slug;
 import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Enemies.FireElemental;
 import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
@@ -135,6 +141,41 @@ public class B2WorldCreator {
             screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
             screen.getEnemyList().add(enemy);
         }
+        for (MapObject object : map.getLayers().get(29).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Cage cage = new Cage(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getSpritesToAdd().add(cage);
+        }
+        for (MapObject object : map.getLayers().get(30).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Imp(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for (MapObject object : map.getLayers().get(31).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Shade(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for (MapObject object : map.getLayers().get(32).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new RedOgre(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for (MapObject object : map.getLayers().get(33).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Satyr(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
+        for (MapObject object : map.getLayers().get(34).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Slug(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getEnemyList().add(enemy);
+        }
         for (MapObject object : map.getLayers().get(19).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             SpikeBlock spikeBlock = new SpikeBlock(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
@@ -170,6 +211,7 @@ public class B2WorldCreator {
                 body = world.createBody(bodyDef);
                 shape.setAsBox((rect.getWidth() / 2) / AdventureGame.PPM, (rect.getHeight() / 2) / AdventureGame.PPM);
                 fixtureDef.shape = shape;
+                fixtureDef.restitution = 0;
                 body.createFixture(fixtureDef);
                 bodies.add(body);
             } else if (object instanceof PolygonMapObject) {

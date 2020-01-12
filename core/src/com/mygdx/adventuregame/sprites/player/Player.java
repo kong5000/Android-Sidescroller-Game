@@ -223,7 +223,7 @@ public class Player extends Sprite {
 //        spawnPointY = 5.65f;
 
         spawnPointX = 4f;
-        spawnPointY = 9f;
+        spawnPointY = 5f;
         //bossroom
 //        spawnPointX = 82f;
 //        spawnPointY = 7f;
@@ -573,7 +573,7 @@ public class Player extends Sprite {
     }
 
     public void jump() {
-        if (currentState == State.JUMPING || currentState == State.FALLING || currentState == State.FLIPPING || currentState == State.AIR_ATTACKING || currentState == State.WALLCLIMB) {
+        if (currentState == State.JUMPING || currentState == State.FALLING || currentState == State.FLIPPING || currentState == State.AIR_ATTACKING || currentState == State.WALLCLIMB || currentState == State.SHOOTING) {
             if (hasDoubleJump) {
                 if (flipEnabled) {
                     flipTimer = FLIP_TIME;
@@ -774,12 +774,13 @@ public class Player extends Sprite {
     }
 
     public int getSwordDamage() {
-        Random random = new Random();
-        int damage = random.nextInt(3 + swordLevel) + 3 + swordLevel / 2;
-        if (attackNumber == 2) {
-            damage = 5 + swordLevel;
-        }
-        return damage;
+//        Random random = new Random();
+//        int damage = random.nextInt(3 + swordLevel) + 3 + swordLevel / 2;
+//        if (attackNumber == 2) {
+//            damage = 5 + swordLevel;
+//        }
+//        return damage;
+        return 3;
     }
 
     public boolean canPassFloor() {
@@ -990,7 +991,7 @@ public class Player extends Sprite {
     }
 
     private boolean isJumping() {
-        if (b2body.getLinearVelocity().y > 0) {
+        if (b2body.getLinearVelocity().y > 0.1f) {
             return true;
         }
         if (averageYVelocity > 0.01) {

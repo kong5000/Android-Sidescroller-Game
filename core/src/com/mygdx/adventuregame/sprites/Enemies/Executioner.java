@@ -99,7 +99,7 @@ public class Executioner extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 15;
+        health = 12;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         attachNearbyTiles();
