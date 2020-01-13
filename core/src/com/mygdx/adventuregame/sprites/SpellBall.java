@@ -159,7 +159,7 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
 
         FixtureDef fixtureDef = new FixtureDef();
         if(isFriendly){
-            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
+            fixtureDef.filter.categoryBits = AdventureGame.ARROW_BIT;
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
         }else{
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
@@ -227,6 +227,11 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
     }
 
     @Override
+    public int getType() {
+        return 0;
+    }
+
+    @Override
     public boolean safeToRemove() {
         return safeToRemove;
     }
@@ -249,8 +254,23 @@ public class SpellBall extends Sprite implements UpdatableSprite, EnemyProjectil
     }
 
     @Override
+    public boolean hasHitGround() {
+        return false;
+    }
+
+    @Override
     public void dispose() {
         world.destroyBody(b2body);
+    }
+
+    @Override
+    public void hitGround() {
+
+    }
+
+    @Override
+    public boolean canCollideWithEnemy() {
+        return false;
     }
 }
 

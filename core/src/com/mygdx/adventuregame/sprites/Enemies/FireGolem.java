@@ -442,7 +442,7 @@ public class FireGolem extends Enemy {
 //        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
 //        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
 //                | AdventureGame.PLAYER_SWORD_BIT
-//                | AdventureGame.PLAYER_PROJECTILE_BIT
+//                | AdventureGame.ARROW_BIT
 //                | AdventureGame.FIRE_SPELL_BIT;
 //        PolygonShape shape = new PolygonShape();
 //        shape.set(MINOTAUR_HITBOX);

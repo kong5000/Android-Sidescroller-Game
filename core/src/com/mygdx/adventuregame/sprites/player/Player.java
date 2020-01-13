@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.Effects.SlashEffect;
 import com.mygdx.adventuregame.sprites.Projectiles.Arrow;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
@@ -17,15 +18,21 @@ import com.mygdx.adventuregame.sprites.Effects.Charge;
 import com.mygdx.adventuregame.sprites.Effects.Resurrect;
 import com.mygdx.adventuregame.sprites.Effects.SquarePortal;
 import com.mygdx.adventuregame.sprites.FireSpell;
+import com.mygdx.adventuregame.sprites.Projectiles.EarthBall;
+import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
+import com.mygdx.adventuregame.sprites.Projectiles.GreenProjectile;
+import com.mygdx.adventuregame.sprites.Projectiles.ImpSpell;
+import com.mygdx.adventuregame.sprites.Projectiles.ShadeProjectile;
 import com.mygdx.adventuregame.sprites.SpellBall;
 
 import java.util.Random;
 
 public class Player extends Sprite {
-
+    private int deflectType = AdventureGame.FIRE_PROJECTILE;
     private static final float INVINCIBLE_TIME = 1f;
     public static final float WALLRUN_TIME = 0.45f;
     private static final float SPELL_COOLDOWN_TIME = 0.5f;
+    private static final int MAX_ARROWS = 4;
     private boolean onElevator = false;
     private CheckPoint currentCheckPoint;
 
@@ -65,6 +72,7 @@ public class Player extends Sprite {
     private Charge chargeEffect;
     private boolean canCastSpell = true;
     private float spellCooldownTimer = -1f;
+    private int arrowCount = 5;
 
     public boolean canTurn() {
         return currentState == State.CHARGING_BOW || currentState == State.CASTING;
@@ -78,12 +86,15 @@ public class Player extends Sprite {
     }
 
     public void beginRangedAttack() {
-        if(spellBallTimer < 0){
-            fireBow();
-        }else {
-            firingSpell = true;
+        if (hasArrows()) {
+            if (spellBallTimer < 0) {
+                fireBow();
+            } else {
+                firingSpell = true;
+            }
+            chargingTimer = 0;
         }
-        chargingTimer = 0;
+
 ////        if (mana > 0) {
 ////            firingSpell = true;
 ////        }
@@ -96,6 +107,48 @@ public class Player extends Sprite {
     public boolean isFullyCharge() {
         return fullyCharged;
     }
+
+    public void fullHealth() {
+        health = FULL_HEALTH;
+    }
+
+    public void reloadArrows() {
+        arrowCount = 10;
+    }
+
+    public void deflectProjectile(int type) {
+//        launchSpellBall();
+        timeToDeflect = true;
+        deflectType = type;
+    }
+
+    private void launchDeflectedProjectile() {
+        switch (deflectType) {
+            case AdventureGame.FIRE_PROJECTILE:
+                screen.getSpritesToAdd().add(new FireBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+            case AdventureGame.EARTH_PROJECTILE:
+                screen.getSpritesToAdd().add(new EarthBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+            case AdventureGame.ICE_PROJECTILE:
+                screen.getSpritesToAdd().add(new FireBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+            case AdventureGame.IMP_PROJECTILE:
+                screen.getSpritesToAdd().add(new ImpSpell(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+            case AdventureGame.SHADE_PROJECTILE:
+                screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+            case AdventureGame.GREEN_PROJECTILE:
+                screen.getSpritesToAdd().add(new GreenProjectile(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+            default:
+                screen.getSpritesToAdd().add(new FireBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                break;
+        }
+    }
+
+    private boolean timeToDeflect = false;
 
     public enum State {
         FALLING, JUMPING, STANDING,
@@ -259,7 +312,11 @@ public class Player extends Sprite {
     }
 
     public void update(float dt) {
-        if(chargeEffect.isFullyCharged()){
+        if (timeToDeflect) {
+            timeToDeflect = false;
+            launchDeflectedProjectile();
+        }
+        if (chargeEffect.isFullyCharged()) {
             animations.flashPlayerSprite();
         }
         if (spellCooldownTimer > 0) {
@@ -672,12 +729,19 @@ public class Player extends Sprite {
     }
 
     public void bowAttack() {
-        if (shootingTimer <= 0 && currentState != State.SHOOTING && arrowCooldown <= 0) {
-            animations.restartChargingAnimation();
-            shootArrow();
-            arrowCooldown = ARROW_COOLDOWN_TIME - arrowCharge;
-            arrowLaunched = false;
+        if (hasArrows()) {
+            arrowCount--;
+            if (shootingTimer <= 0 && currentState != State.SHOOTING && arrowCooldown <= 0) {
+                animations.restartChargingAnimation();
+                shootArrow();
+                arrowCooldown = ARROW_COOLDOWN_TIME - arrowCharge;
+                arrowLaunched = false;
+            }
         }
+    }
+
+    private boolean hasArrows() {
+        return arrowCount > 0;
     }
 
     private void launchArrow() {
@@ -703,10 +767,10 @@ public class Player extends Sprite {
             chargeEffect.reset();
 //            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f , getY() + getHeight() / 2, runningRight, true, spellCharge));
             float x_offset = 0.1f;
-            if(!runningRight){
+            if (!runningRight) {
                 x_offset *= -1;
             }
-            screen.getSpritesToAdd().add(new SpellBall(screen, getX() +0.25f + x_offset , getY() + getHeight() / 2, runningRight, true, spellCharge));
+            screen.getSpritesToAdd().add(new SpellBall(screen, getX() + 0.25f + x_offset, getY() + getHeight() / 2, runningRight, true, spellCharge));
             spellCharge = 0;
             spellCooldownTimer = SPELL_COOLDOWN_TIME;
             canCastSpell = false;
@@ -907,6 +971,11 @@ public class Player extends Sprite {
                 itemPickupTimer = 2f;
                 break;
             case AdventureGame.GOLD_COIN:
+                break;
+            case AdventureGame.ARROW:
+                if (arrowCount < MAX_ARROWS) {
+                    arrowCount += 1;
+                }
                 break;
             default:
                 break;
@@ -1195,8 +1264,8 @@ public class Player extends Sprite {
         }
         if (currentState == State.DODGING) {
             animationCenterY -= .13f;
-        }else if(currentState == State.ATTACKING){
-            animationCenterY -=0.05f;
+        } else if (currentState == State.ATTACKING) {
+            animationCenterY -= 0.05f;
             if (runningRight) {
                 animationCenterX += 0.03f;
             } else {
@@ -1217,7 +1286,11 @@ public class Player extends Sprite {
         return animationCenterY;
     }
 
-    public void knockedBack(){
+    public void knockedBack() {
         b2body.applyLinearImpulse(new Vector2(0, 5f), b2body.getWorldCenter(), true);
+    }
+
+    public int getArrowCount() {
+        return arrowCount;
     }
 }

@@ -171,7 +171,7 @@ public class Shade extends Enemy {
 
     private void launchFireBall() {
         boolean playerToRight = getVectorToPlayer().x > 0;
-        screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, playerToRight));
+        screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, playerToRight, false));
     }
 
     @Override

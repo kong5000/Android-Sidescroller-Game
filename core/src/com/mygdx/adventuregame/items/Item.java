@@ -18,6 +18,8 @@ import com.mygdx.adventuregame.tools.AnimationGenerationTool;
 
 
 public class Item extends Sprite implements UpdatableSprite {
+    private boolean goingRight = false;
+
     private enum State {CLOSED, OPEN}
 
     private State currentState;
@@ -44,8 +46,9 @@ public class Item extends Sprite implements UpdatableSprite {
         this.screen = screen;
         setPosition(x, y);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
-        defineItem();
         this.itemType = itemType;
+        defineItem();
+
         openedTimer = 0;
         stateTimer = 0;
         currentState = State.CLOSED;
@@ -60,6 +63,10 @@ public class Item extends Sprite implements UpdatableSprite {
         }
 
         b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
+        if(itemType == AdventureGame.ARROW){
+            setScale(0.75f);
+            b2body.setGravityScale(0);
+        }
     }
 
     private void setItemTexture(int itemType) {
@@ -89,6 +96,9 @@ public class Item extends Sprite implements UpdatableSprite {
             case AdventureGame.SWORD:
                 assetName = "sword";
                 break;
+            case AdventureGame.ARROW:
+                assetName = "arrow";
+                break;
             default:
                 assetName = "small_health";
                 break;
@@ -98,6 +108,9 @@ public class Item extends Sprite implements UpdatableSprite {
     }
 
     public void update(float dt) {
+        if(itemType == AdventureGame.ARROW){
+            b2body.setLinearVelocity(0, 0);
+        }
         stateTimer += dt;
         if(itemType != AdventureGame.GOLD_COIN){
             setRegion(itemTexture);
@@ -105,7 +118,16 @@ public class Item extends Sprite implements UpdatableSprite {
             setRegion(itemAnimation.getKeyFrame(stateTimer));
         }
 
-        setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+        if(itemType == AdventureGame.ARROW){
+            if(goingRight){
+                setPosition(b2body.getPosition().x - getWidth() / 2 + 0.07f, b2body.getPosition().y - getHeight() / 2 + 0.16f);
+            }else {
+                setPosition(b2body.getPosition().x - getWidth() / 2 + 0.07f, b2body.getPosition().y - getHeight() / 2 );
+            }
+        }else {
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+        }
+
         if(dontPickupTimer > 0){
             dontPickupTimer -= dt;
         }
@@ -141,7 +163,11 @@ public class Item extends Sprite implements UpdatableSprite {
                 | AdventureGame.SPIKE_BIT;
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(8 / AdventureGame.PPM);
+        float radius = 8;
+        if(itemType == AdventureGame.ARROW){
+            radius = 2.5f;
+        }
+        shape.setRadius(radius / AdventureGame.PPM);
         fixtureDef.shape = shape;
         b2body.createFixture(fixtureDef).setUserData(this);
         setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
@@ -173,11 +199,19 @@ public class Item extends Sprite implements UpdatableSprite {
     }
 
     public boolean canPickup(){
-        return dontPickupTimer < 0;
+        return (dontPickupTimer < 0 && !setToDestroy);
     }
 
     @Override
     public void dispose() {
         world.destroyBody(b2body);
+    }
+
+    public void setItemRotation(float angle){
+        setRotation(angle);
+    }
+
+    public void setGoingRight(boolean state){
+        goingRight = state;
     }
 }

@@ -13,7 +13,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
 
@@ -50,9 +49,6 @@ public class EarthBall extends Sprite implements UpdatableSprite, EnemyProjectil
                 ,4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
-        if(isFriendly){
-            setScale(0.5f);
-        }
     }
 
     public void update(float dt){
@@ -142,7 +138,7 @@ public class EarthBall extends Sprite implements UpdatableSprite, EnemyProjectil
 
         FixtureDef fixtureDef = new FixtureDef();
         if(isFriendly){
-            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
+            fixtureDef.filter.categoryBits = AdventureGame.PROJECTILE_BIT;
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
         }else{
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
@@ -196,4 +192,10 @@ public class EarthBall extends Sprite implements UpdatableSprite, EnemyProjectil
     public void dispose() {
         world.destroyBody(b2body);
     }
+
+    @Override
+    public int getType() {
+        return AdventureGame.EARTH_PROJECTILE;
+    }
+
 }

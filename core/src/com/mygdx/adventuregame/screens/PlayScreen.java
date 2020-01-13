@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -30,7 +31,12 @@ import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.Cage;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
+import com.mygdx.adventuregame.sprites.Enemies.Golem;
+import com.mygdx.adventuregame.sprites.Enemies.IceGolem;
+import com.mygdx.adventuregame.sprites.Enemies.Imp;
 import com.mygdx.adventuregame.sprites.Enemies.Kobold;
+import com.mygdx.adventuregame.sprites.Enemies.Necromancer;
 import com.mygdx.adventuregame.sprites.Enemies.RedOgre;
 import com.mygdx.adventuregame.sprites.Enemies.Satyr;
 import com.mygdx.adventuregame.sprites.Enemy;
@@ -49,6 +55,8 @@ import com.mygdx.adventuregame.tools.WorldContactListener;
 import java.util.Iterator;
 
 public class PlayScreen implements Screen {
+    public Music music;
+    private int bossCounter = 0;
     private Sprite background;
     private Sprite backgroundFar;
     Controller controller;
@@ -101,9 +109,14 @@ public class PlayScreen implements Screen {
     public PlayScreen(AdventureGame game){
         assetManager = new AssetManager();
         assetManager.load("game_sprites.pack", TextureAtlas.class);
+        assetManager.load("Boss_Battle.wav", Music.class);
         assetManager.finishLoading();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
+        music =  assetManager.get("Boss_Battle.wav", Music.class);
 
+        music.setLooping(true);
+        music.setVolume(0.2f);
+//        music.play();
         Texture bgTexture = new Texture("temple_bg.png");
         background = new Sprite(bgTexture);
 
@@ -127,7 +140,8 @@ public class PlayScreen implements Screen {
 
 //        map = mapLoader.load("forest_castle.tmx");
 //        map = mapLoader.load("forest_castle_1.tmx", params);
-        map = mapLoader.load("dungeon_1.tmx", params);
+//        map = mapLoader.load("dungeon_1.tmx", params);
+        map = mapLoader.load("Boss_test.tmx", params);
 //        map = mapLoader.load("temple.tmx", params);
 
 
@@ -187,8 +201,12 @@ public class PlayScreen implements Screen {
 
         shapeRenderer = new ShapeRenderer();
 
-
-        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
+        enemyList.add(new Golem(this, 9.12f, 2.4f));
+        enemyList.add(new FireGolem(this, 9.12f, 2.4f));
+        enemyList.add(new Imp(this, 3.12f, 4f));
+        enemyList.add(new Necromancer(this, 3.12f, 4f));
+//        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
+//        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.ARROW));
 //        enemyList.add(new RedOgre(this, 4, 5.2f));
 //        enemyList.add(new Slug(this, 4, 7f));
 //        enemyList.add(new Slug(this, 5, 7f));
@@ -197,6 +215,17 @@ public class PlayScreen implements Screen {
     }
 
     public void update(float dt){
+        if(enemyList.isEmpty()){
+            player.fullHealth();
+            bossCounter++;
+            if(bossCounter == 1){
+                enemyList.add(new IceGolem(this, 9.12f, 2.4f));
+            }else if(bossCounter == 2){
+                enemyList.add(new Golem(this, 9.12f, 2.4f));
+            }else if(bossCounter == 3){
+                enemyList.add(new FireGolem(this, 9.12f, 2.4f));
+            }
+        }
         if(!tearDownComplete){
             for(CheckPoint checkPoint : checkPoints){
                 checkPoint.destroy();
@@ -247,7 +276,7 @@ public class PlayScreen implements Screen {
         }
 
         hud.setScore(player.getHealth());
-        hud.setExperience((int)player.getMana());
+        hud.setExperience((int)player.getArrowCount());
 
 
         //Camera tracks player
@@ -261,7 +290,7 @@ public class PlayScreen implements Screen {
         //        gameCam.position.y = player.b2body.getPosition().y + 0.22f;
 
         gameCam.position.x = Math.round(player.b2body.getPosition().x * 575f) / 575f;
-        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) /575f + 0.4f;
+        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) /575f + 0.25f;
 //        float ypos = player.b2body.getPosition().y + 0.25f;
 //        if(ypos > 5){
 //            gameCam.position.y = ypos;
@@ -586,7 +615,7 @@ public class PlayScreen implements Screen {
             + "\n" //
             + "void main()\n" //
             + "{\n" //
-            + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
+            + "   v_color = vec4(1, 1, 1, 1); "+ ";\n" //
             + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
             + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
             + "}\n";
@@ -603,6 +632,33 @@ public class PlayScreen implements Screen {
             + "{\n" //
             + "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords).a;\n" //
             + "}";
+
+//    String vertexShader = "attribute vec4 " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+//            + "attribute vec4 " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
+//            + "attribute vec2 " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
+//            + "uniform mat4 u_projTrans;\n" //
+//            + "varying vec4 v_color;\n" //
+//            + "varying vec2 v_texCoords;\n" //
+//            + "\n" //
+//            + "void main()\n" //
+//            + "{\n" //
+//            + "   v_color = " + ShaderProgram.COLOR_ATTRIBUTE + ";\n" //
+//            + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
+//            + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
+//            + "}\n";
+//    String fragmentShader = "#ifdef GL_ES\n" //
+//            + "#define LOWP lowp\n" //
+//            + "precision mediump float;\n" //
+//            + "#else\n" //
+//            + "#define LOWP \n" //
+//            + "#endif\n" //
+//            + "varying LOWP vec4 v_color;\n" //
+//            + "varying vec2 v_texCoords;\n" //
+//            + "uniform sampler2D u_texture;\n" //
+//            + "void main()\n"//
+//            + "{\n" //
+//            + "  gl_FragColor = v_color * texture2D(u_texture, v_texCoords).a;\n" //
+//            + "}";
 
     ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
 

@@ -119,13 +119,14 @@ public class Controller implements InputProcessor {
 
         Image aButtonImage = new Image(new Texture("a_button.png"));
         aButtonImage.setSize(50, 50);
+        aButtonImage.setColor(image.getColor().r, image.getColor().g, image.getColor().b, 0.55f);
 
         Image bButtonImage = new Image(new Texture("b_button.png"));
         bButtonImage.setSize(40, 40);
-
+        bButtonImage.setColor(image.getColor().r, image.getColor().g, image.getColor().b, 0.55f);
         Image spellButtonImage = new Image(new Texture("spell_button.png"));
         spellButtonImage.setSize(40, 40);
-
+        spellButtonImage.setColor(image.getColor().r, image.getColor().g, image.getColor().b, 0.55f);
         jumpButton = new Image(new Texture("a_button.png"));
         jumpButton.setSize(50, 50);
 //        jumpButton.setScale(0.85f);
@@ -190,9 +191,9 @@ public class Controller implements InputProcessor {
 //        buttonTable.add();
 
 
-        aButtonImage.setPosition(350, 0);
-        bButtonImage.setPosition(300, 10);
-        spellButtonImage.setPosition(350, 60);
+        aButtonImage.setPosition(350, 10);
+        bButtonImage.setPosition(300, 20);
+        spellButtonImage.setPosition(350, 70);
         image.setPosition(350, 90);
 
 
@@ -271,7 +272,7 @@ public class Controller implements InputProcessor {
         table.left().bottom();
         table.setFillParent(true);
         table.toFront();
-        table.padLeft(25);
+        table.padLeft(12);
         table.padBottom(10);
         table.add(touchpadLeft).expandX();
         table.add().expandX();
@@ -306,7 +307,9 @@ public class Controller implements InputProcessor {
 //            } else {
 //                player.swingSword();
 //            }
-            player.startCharge();
+            //Todo replace sword with charge to restor charging
+//            player.startCharge();
+            player.swingSword();
             hasActed = true;
         }
         switch (player.getEquipedSpell()) {

@@ -10,21 +10,21 @@ import com.mygdx.adventuregame.AdventureGame;
 
 public class PlayerBody {
     private static final float[] SWORD_HITBOX_AIR = {
-            -0.25f, 0f,
-            -0.25f, 0.2f,
+            -0.3f, 0f,
+            -0.3f, 0.2f,
             0f, -0.1f,
-            0.25f, 0f,
-            0.25f, 0.2f,
+            0.3f, 0f,
+            0.3f, 0.2f,
             0, 0.3f};
 
     private static final float[] SWORD_HITBOX_RIGHT = {
             0f, -0.1f,
-            0.25f, 0f,
-            0.25f, 0.2f,
+            0.31f, 0f,
+            0.31f, 0.2f,
             0, 0.3f};
     private static final float[] SWORD_HITBOX_LEFT = {
-            -0.25f, 0f,
-            -0.25f, 0.2f,
+            -0.31f, 0f,
+            -0.31f, 0.2f,
             0f, -0.1f,
             0, 0.3f};
     private static final float[] HEAD_HITBOX = {
@@ -158,7 +158,8 @@ public class PlayerBody {
                 | AdventureGame.SPIKE_BIT
                 | AdventureGame.ITEM_BIT
                 | AdventureGame.MOVING_BLOCK_BIT
-                | AdventureGame.BOSS_ATTACK_BIT;
+                | AdventureGame.BOSS_ATTACK_BIT
+                | AdventureGame.ARROW;
         fixtureDef.isSensor = false;
         fixtureDef.friction = 0;
         b2body.createFixture(fixtureDef).setUserData(player);

@@ -114,7 +114,7 @@ public class Lever extends Enemy implements UpdatableSprite {
         FixtureDef fixtureDef = new FixtureDef();
 
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT | AdventureGame.PLAYER_PROJECTILE_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_SWORD_BIT | AdventureGame.ARROW_BIT;
 
         PolygonShape shape = new PolygonShape();
         shape.set(LEVER_HITBOX);

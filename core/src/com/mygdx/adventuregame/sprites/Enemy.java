@@ -87,7 +87,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
                 | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.PLAYER_PROJECTILE_BIT
+                | AdventureGame.ARROW_BIT
                 | AdventureGame.FIRE_SPELL_BIT;
         Shape hitBox = getHitBoxShape();
         fixtureDef.shape = hitBox;
@@ -183,5 +183,9 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     public void setToDestroy(){
         setToDestroy = true;
     };
+
+    public void generateArrow(boolean goingRight){
+
+    }
 }
 

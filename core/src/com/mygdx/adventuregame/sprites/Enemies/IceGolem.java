@@ -203,7 +203,7 @@ public class IceGolem extends Enemy {
         }
 
         if (setToDestroy && !destroyed) {
-            screen.getSpritesToAdd().add(new FireElemental(screen, b2body.getPosition().x + 0.25f, b2body.getPosition().y + 0.1f, true));
+//            screen.getSpritesToAdd().add(new FireElemental(screen, b2body.getPosition().x + 0.25f, b2body.getPosition().y + 0.1f, true));
             world.destroyBody(b2body);
             destroyed = true;
             stateTimer = 0;

@@ -73,7 +73,7 @@ public class MonsterTile extends Sprite implements UpdatableSprite{
             fixtureDef.filter.categoryBits = AdventureGame.GROUND_BIT;
             fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT
                     | AdventureGame.ENEMY_BIT
-                    | AdventureGame.PLAYER_PROJECTILE_BIT
+                    | AdventureGame.ARROW_BIT
                     | AdventureGame.FIRE_SPELL_BIT;
 
         PolygonShape shape = new PolygonShape();

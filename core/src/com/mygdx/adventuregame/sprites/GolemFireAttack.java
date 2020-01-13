@@ -262,6 +262,11 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
 //                , b2body.getPosition().y - 0.35f ));
     }
 
+    @Override
+    public int getType() {
+        return 0;
+    }
+
     public void stopCharging() {
         charging = false;
     }

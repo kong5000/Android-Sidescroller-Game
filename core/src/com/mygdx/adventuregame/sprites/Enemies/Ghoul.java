@@ -430,7 +430,7 @@ public class Ghoul extends Enemy {
         fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
         fixtureDef.filter.maskBits =
                 AdventureGame.PLAYER_SWORD_BIT
-                        | AdventureGame.PLAYER_PROJECTILE_BIT
+                        | AdventureGame.ARROW_BIT
                         | AdventureGame.FIRE_SPELL_BIT
                         | AdventureGame.GROUND_BIT;
         Shape hitBox = getHitBoxShape();

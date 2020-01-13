@@ -27,6 +27,7 @@ public class AdventureGame extends Game {
 	public static final int RING_OF_REGENERATION = 8;
 	public static final int RING_OF_PROTECTION = 9;
 	public static final int GOLD_COIN = 10;
+	public static final int ARROW = 11;
 
 	public static final short GROUND_BIT = 1;
 	public static final short PLAYER_BIT = 2;
@@ -35,9 +36,10 @@ public class AdventureGame extends Game {
 	public static final short PLAYER_SWORD_BIT = 16;
 	public static final short ENEMY_ATTACK_BIT = 32;
 	public static final short ENEMY_PROJECTILE_BIT = 64;
-	public static final short PLAYER_PROJECTILE_BIT = 128;
+	public static final short ARROW_BIT = 128;
 	public static final short FIRE_SPELL_BIT= 256;
 	public static final short PLATFORM_BIT= -32;
+	public static final short PROJECTILE_BIT= -64;
 	public static final short ENVIRONMENT_SENSOR_BIT= 512;
 	public static final short SPIKE_BIT= 1024;
 	public static final short ITEM_BIT= 2048;
@@ -54,6 +56,14 @@ public class AdventureGame extends Game {
 	public static final float FULL_HEALTH_LOCATION_1 = 7904f;
 	public static final float SWORD_LOCATION_2 = 8656f;
 	public static final float BOW_LOCATION_2 = 8800f;
+
+	public static final int FIRE_PROJECTILE = 0;
+	public static final int ICE_PROJECTILE = 1;
+	public static final int EARTH_PROJECTILE = 2;
+	public static final int GREEN_PROJECTILE = 3;
+	public static final int SHADE_PROJECTILE = 4;
+	public static final int IMP_PROJECTILE = 5;
+
 
 
 	@Override

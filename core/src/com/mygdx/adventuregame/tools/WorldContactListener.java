@@ -100,25 +100,47 @@ public class WorldContactListener implements ContactListener {
 //                }
 //                break;
 
-            case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
+            case AdventureGame.ARROW_BIT | AdventureGame.ENEMY_BIT:
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
-                    int damage = ((PlayerProjectile) fixB.getUserData()).getDamage();
-                    ((PlayerProjectile) fixB.getUserData()).targetHit();
-                    ((Enemy) fixA.getUserData()).damage(damage);
+                    if (((PlayerProjectile) fixB.getUserData()).canCollideWithEnemy()) {
+                        int damage = ((PlayerProjectile) fixB.getUserData()).getDamage();
+                        ((PlayerProjectile) fixB.getUserData()).targetHit();
+                        ((Enemy) fixA.getUserData()).damage(damage);
+                    }
                 } else {
-                    int damage = ((PlayerProjectile) fixA.getUserData()).getDamage();
-                    ((PlayerProjectile) fixA.getUserData()).targetHit();
-                    ((Enemy) fixB.getUserData()).damage(damage);
-
+                    if (((PlayerProjectile) fixA.getUserData()).canCollideWithEnemy()) {
+                        int damage = ((PlayerProjectile) fixA.getUserData()).getDamage();
+                        ((PlayerProjectile) fixA.getUserData()).targetHit();
+                        ((Enemy) fixB.getUserData()).damage(damage);
+                    }
                 }
                 break;
-            case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
-                if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_PROJECTILE_BIT) {
-                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
+            case AdventureGame.ARROW_BIT | AdventureGame.GROUND_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.ARROW_BIT) {
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
 //                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
+                    ((PlayerProjectile) fixA.getUserData()).hitGround();
                 } else {
 //                    ((PlayerProjectile) fixB.getUserData()).setToDestroy();
-                    ((PlayerProjectile) fixB.getUserData()).setToDestroyHitBox();
+//                    ((PlayerProjectile) fixB.getUserData()).setToDestroyHitBox();
+                    ((PlayerProjectile) fixB.getUserData()).hitGround();
+                }
+                break;
+            case AdventureGame.GROUND_BIT | AdventureGame.PROJECTILE_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.PROJECTILE_BIT) {
+                    ((EnemyProjectile) fixA.getUserData()).setToDestroy();
+                } else {
+                    ((EnemyProjectile) fixB.getUserData()).setToDestroy();
+                }
+                break;
+
+            case AdventureGame.PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_BIT) {
+                    ((EnemyProjectile) fixB.getUserData()).setToDestroy();
+                    ((Enemy) fixA.getUserData()).damage(2);
+                } else {
+                    ((EnemyProjectile) fixA.getUserData()).setToDestroy();
+                    ((Enemy) fixB.getUserData()).damage(2);
                 }
                 break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.GROUND_BIT:
@@ -222,6 +244,31 @@ public class WorldContactListener implements ContactListener {
         int cDef = fixA.getFilterData().categoryBits | fixB.getFilterData().categoryBits;
 
         switch (cDef) {
+            case AdventureGame.PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
+                contact.setEnabled(false);
+                break;
+            case AdventureGame.ARROW_BIT | AdventureGame.PLAYER_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.ARROW_BIT) {
+                    contact.setEnabled(false);
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
+                    if (((PlayerProjectile) fixA.getUserData()).hasHitGround()) {
+                        ((Player) fixB.getUserData()).pickupItem(AdventureGame.ARROW);
+                        ((PlayerProjectile) fixA.getUserData()).setToDestroy();
+                    }
+                    ;
+                }
+                if (fixB.getFilterData().categoryBits == AdventureGame.ARROW_BIT) {
+                    contact.setEnabled(false);
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroyHitBox();
+//                    ((PlayerProjectile) fixA.getUserData()).setToDestroy();
+                    if (((PlayerProjectile) fixB.getUserData()).hasHitGround()) {
+                        ((Player) fixA.getUserData()).pickupItem(AdventureGame.ARROW);
+                        ((PlayerProjectile) fixB.getUserData()).setToDestroy();
+                    }
+                    ;
+                }
+                break;
             case AdventureGame.ITEM_BIT | AdventureGame.PLAYER_BIT:
                 contact.setEnabled(false);
                 if (fixA.getFilterData().categoryBits == AdventureGame.PLAYER_BIT) {
@@ -344,15 +391,20 @@ public class WorldContactListener implements ContactListener {
                         ((EnemyProjectile) fixA.getUserData()).explode();
                     }
                 }
+                break;
             case AdventureGame.ENEMY_PROJECTILE_BIT | AdventureGame.PLAYER_SWORD_BIT:
                 contact.setEnabled(false);
                 if (fixA.getFilterData().categoryBits == AdventureGame.ENEMY_PROJECTILE_BIT) {
                     ((EnemyProjectile) fixA.getUserData()).setToDestroy();
                     ((EnemyProjectile) fixA.getUserData()).explode();
+                    int type =((EnemyProjectile) fixA.getUserData()).getType();
+                    ((Player) fixB.getUserData()).deflectProjectile(type);
 
                 } else {
                     ((EnemyProjectile) fixB.getUserData()).setToDestroy();
                     ((EnemyProjectile) fixB.getUserData()).explode();
+                    int type =((EnemyProjectile) fixB.getUserData()).getType();
+                    ((Player) fixA.getUserData()).deflectProjectile(type);
                 }
                 break;
             case AdventureGame.SPIKE_BIT | AdventureGame.PLAYER_BIT:
@@ -380,7 +432,21 @@ public class WorldContactListener implements ContactListener {
                     }
                 }
                 break;
-            case AdventureGame.PLAYER_PROJECTILE_BIT | AdventureGame.ENEMY_BIT:
+            case AdventureGame.ARROW_BIT | AdventureGame.ENEMY_BIT:
+                if (fixA.getFilterData().categoryBits == AdventureGame.ARROW_BIT)
+                    if (((PlayerProjectile) fixA.getUserData()).canCollideWithEnemy()) {
+                        contact.setEnabled(true);
+                    } else {
+                        contact.setEnabled(false);
+                    }
+                if (fixB.getFilterData().categoryBits == AdventureGame.ARROW_BIT)
+                    if (((PlayerProjectile) fixB.getUserData()).canCollideWithEnemy()) {
+                        contact.setEnabled(true);
+                    } else {
+                        contact.setEnabled(false);
+                    }
+                break;
+            case AdventureGame.ITEM_BIT | AdventureGame.ITEM_BIT:
                 contact.setEnabled(false);
                 break;
         }

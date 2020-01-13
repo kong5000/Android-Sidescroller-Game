@@ -16,7 +16,7 @@ import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
 
 
 public class EarthElemental extends Enemy {
-    private static final float ATTACK_RATE = 3f;
+    private static final float ATTACK_RATE = 4f;
 
     private static final int WIDTH_PIXELS = 47;
     private static final int HEIGHT_PIXELS = 43;
@@ -68,7 +68,7 @@ public class EarthElemental extends Enemy {
         attackTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 5;
+        health = 4;
         barXOffset = -0.065f;
         barYOffset = 0.075f;
 

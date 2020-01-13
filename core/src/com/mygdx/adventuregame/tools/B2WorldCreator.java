@@ -291,7 +291,7 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Enemy enemy = new Minotaur(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
             screen.getEnemyList().add(enemy);
-            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+//            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
             ((Minotaur )enemy).attachNearbyTiles(monsterTiles);
         }
         for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class)) {

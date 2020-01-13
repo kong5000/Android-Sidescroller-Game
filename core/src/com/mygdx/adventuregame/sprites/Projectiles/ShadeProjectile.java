@@ -44,9 +44,10 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
     private boolean isFriendly;
 
 
-    public ShadeProjectile(PlayScreen screen, float x, float y, boolean goingRight) {
+    public ShadeProjectile(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly) {
         this.world = screen.getWorld();
         this.screen = screen;
+        this.isFriendly = isFriendly;
         setPosition(x, y);
         defineProjectile();
         attackEnabled = false;
@@ -56,9 +57,6 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
                 , 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.06f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
-        if (isFriendly) {
-            setScale(0.5f);
-        }
         setOriginCenter();
     }
 
@@ -154,8 +152,14 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
 
         FixtureDef fixtureDef = new FixtureDef();
 
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.PLAYER_SWORD_BIT;
+
+        if(isFriendly){
+            fixtureDef.filter.categoryBits = AdventureGame.PROJECTILE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
+        }else{
+            fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.PLAYER_SWORD_BIT;
+        }
 
 
         CircleShape shape = new CircleShape();
@@ -221,5 +225,8 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
         Vector2 playerVector = new Vector2(screen.getPlayer().b2body.getPosition().x, screen.getPlayer().b2body.getPosition().y);
         return playerVector.sub(enemyPosition);
     }
-
+    @Override
+    public int getType() {
+        return AdventureGame.SHADE_PROJECTILE;
+    }
 }

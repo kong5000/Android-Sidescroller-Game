@@ -140,7 +140,7 @@ public class VerticalFireBall extends Sprite implements UpdatableSprite, EnemyPr
 
         FixtureDef fixtureDef = new FixtureDef();
         if(isFriendly){
-            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
+            fixtureDef.filter.categoryBits = AdventureGame.ARROW_BIT;
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
         }else{
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
@@ -192,5 +192,10 @@ public class VerticalFireBall extends Sprite implements UpdatableSprite, EnemyPr
     @Override
     public void dispose() {
         world.destroyBody(b2body);
+    }
+
+    @Override
+    public int getType() {
+        return AdventureGame.FIRE_PROJECTILE;
     }
 }

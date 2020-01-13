@@ -13,10 +13,11 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.IceShatter;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
+
+import java.util.ArrayDeque;
 
 public class VerticalIce extends Sprite implements UpdatableSprite, EnemyProjectile {
     private enum State{ARMED, IMPACT}
@@ -141,11 +142,12 @@ public class VerticalIce extends Sprite implements UpdatableSprite, EnemyProject
 
         FixtureDef fixtureDef = new FixtureDef();
         if(isFriendly){
-            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
+            fixtureDef.filter.categoryBits = AdventureGame.ARROW_BIT;
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
         }else{
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT
+            | AdventureGame.PLAYER_SWORD_BIT;
         }
 
         CircleShape shape = new CircleShape();
@@ -193,5 +195,10 @@ public class VerticalIce extends Sprite implements UpdatableSprite, EnemyProject
     @Override
     public void dispose() {
         world.destroyBody(b2body);
+    }
+
+    @Override
+    public int getType() {
+        return AdventureGame.ICE_PROJECTILE;
     }
 }

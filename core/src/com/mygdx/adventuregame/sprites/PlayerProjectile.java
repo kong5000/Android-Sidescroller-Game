@@ -5,4 +5,7 @@ public interface PlayerProjectile {
     void setToDestroy();
     void setToDestroyHitBox();
     void targetHit();
+    boolean hasHitGround();
+    void hitGround();
+    boolean canCollideWithEnemy();
 }

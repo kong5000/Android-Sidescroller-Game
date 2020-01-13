@@ -52,9 +52,6 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
                 , 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setGoingRight(goingRight);
-        if (isFriendly) {
-            setScale(0.5f);
-        }
         setOriginCenter();
     }
 
@@ -95,6 +92,9 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
                 break;
         }
 //        flipFramesIfNeeded(texture);
+        if(isFriendly){
+            flipFramesIfNeeded(texture);
+        }
 
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
@@ -144,14 +144,20 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
 
         FixtureDef fixtureDef = new FixtureDef();
 
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.PLAYER_SWORD_BIT;;
+        if(isFriendly){
+            fixtureDef.filter.categoryBits = AdventureGame.PROJECTILE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
+        }else{
+            fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.PLAYER_SWORD_BIT;
+        }
 
 
         CircleShape shape = new CircleShape();
         shape.setRadius(6 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
+        fixtureDef.density = 0.01f;
         b2body.createFixture(fixtureDef).setUserData(this);
         b2body.setGravityScale(0);
     }
@@ -194,4 +200,10 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
     public void dispose() {
         world.destroyBody(b2body);
     }
+
+    @Override
+    public int getType() {
+        return AdventureGame.GREEN_PROJECTILE;
+    }
+
 }

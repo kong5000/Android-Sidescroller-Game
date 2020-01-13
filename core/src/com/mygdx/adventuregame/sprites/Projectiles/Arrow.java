@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
@@ -19,9 +20,15 @@ import com.mygdx.adventuregame.sprites.PlayerProjectile;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
 
 public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, PlayerProjectile {
+    private static final float MAX_VERTICAL_SPEED = 2;
+    private static final float MAX_HORIZONTAL_SPEED = 2;
     private boolean setToDestroyHitBox = false;
+    private boolean arrowGenerated = false;
+    private boolean hasCollidedWithEnemy = false;
+    private boolean hasHitGround = false;
 
-    private enum State{ARMED, IMPACT}
+    private enum State {ARMED, IMPACT}
+
     private State currentState = State.ARMED;
     private State previousState = State.ARMED;
     private World world;
@@ -34,11 +41,11 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     private Animation<TextureRegion> projectileAnimation;
     private float aliveTimer;
     private float stateTimer;
-    private static final float TIME_ALIVE = 5f;
+    private static final float TIME_ALIVE = 120f;
     private static final int WIDTH_PIXELS = 15;
     private static final int HEIGHT_PIXELS = 15;
     private boolean isFriendly;
-    private float rotation =0f;
+    private float rotation = 0f;
     private float charge = 0f;
     private boolean goingRight;
     private static final float MAX_CHARGE = 1.2f;
@@ -46,7 +53,8 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     private boolean hitBoxDestroyed = false;
 
     private Animation<TextureRegion> projectile;
-    public Arrow(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge){
+
+    public Arrow(PlayScreen screen, float x, float y, boolean goingRight, boolean isFriendly, float charge) {
         this.goingRight = goingRight;
         this.world = screen.getWorld();
         this.screen = screen;
@@ -62,83 +70,105 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         setGoingRight(goingRight);
         setOrigin(getWidth() / 2, getHeight() / 2);
         setScale(0.75f);
-        if(goingRight){
+        if (goingRight) {
             rotation = -135;
-        }else {
+        } else {
             rotation = 45;
         }
 
     }
 
-    public void update(float dt){
-        if(!hitBoxDestroyed){
-            setRotation(rotation);
-            if(goingRight){
-                rotation -= 0.25;
-            }else {
-                rotation += 0.25;
+    public void update(float dt) {
+        if (setToDestroyHitBox && !arrowGenerated) {
+            Item arrow = new Item(screen, b2body.getPosition().x, b2body.getPosition().y - 0.04f, AdventureGame.ARROW);
+            arrow.setRotation(rotation);
+            arrow.setGoingRight(goingRight);
+            screen.getSpritesToAdd().add(arrow);
+            arrowGenerated = true;
+        }
+        if (!hitBoxDestroyed) {
+            if(hasHitGround || hasCollidedWithEnemy){
+                limitSpeed();
             }
+            setRotation(rotation);
+            if (!hasHitGround) {
+                if (hasCollidedWithEnemy) {
+                    if (goingRight) {
+                        rotation -= 10;
+                    } else {
+                        rotation += 10;
+                    }
+                }else {
+                    if (goingRight) {
+                        rotation -= 0.25;
+                    } else {
+                        rotation += 0.25;
+                    }
+                }
+
+            }
+
 
         }
 
         aliveTimer -= dt;
-        if(!hitBoxDestroyed){
+        if (!hitBoxDestroyed) {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
 
         }
-        if( setToDestroyHitBox && !hitBoxDestroyed && !destroyed) {
+        if (setToDestroyHitBox && !hitBoxDestroyed && !destroyed) {
             hitBoxDestroyed = true;
             world.destroyBody(b2body);
         }
 
-        if(aliveTimer < 0 && !destroyed){
-            destroyed = true;
-        }
+//        if (aliveTimer < 0 && !destroyed) {
+//            setToDestroy();
+//        }
 
-        if((aliveTimer < 0 || setToDestroy) && !destroyed) {
+        if ((aliveTimer < 0 || setToDestroy) && !destroyed) {
             world.destroyBody(b2body);
             destroyed = true;
         }
 
+
     }
 
     @Override
-    public void draw(Batch batch){
-        if(!destroyed){
+    public void draw(Batch batch) {
+        if (!destroyed) {
             super.draw(batch);
-        }else{
+        } else {
             safeToRemove = true;
         }
     }
 
 
-    private void flipFramesIfNeeded(TextureRegion texture){
+    private void flipFramesIfNeeded(TextureRegion texture) {
         if (b2body.getLinearVelocity().x < 0 && texture.isFlipX()) {
             texture.flip(true, false);
         }
-        if (b2body.getLinearVelocity().x > 0  && !texture.isFlipX()) {
+        if (b2body.getLinearVelocity().x > 0 && !texture.isFlipX()) {
             texture.flip(true, false);
         }
     }
 
-    public void setGoingRight(boolean status){
+    public void setGoingRight(boolean status) {
         float speed = 1f;
-        if(isFriendly){
-            speed = charge *3.5f + 3f;
+        if (isFriendly) {
+            speed = charge * 3.5f + 3f;
         }
-        if(status){
+        if (status) {
             b2body.setLinearVelocity(new Vector2(speed, 0));
-        }else{
-            b2body.setLinearVelocity(new Vector2(-speed,0));
+        } else {
+            b2body.setLinearVelocity(new Vector2(-speed, 0));
         }
     }
 
 
-    private State getState(){
+    private State getState() {
         if (setToDestroy) {
             return State.IMPACT;
-        }
-        else {
+        } else {
             return State.ARMED;
         }
     }
@@ -151,10 +181,10 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         b2body = world.createBody(bodyDef);
 
         FixtureDef fixtureDef = new FixtureDef();
-        if(isFriendly){
-            fixtureDef.filter.categoryBits = AdventureGame.PLAYER_PROJECTILE_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT;
-        }else{
+        if (isFriendly) {
+            fixtureDef.filter.categoryBits = AdventureGame.ARROW_BIT;
+            fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.ENEMY_BIT | AdventureGame.PLAYER_BIT;
+        } else {
             fixtureDef.filter.categoryBits = AdventureGame.ENEMY_PROJECTILE_BIT;
             fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT | AdventureGame.PLAYER_BIT;
         }
@@ -163,9 +193,9 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         shape.setRadius(4 / AdventureGame.PPM);
 
         fixtureDef.shape = shape;
-        if(charge > MAX_CHARGE){
+        if (charge > MAX_CHARGE) {
             fixtureDef.density = 75f;
-        }else {
+        } else {
             fixtureDef.density = charge * 5f;
         }
 
@@ -173,10 +203,12 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         b2body.setGravityScale(0.07f);
     }
 
-    public void setToDestroyHitBox(){
+    public void setToDestroyHitBox() {
         setToDestroyHitBox = true;
+        setAlpha(0);
     }
-    public void setToDestroy(){
+
+    public void setToDestroy() {
         setToDestroy = true;
     }
 
@@ -200,9 +232,14 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         return animation;
     }
 
-    public void explode(){
+    public void explode() {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2
-                ,getY() - getHeight() / 2 -0.05f));
+                , getY() - getHeight() / 2 - 0.05f));
+    }
+
+    @Override
+    public int getType() {
+        return 0;
     }
 
     @Override
@@ -210,17 +247,64 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         return safeToRemove;
     }
 
-    public int getDamage(){
-        return (int)( charge * 4.5f) + 3;
+    public int getDamage() {
+        return (int) (charge * 4.5f) + 3;
     }
 
     @Override
     public void targetHit() {
-        setToDestroy();
+        richochet();
+        hasCollidedWithEnemy = true;
+//        setToDestroy();
+    }
+
+    @Override
+    public boolean hasHitGround() {
+        return hasHitGround;
+    }
+
+    private void richochet() {
+        b2body.setGravityScale(1);
+        b2body.setLinearVelocity(0, 0);
+        if (goingRight) {
+            b2body.applyLinearImpulse(new Vector2(-0.003f, 0.005f), b2body.getWorldCenter(), true);
+        } else {
+
+            b2body.applyLinearImpulse(new Vector2(0.003f, 0.005f), b2body.getWorldCenter(), true);
+
+        }
     }
 
     @Override
     public void dispose() {
         world.destroyBody(b2body);
+    }
+
+    @Override
+    public void hitGround() {
+        b2body.setGravityScale(0);
+        b2body.setLinearVelocity(0, 0);
+        hasHitGround = true;
+    }
+
+    @Override
+    public boolean canCollideWithEnemy() {
+        return !hasCollidedWithEnemy && !hasHitGround;
+    }
+
+    public boolean getHasHitGround() {
+        return hasHitGround;
+    }
+
+    private void limitSpeed(){
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
     }
 }
