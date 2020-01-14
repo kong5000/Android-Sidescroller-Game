@@ -307,4 +307,6 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
             b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
         }
     }
+
+
 }

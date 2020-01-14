@@ -206,4 +206,6 @@ public class GreenProjectile extends Sprite implements UpdatableSprite, EnemyPro
         return AdventureGame.GREEN_PROJECTILE;
     }
 
+
+
 }

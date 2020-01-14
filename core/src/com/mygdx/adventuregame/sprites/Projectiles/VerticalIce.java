@@ -201,4 +201,6 @@ public class VerticalIce extends Sprite implements UpdatableSprite, EnemyProject
     public int getType() {
         return AdventureGame.ICE_PROJECTILE;
     }
+
+
 }

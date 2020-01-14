@@ -204,4 +204,6 @@ public class ImpSpell extends Sprite implements UpdatableSprite, EnemyProjectile
     public int getType() {
         return AdventureGame.IMP_PROJECTILE;
     }
+
+
 }

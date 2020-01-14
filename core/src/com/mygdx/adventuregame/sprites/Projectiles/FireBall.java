@@ -197,4 +197,6 @@ public class FireBall extends Sprite implements UpdatableSprite, EnemyProjectile
     public int getType() {
         return AdventureGame.FIRE_PROJECTILE;
     }
+
+
 }

@@ -63,11 +63,14 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
     public void update(float dt) {
         aliveTimer -= dt;
         setRegion(getFrame(dt));
-        findPlayer();
+        if(!isFriendly){
+            findPlayer();
+        }
         setPosition(b2body.getPosition().x - getWidth() / 2 , b2body.getPosition().y -0.05f );
         if ((aliveTimer < 0 || setToDestroy) && !destroyed) {
-            world.destroyBody(b2body);
+            setToDestroy = true;
             destroyed = true;
+            world.destroyBody(b2body);
             if(aliveTimer < 0){
                 explode();
             }
@@ -211,14 +214,17 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
     }
 
     private void findPlayer(){
-        vectorToPlayer = getVectorToPlayer();
-        this.setRotation(vectorToPlayer.angle());
-        float x =  BULLET_SPEED * MathUtils.cos(getRotation() * MathUtils.degreesToRadians);
-        float y =  BULLET_SPEED * MathUtils.sin(getRotation() * MathUtils.degreesToRadians);
+        if(!setToDestroy){
+            vectorToPlayer = getVectorToPlayer();
+            this.setRotation(vectorToPlayer.angle());
+            float x =  BULLET_SPEED * MathUtils.cos(getRotation() * MathUtils.degreesToRadians);
+            float y =  BULLET_SPEED * MathUtils.sin(getRotation() * MathUtils.degreesToRadians);
 
-        b2body.setLinearVelocity(x, y);
-        b2body.setTransform(b2body.getWorldCenter(), vectorToPlayer.angle() *MathUtils.degreesToRadians);
-    }
+            b2body.setLinearVelocity(x, y);
+            b2body.setTransform(b2body.getWorldCenter(), vectorToPlayer.angle() *MathUtils.degreesToRadians);
+
+        }
+   }
 
     private Vector2 getVectorToPlayer() {
         Vector2 enemyPosition = new Vector2(b2body.getPosition().x, b2body.getPosition().y);
@@ -229,4 +235,5 @@ public class ShadeProjectile extends Sprite implements UpdatableSprite, EnemyPro
     public int getType() {
         return AdventureGame.SHADE_PROJECTILE;
     }
+
 }

@@ -28,6 +28,9 @@ import com.mygdx.adventuregame.sprites.SpellBall;
 import java.util.Random;
 
 public class Player extends Sprite {
+    public static final float DEFLECT_OFFSET_Y = 0.22f;
+    private static final float DEFLECT_OFFSET_X_RIGHT = 0.35f;
+    private static final float DEFLECT_OFFSET_X_LEFT = 0.27f;
     private int deflectType = AdventureGame.FIRE_PROJECTILE;
     private static final float INVINCIBLE_TIME = 1f;
     public static final float WALLRUN_TIME = 0.45f;
@@ -36,6 +39,8 @@ public class Player extends Sprite {
     private boolean onElevator = false;
     private CheckPoint currentCheckPoint;
 
+    private float attackCooldownTimer = -1f;
+    private static final float ATTACK_COOLDOWN_TIME = 0.5f;
     public float currentSpeed = 1.3f;
     private static float MAX_RUN_SPEED = 1.1f;
     private static float CROUCH_SPEED = 0.8f;
@@ -86,15 +91,18 @@ public class Player extends Sprite {
     }
 
     public void beginRangedAttack() {
-        if (hasArrows()) {
-            if (spellBallTimer < 0) {
-                fireBow();
-            } else {
-                firingSpell = true;
-            }
-            chargingTimer = 0;
-        }
+        if (canMove()) {
 
+
+            if (hasArrows()) {
+                if (spellBallTimer < 0) {
+                    fireBow();
+                } else {
+                    firingSpell = true;
+                }
+                chargingTimer = 0;
+            }
+        }
 ////        if (mana > 0) {
 ////            firingSpell = true;
 ////        }
@@ -123,27 +131,31 @@ public class Player extends Sprite {
     }
 
     private void launchDeflectedProjectile() {
+        float xOffset = DEFLECT_OFFSET_X_LEFT;
+        if(runningRight){
+           xOffset = DEFLECT_OFFSET_X_RIGHT;
+        }
         switch (deflectType) {
             case AdventureGame.FIRE_PROJECTILE:
-                screen.getSpritesToAdd().add(new FireBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
             case AdventureGame.EARTH_PROJECTILE:
-                screen.getSpritesToAdd().add(new EarthBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new EarthBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
             case AdventureGame.ICE_PROJECTILE:
-                screen.getSpritesToAdd().add(new FireBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
             case AdventureGame.IMP_PROJECTILE:
-                screen.getSpritesToAdd().add(new ImpSpell(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new ImpSpell(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
             case AdventureGame.SHADE_PROJECTILE:
-                screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
             case AdventureGame.GREEN_PROJECTILE:
-                screen.getSpritesToAdd().add(new GreenProjectile(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new GreenProjectile(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
             default:
-                screen.getSpritesToAdd().add(new FireBall(screen, getX(), getY() + 0.3f, runningRight, true));
+                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
                 break;
         }
     }
@@ -227,7 +239,7 @@ public class Player extends Sprite {
     private static final float MAX_HORIZONTAL_SPEED = 2f;
 
     private int health;
-    private static final int FULL_HEALTH = 20;
+    private static final int FULL_HEALTH = 200;
 
     TextureAtlas textureAtlas;
 
@@ -276,7 +288,7 @@ public class Player extends Sprite {
 //        spawnPointY = 5.65f;
 
         spawnPointX = 4f;
-        spawnPointY = 5f;
+        spawnPointY = 3f;
         //bossroom
 //        spawnPointX = 82f;
 //        spawnPointY = 7f;
@@ -443,6 +455,10 @@ public class Player extends Sprite {
                 }
             }
         }
+
+        if (attackCooldownTimer > 0) {
+            attackCooldownTimer -= dt;
+        }
         if (wallRunCooldown > 0) {
             wallRunCooldown -= dt;
         }
@@ -580,14 +596,14 @@ public class Player extends Sprite {
                 if (animations.attackAnimationFinished(attackNumber, stateTimer)) {
                     return State.RUNNING;
                 }
-
-
             }
-            if (Math.abs(b2body.getLinearVelocity().y) > 0 && !onElevator && !downAttacking) {
+//            if (Math.abs(b2body.getLinearVelocity().y) > 0 && !onElevator && !downAttacking) {
+//                return State.AIR_ATTACKING;
+//            }
+            if (Math.abs(averageYVelocity) > 0.01f && !onElevator && !downAttacking) {
                 return State.AIR_ATTACKING;
             }
             return State.ATTACKING;
-
         } else if (shootingTimer > 0) {
             return State.SHOOTING;
         } else if (hurtTimer > 0) {
@@ -654,28 +670,32 @@ public class Player extends Sprite {
     }
 
     public void attack() {
-        b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
-        if (attackTimer < 0) {
-            attackTimer = ATTACK_TIME;
-            if (swordFixture == null) {
-                swordFixture = playerBody.createAttack();
-            }
-            if (attackNumber == 1) {
-                if (runningRight) {
-                    b2body.applyLinearImpulse(new Vector2(1f, 0), b2body.getWorldCenter(), true);
-                } else {
-                    b2body.applyLinearImpulse(new Vector2(-1f, 0), b2body.getWorldCenter(), true);
+        if (attackCooldownTimer < 0) {
+            attackCooldownTimer = ATTACK_COOLDOWN_TIME;
+
+            b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            if (attackTimer < 0) {
+                attackTimer = ATTACK_TIME;
+                if (swordFixture == null) {
+                    swordFixture = playerBody.createAttack();
+                }
+                if (attackNumber == 1) {
+//                    if (runningRight) {
+//                        b2body.applyLinearImpulse(new Vector2(1f, 0), b2body.getWorldCenter(), true);
+//                    } else {
+//                        b2body.applyLinearImpulse(new Vector2(-1f, 0), b2body.getWorldCenter(), true);
+//                    }
+                }
+                if (comboTimer > 0) {
+                    attackNumber++;
+                    if (attackNumber > 2) {
+                        attackNumber = 0;
+                    }
                 }
             }
-            if (comboTimer > 0) {
-                attackNumber++;
-                if (attackNumber > 2) {
-                    attackNumber = 0;
-                }
-            }
+            comboTimer = 0.9f;
+            b2body.setAwake(true);
         }
-        comboTimer = 0.9f;
-        b2body.setAwake(true);
     }
 
     public State getCurrentState() {
@@ -724,8 +744,10 @@ public class Player extends Sprite {
     }
 
     public void fireBow() {
-        if (arrowCooldown <= 0)
-            chargingBow = true;
+        if (canMove()) {
+            if (arrowCooldown <= 0)
+                chargingBow = true;
+        }
     }
 
     public void bowAttack() {
@@ -844,7 +866,7 @@ public class Player extends Sprite {
 //            damage = 5 + swordLevel;
 //        }
 //        return damage;
-        return 3;
+        return 5;
     }
 
     public boolean canPassFloor() {

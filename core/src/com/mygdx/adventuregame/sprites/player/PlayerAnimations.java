@@ -79,12 +79,14 @@ public class PlayerAnimations {
         playerDie = generateAnimation(textureAtlas.findRegion("player_die"), 7, 52, 39, 0.3f);
         playerRevive = generateAnimation(textureAtlas.findRegion("player_revive"), 7, 50, 37, 0.3f);
         playerThrow1 = generateAnimation(textureAtlas.findRegion("player_throw"), 4, 52, 39, 0.07f);
+
         playerAttack = generateAnimation(textureAtlas.findRegion("player_attack1"), 5, 52, 39, 0.07f);
         playerAttackDamaged = generateAnimation(textureAtlas.findRegion("player_attack1_bright"), 5, 52, 39, 0.07f);
         playerAttack2 = generateAnimation(textureAtlas.findRegion("player_attack2"), 6, 50, 37, 0.0575f);
         playerAttack2Damaged = generateAnimation(textureAtlas.findRegion("player_attack2_bright"), 6, 50, 37, 0.0575f);
         playerAttack3 = generateAnimation(textureAtlas.findRegion("player_attack3"), 6, 50, 37, 0.0575f);
         playerAttack3Damaged = generateAnimation(textureAtlas.findRegion("player_attack3_bright"), 6, 50, 37, 0.0575f);
+
         playerAirAttack = generateAnimation(textureAtlas.findRegion("player_air_attack1"), 4, 52, 39, 0.125f);
         playerFlip = generateAnimation(textureAtlas.findRegion("player_flip"), 4, 52, 39, 0.1f);
         playerFlipDamaged = generateAnimation(textureAtlas.findRegion("player_flip_bright"), 4, 52, 39, 0.1f);

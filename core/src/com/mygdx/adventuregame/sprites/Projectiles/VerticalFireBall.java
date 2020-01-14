@@ -198,4 +198,6 @@ public class VerticalFireBall extends Sprite implements UpdatableSprite, EnemyPr
     public int getType() {
         return AdventureGame.FIRE_PROJECTILE;
     }
+
+
 }

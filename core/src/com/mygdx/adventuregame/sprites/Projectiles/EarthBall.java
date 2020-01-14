@@ -198,4 +198,6 @@ public class EarthBall extends Sprite implements UpdatableSprite, EnemyProjectil
         return AdventureGame.EARTH_PROJECTILE;
     }
 
+
+
 }

@@ -117,7 +117,8 @@ public class PlayScreen implements Screen {
         music.setLooping(true);
         music.setVolume(0.2f);
 //        music.play();
-        Texture bgTexture = new Texture("temple_bg.png");
+//        Texture bgTexture = new Texture("temple_bg.png");
+        Texture bgTexture = new Texture("background_dungeon.png");
         background = new Sprite(bgTexture);
 
 //        Texture bgTexture = new Texture("BackgroundLong.png");
@@ -140,8 +141,8 @@ public class PlayScreen implements Screen {
 
 //        map = mapLoader.load("forest_castle.tmx");
 //        map = mapLoader.load("forest_castle_1.tmx", params);
-//        map = mapLoader.load("dungeon_1.tmx", params);
-        map = mapLoader.load("Boss_test.tmx", params);
+        map = mapLoader.load("dungeon_1.tmx", params);
+//        map = mapLoader.load("Boss_test.tmx", params);
 //        map = mapLoader.load("temple.tmx", params);
 
 
@@ -201,10 +202,6 @@ public class PlayScreen implements Screen {
 
         shapeRenderer = new ShapeRenderer();
 
-        enemyList.add(new Golem(this, 9.12f, 2.4f));
-        enemyList.add(new FireGolem(this, 9.12f, 2.4f));
-        enemyList.add(new Imp(this, 3.12f, 4f));
-        enemyList.add(new Necromancer(this, 3.12f, 4f));
 //        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
 //        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.ARROW));
 //        enemyList.add(new RedOgre(this, 4, 5.2f));
@@ -215,17 +212,17 @@ public class PlayScreen implements Screen {
     }
 
     public void update(float dt){
-        if(enemyList.isEmpty()){
-            player.fullHealth();
-            bossCounter++;
-            if(bossCounter == 1){
-                enemyList.add(new IceGolem(this, 9.12f, 2.4f));
-            }else if(bossCounter == 2){
-                enemyList.add(new Golem(this, 9.12f, 2.4f));
-            }else if(bossCounter == 3){
-                enemyList.add(new FireGolem(this, 9.12f, 2.4f));
-            }
-        }
+//        if(enemyList.isEmpty()){
+//            player.fullHealth();
+//            bossCounter++;
+//            if(bossCounter == 1){
+//                enemyList.add(new IceGolem(this, 9.12f, 2.4f));
+//            }else if(bossCounter == 2){
+//                enemyList.add(new Golem(this, 9.12f, 2.4f));
+//            }else if(bossCounter == 3){
+//                enemyList.add(new FireGolem(this, 9.12f, 2.4f));
+//            }
+//        }
         if(!tearDownComplete){
             for(CheckPoint checkPoint : checkPoints){
                 checkPoint.destroy();
@@ -290,7 +287,7 @@ public class PlayScreen implements Screen {
         //        gameCam.position.y = player.b2body.getPosition().y + 0.22f;
 
         gameCam.position.x = Math.round(player.b2body.getPosition().x * 575f) / 575f;
-        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) /575f + 0.25f;
+        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) /575f + 0.3f;
 //        float ypos = player.b2body.getPosition().y + 0.25f;
 //        if(ypos > 5){
 //            gameCam.position.y = ypos;

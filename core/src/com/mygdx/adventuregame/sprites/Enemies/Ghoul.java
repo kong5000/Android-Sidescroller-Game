@@ -15,6 +15,8 @@ import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Enemy;
 
 public class Ghoul extends Enemy {
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
+    private static final float MAX_VERTICAL_SPEED = 3;
     private static final float[] REAPER_HITBOX = {
             -0.17f, 0.08f,
             -0.17f, -0.07f,
@@ -123,7 +125,6 @@ public class Ghoul extends Enemy {
             }
         }
         if (currentState == State.DYING) {
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x *0.97f, b2body.getLinearVelocity().y*0.97f );
             if (deathAnimation.isAnimationFinished(stateTimer)) {
             }
             deathTimer += dt;
@@ -144,6 +145,7 @@ public class Ghoul extends Enemy {
             updateStateTimers(dt);
             setRegion(getFrame(dt));
             act();
+            limitSpeed();
         }
     }
 
@@ -168,10 +170,8 @@ public class Ghoul extends Enemy {
 
     private void act() {
         if (currentState == State.CHASING) {
-
             if (playerInAttackRange()) {
                 goIntoAttackState();
-                lungeAtPlayer();
             }
         }
         if (currentState == State.ATTACKING) {
@@ -255,11 +255,19 @@ public class Ghoul extends Enemy {
             moveUp();
         } else {
 
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0);
-
         }
     }
-
+    private void limitSpeed() {
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+    }
     private void chasePlayerHorizontal() {
         if (playerIsToTheRight()) {
             runRight();
@@ -357,19 +365,20 @@ public class Ghoul extends Enemy {
     }
 
     private void moveDown() {
-        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0.7f);
+
     }
 
     private void moveUp() {
-        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 0);
+
     }
 
     private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
+        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
+
     }
 
     private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
+        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
     }
 
     private boolean playerInAttackRange() {

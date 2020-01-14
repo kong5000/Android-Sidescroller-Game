@@ -385,11 +385,9 @@ public class Controller implements InputProcessor {
             if (stopSpell) {
                 if (player.currentState != Player.State.DODGING) {
                     if (xVal > 0.25 && player.b2body.getLinearVelocity().x <= player.currentMaxSpeed) {
-                        player.b2body.applyLinearImpulse(new Vector2(0.175f, 0), player.b2body.getWorldCenter(), true);
-//                    player.b2body.setLinearVelocity(player.currentSpeed, player.b2body.getLinearVelocity().y);
+                        player.b2body.applyLinearImpulse(new Vector2(0.2f, 0), player.b2body.getWorldCenter(), true);
                     } else if (xVal < -0.25 && player.b2body.getLinearVelocity().x >= -player.currentMaxSpeed) {
-                        player.b2body.applyLinearImpulse(new Vector2(-0.175f, 0), player.b2body.getWorldCenter(), true);
-//                    player.b2body.setLinearVelocity(-player.currentSpeed, player.b2body.getLinearVelocity().y);
+                        player.b2body.applyLinearImpulse(new Vector2(-0.2f, 0), player.b2body.getWorldCenter(), true);
                     } else {
                         player.b2body.setLinearVelocity(0, player.b2body.getLinearVelocity().y);
                     }
