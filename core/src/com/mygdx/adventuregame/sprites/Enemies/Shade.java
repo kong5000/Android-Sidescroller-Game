@@ -47,20 +47,63 @@ public class Shade extends Enemy {
 
     private static final float X_OFFSET = 0.2f;
 
+    private static final String MOVE_ANIMATION_FILENAME = "shade_move";
+    private static final String ATTACK_ANIMATION_FILENAME = "shade_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "shade_idle";
+    private static final String HURT_ANIMATION_FILENAME = "shade_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "shade_die";
+
+    private static final int MOVE_FRAME_COUNT = 4;
+    private static final int ATTACK_FRAME_COUNT = 7;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 10;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.09f;
+    private static final float HURT_ANIMATION_FPS = 0.07f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
     public Shade(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         this.specialDrop = specialDrop;
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("shade_move"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("shade_die"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("shade_attack"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("shade_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("shade_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.09f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         attackCooldown = -1f;

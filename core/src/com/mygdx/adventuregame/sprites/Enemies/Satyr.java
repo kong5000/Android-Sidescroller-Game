@@ -57,20 +57,71 @@ public class Satyr extends Enemy {
     private static final float IDLE_TIME = 0.5f;
     private boolean active = false;
 
+    private static final String MOVE_ANIMATION_FILENAME = "satyr_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "satyr_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "satyr_idle";
+    private static final String HURT_ANIMATION_FILENAME = "satyr_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "satyr_die";
+    private static final String JUMP_ANIMATION_FILENAME = "satyr_jump";
+
+    private static final int MOVE_FRAME_COUNT = 6;
+    private static final int ATTACK_FRAME_COUNT = 7;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 8;
+    private static final int JUMP_FRAME_COUNT = 28;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.09f;
+    private static final float HURT_ANIMATION_FPS = 0.07f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+    private static final float JUMP_ANIMATION_FPS = 0.1f;
+
+
     public Satyr(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_die"),
-                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_attack"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        jumpAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_jump"),
-                2, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        initJumpAnimation(
+                JUMP_ANIMATION_FILENAME,
+                JUMP_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                JUMP_ANIMATION_FPS);
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;

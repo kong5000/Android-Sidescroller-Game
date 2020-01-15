@@ -57,6 +57,7 @@ public class Mimic extends Enemy {
 
 
     public Mimic(PlayScreen screen, float x, float y) {
+        //Todo Restore original getframe from previous version
         super(screen, x, y);
         inactiveTexture = new TextureRegion(screen.getAtlas().findRegion("mimic_transform"), 0, 0, WIDTH_PIXELS, HEIGHT_PIXELS);
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_run"),

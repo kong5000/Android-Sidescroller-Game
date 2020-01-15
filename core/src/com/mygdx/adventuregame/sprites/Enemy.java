@@ -68,6 +68,87 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         attackEnabled = false;
     }
 
+    protected void initMoveAnimation(
+            String region_name,
+            int numberOfFrames,
+            int width, int height,
+            float secondsPerFrame
+    ) {
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
+                numberOfFrames,
+                width,
+                height,
+                secondsPerFrame);
+        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
+    protected void initAttackAnimation(
+            String region_name,
+            int numberOfFrames,
+            int width, int height,
+            float secondsPerFrame
+    ) {
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
+                numberOfFrames,
+                width,
+                height,
+                secondsPerFrame);
+    }
+
+    protected void initHurtAnimation(
+            String region_name,
+            int numberOfFrames,
+            int width, int height,
+            float secondsPerFrame
+    ) {
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
+                numberOfFrames,
+                width,
+                height,
+                secondsPerFrame);
+    }
+
+    protected void initIdleAnimation(
+            String region_name,
+            int numberOfFrames,
+            int width, int height,
+            float secondsPerFrame
+    ) {
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
+                numberOfFrames,
+                width,
+                height,
+                secondsPerFrame);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
+    protected void initDeathAnimation(
+            String region_name,
+            int numberOfFrames,
+            int width, int height,
+            float secondsPerFrame
+    ) {
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
+                numberOfFrames,
+                width,
+                height,
+                secondsPerFrame);
+    }
+
+    protected void initJumpAnimation(
+            String region_name,
+            int numberOfFrames,
+            int width, int height,
+            float secondsPerFrame
+    ) {
+        jumpAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
+                numberOfFrames,
+                width,
+                height,
+                secondsPerFrame);
+        jumpAnimation.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
     protected Animation<TextureRegion> generateAnimation(
             TextureRegion textureRegion,
             int numberOfFrames,
@@ -88,7 +169,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         return animation;
     }
 
-    protected void defineEnemy(){
+    protected void defineEnemy() {
         BodyDef bodyDef = new BodyDef();
         bodyDef.position.set(getX(), getY());
         bodyDef.type = BodyDef.BodyType.DynamicBody;
@@ -146,7 +227,9 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
             flashFrame = false;
         }
     }
+
     protected abstract State getState();
+
     protected abstract void orientTextureTowardsPlayer(TextureRegion texture);
 
     protected TextureRegion getFrame(float dt) {
@@ -156,7 +239,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         switch (currentState) {
             case DYING:
                 attackEnabled = false;
-                texture= deathAnimation.getKeyFrame(stateTimer);
+                texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case JUMPING:
                 attackEnabled = false;
@@ -186,6 +269,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         previousState = currentState;
         return texture;
     }
+
     public void hitByFire() {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
     }
@@ -213,24 +297,27 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         return safeToRemove;
     }
 
-    protected void initializeTimers(){
+    protected void initializeTimers() {
 
     }
 
-    public int getExperiencePoints(){
+    public int getExperiencePoints() {
         return experiencePoints;
     }
 
-    public void dispose(){
-        if(b2body != null){
+    public void dispose() {
+        if (b2body != null) {
             world.destroyBody(b2body);
         }
     }
-    public void setToDestroy(){
-        setToDestroy = true;
-    };
 
-    public void generateArrow(boolean goingRight){
+    public void setToDestroy() {
+        setToDestroy = true;
+    }
+
+    ;
+
+    public void generateArrow(boolean goingRight) {
 
     }
 }

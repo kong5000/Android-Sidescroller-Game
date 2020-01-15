@@ -66,20 +66,64 @@ public class Imp extends Enemy {
     private static final float SLOW_SPEED = 0.6f;
     private float movementSpeed = MAX_SPEED;
 
+    private static final String MOVE_ANIMATION_FILENAME = "imp_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "imp_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "imp_idle";
+    private static final String HURT_ANIMATION_FILENAME = "imp_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "imp_die";
+    private static final String JUMP_ANIMATION_FILENAME = "imp_jump";
+
+    private static final int MOVE_FRAME_COUNT = 5;
+    private static final int ATTACK_FRAME_COUNT = 10;
+    private static final int IDLE_FRAME_COUNT = 5;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 10;
+
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.1f;
+    private static final float HURT_ANIMATION_FPS = 0.1f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
+
     public Imp(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("imp_move"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("imp_die"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("imp_attack"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("imp_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        hurtAnimation= generateAnimation(screen.getAtlas().findRegion("imp_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 

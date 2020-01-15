@@ -56,6 +56,24 @@ public class Reaper extends Enemy {
 
     private Fixture attackFixture;
 
+    private static final String MOVE_ANIMATION_FILENAME = "reaper_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "reaper_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "reaper_idle";
+    private static final String HURT_ANIMATION_FILENAME = "reaper_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "reaper_die";
+
+    private static final int MOVE_FRAME_COUNT = 4;
+    private static final int ATTACK_FRAME_COUNT = 5;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 11;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.1f;
+    private static final float HURT_ANIMATION_FPS = 0.1f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
 
     public Reaper(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -67,6 +85,35 @@ public class Reaper extends Enemy {
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("reaper_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 

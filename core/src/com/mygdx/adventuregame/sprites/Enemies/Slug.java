@@ -48,6 +48,25 @@ public class Slug extends Enemy {
     private static final float MAX_VERTICAL_SPEED = 3;
     private static final float JUMP_COOLDOWN = 2;
 
+    private static final String MOVE_ANIMATION_FILENAME = "slug_move";
+    private static final String ATTACK_ANIMATION_FILENAME = "slug_attack1";
+    private static final String IDLE_ANIMATION_FILENAME = "slug_idle";
+    private static final String HURT_ANIMATION_FILENAME = "slug_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "slug_die";
+
+    private static final int MOVE_FRAME_COUNT = 5;
+    private static final int ATTACK_FRAME_COUNT = 6;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 6;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.07f;
+    private static final float HURT_ANIMATION_FPS = 0.07f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
+
     private float attackTimer;
     private float jumpTimer = -1f;
     private float deathTimer;
@@ -56,28 +75,44 @@ public class Slug extends Enemy {
 
     private Fixture attackFixture;
     private boolean active;
+
     public Slug(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("slug_move"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_move"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("slug_die"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("slug_attack1"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_attack1"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("slug_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("slug_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("slug_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -98,8 +133,8 @@ public class Slug extends Enemy {
 
     @Override
     public void update(float dt) {
-        if(!active){
-            if(playerInActivationRange()){
+        if (!active) {
+            if (playerInActivationRange()) {
                 active = true;
             }
         }
@@ -117,7 +152,7 @@ public class Slug extends Enemy {
             if (deathAnimation.isAnimationFinished(stateTimer)) {
             }
             deathTimer += dt;
-            if(deathTimer > 0.85f && flashRedTimer < 0){
+            if (deathTimer > 0.85f && flashRedTimer < 0) {
                 flashRedTimer = 2;
             }
             if (deathTimer > CORPSE_EXISTS_TIME) {
@@ -125,7 +160,7 @@ public class Slug extends Enemy {
                 if (!destroyed) {
                     launchProjectiles();
                     float xOffset = 0.2f;
-                    if(runningRight){
+                    if (runningRight) {
                         xOffset = -0.1f;
                     }
                     SmallExplosion explosion = new SmallExplosion(screen, getX() + xOffset, getY() - getHeight());
@@ -150,7 +185,7 @@ public class Slug extends Enemy {
             updateStateTimers(dt);
 
             setRegion(getFrame(dt));
-            if(active){
+            if (active) {
                 act(dt);
             }
             if (runningRight) {

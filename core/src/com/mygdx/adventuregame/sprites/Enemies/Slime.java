@@ -29,16 +29,65 @@ public class Slime extends Enemy {
     private static final float CORPSE_TIME = 0.25f;
     private float attackRateTimer;
 
+    private static final String MOVE_ANIMATION_FILENAME = "slime_move";
+    private static final String ATTACK_ANIMATION_FILENAME = "slime_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "slime_idle";
+    private static final String HURT_ANIMATION_FILENAME = "slime_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "slime_die";
+
+    private static final int MOVE_FRAME_COUNT = 4;
+    private static final int ATTACK_FRAME_COUNT = 4;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 4;
+    private static final int DEATH_FRAME_COUNT = 4;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.1f;
+    private static final float HURT_ANIMATION_FPS = 0.1f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
+    private static final int WIDTH_PIXELS = 34;
+    private static final int HEIGHT_PIXELS = 27;
+
     public Slime(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("slime_move"),
-                4, 34, 27, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("slime_die"),
-                4, 34, 27, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("slime_attack"),
-                4, 34, 27, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("slime_hurt"),
-                4, 34, 27, 0.07f);
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+
         stateTimer = 0;
         setBounds(getX(), getY(), 34 / AdventureGame.PPM, 27 / AdventureGame.PPM);
         setToDestroy = false;

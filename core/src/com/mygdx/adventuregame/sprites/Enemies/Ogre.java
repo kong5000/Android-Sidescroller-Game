@@ -53,28 +53,70 @@ public class Ogre extends Enemy {
 
     private Fixture attackFixture;
 
+    private static final String MOVE_ANIMATION_FILENAME = "ogre_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "ogre_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "ogre_idle";
+    private static final String HURT_ANIMATION_FILENAME = "ogre_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "ogre_die";
+    private static final String JUMP_ANIMATION_FILENAME = "ogre_jump";
+
+    private static final int MOVE_FRAME_COUNT = 6;
+    private static final int ATTACK_FRAME_COUNT = 7;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 9;
+    private static final int JUMP_FRAME_COUNT = 2;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.1f;
+    private static final float HURT_ANIMATION_FPS = 0.1f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+    private static final float JUMP_ANIMATION_FPS = 0.1f;
+
     public Ogre(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_run_bright"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_die"),
-                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_attack"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_attack_bright"),
-                7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_hurt_bright"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("ogre_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("ogre_idle_bright"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        initJumpAnimation(
+                JUMP_ANIMATION_FILENAME,
+                JUMP_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                JUMP_ANIMATION_FPS);
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
