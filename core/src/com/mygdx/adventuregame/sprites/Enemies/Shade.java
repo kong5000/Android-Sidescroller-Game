@@ -38,18 +38,14 @@ public class Shade extends Enemy {
     private float attackTimer;
     private float attackCooldown;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
 
     private boolean canFireProjectile = false;
 
     private boolean specialDrop = false;
     private float deathTimer;
     private boolean setToDie;
+
+    private static final float X_OFFSET = 0.2f;
 
     public Shade(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -62,10 +58,9 @@ public class Shade extends Enemy {
                 7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         hurtAnimation = generateAnimation(screen.getAtlas().findRegion("shade_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("shade_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("shade_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.09f);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         attackCooldown = -1f;
@@ -97,11 +92,12 @@ public class Shade extends Enemy {
             stateTimer = 0;
         } else if (!destroyed) {
             setRegion(getFrame(dt));
-            if(runningRight){
-                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            }else {
-                setPosition(b2body.getPosition().x - getWidth() / 2  -0.2f, b2body.getPosition().y - getHeight() / 2);
+            float x_offset = 0;
+            if (!runningRight) {
+                x_offset = X_OFFSET;
             }
+            setPosition(b2body.getPosition().x - getWidth() / 2 - x_offset, b2body.getPosition().y - getHeight() / 2);
+
             updateStateTimers(dt);
 
             act(dt);
@@ -119,7 +115,7 @@ public class Shade extends Enemy {
         if (flashRedTimer > 0) {
             flashRedTimer -= dt;
         }
-        if(currentState == State.ATTACKING){
+        if (currentState == State.ATTACKING) {
             if (attackTimer > 0) {
                 attackTimer -= dt;
             }
@@ -163,7 +159,11 @@ public class Shade extends Enemy {
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
                 if (!destroyed) {
-                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
+                    float x_offset = 0;
+                    if (!runningRight) {
+                        x_offset = X_OFFSET;
+                    }
+                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 2 + x_offset, getY() - getHeight()));
                 }
             }
         }
@@ -183,39 +183,6 @@ public class Shade extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
 
     private void chasePlayer() {
         if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM
@@ -228,7 +195,7 @@ public class Shade extends Enemy {
         }
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -268,7 +235,7 @@ public class Shade extends Enemy {
         return (invincibilityTimer < 0);
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;

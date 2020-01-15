@@ -28,10 +28,6 @@ public class Slime extends Enemy {
     private static final float HURT_RATE = 0.3f;
     private static final float CORPSE_TIME = 0.25f;
     private float attackRateTimer;
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
 
     public Slime(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -85,60 +81,8 @@ public class Slime extends Enemy {
 
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
 
-        TextureRegion region;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                region = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                if (attackAnimation.isAnimationFinished(stateTimer)) {
-                    region = walkAnimation.getKeyFrame(stateTimer, true);
-                    attackEnabled = false;
-                } else {
-                    region = attackAnimation.getKeyFrame(stateTimer);
-                    attackEnabled = true;
-                }
-                break;
-            case HURT:
-                attackEnabled = false;
-                region = hurtAnimation.getKeyFrame(stateTimer);
-                break;
-            case WALKING:
-            default:
-                attackEnabled = false;
-                region = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-
-        Vector2 vectorToPlayer = getVectorToPlayer();
-        if ((vectorToPlayer.x < 0) && region.isFlipX()) {
-            region.flip(true, false);
-        }
-        if ((vectorToPlayer.x > 0) && !region.isFlipX()) {
-            region.flip(true, false);
-        }
-
-        attackRateTimer -= dt;
-        if (currentState == State.ATTACKING && attackRateTimer < 0) {
-            attackRateTimer = ATTACK_RATE;
-            stateTimer = 0; //To reset attack animation (otherwise will just use walking animation during attacks after first attack)
-            if (vectorToPlayer.x < 0) {
-                b2body.applyLinearImpulse(new Vector2(-1.5f, 1.5f), b2body.getWorldCenter(), true);
-            } else {
-                b2body.applyLinearImpulse(new Vector2(1.5f, 1.5f), b2body.getWorldCenter(), true);
-            }
-        }
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return region;
-    }
-
-    private State getState() {
+    protected State getState() {
         if (setToDestroy) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -149,6 +93,11 @@ public class Slime extends Enemy {
         } else {
             return State.WALKING;
         }
+    }
+
+    @Override
+    protected void orientTextureTowardsPlayer(TextureRegion texture) {
+
     }
 
     @Override

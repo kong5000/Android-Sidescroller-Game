@@ -106,27 +106,17 @@ public class PlayScreen implements Screen {
     private ShapeRenderer shapeRenderer;
     private boolean tearDownComplete = true;
 
-    public PlayScreen(AdventureGame game){
+    public PlayScreen(AdventureGame game) {
         assetManager = new AssetManager();
         assetManager.load("game_sprites.pack", TextureAtlas.class);
         assetManager.load("Boss_Battle.wav", Music.class);
         assetManager.finishLoading();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
-        music =  assetManager.get("Boss_Battle.wav", Music.class);
+        music = assetManager.get("Boss_Battle.wav", Music.class);
 
         music.setLooping(true);
         music.setVolume(0.2f);
 //        music.play();
-//        Texture bgTexture = new Texture("temple_bg.png");
-        Texture bgTexture = new Texture("background_dungeon.png");
-        background = new Sprite(bgTexture);
-
-//        Texture bgTexture = new Texture("BackgroundLong.png");
-//        background = new Sprite(bgTexture);
-//        Texture bgTextureFar = new Texture("BackgroundCloud.png");
-//        backgroundFar = new Sprite(bgTextureFar);
-
-
 
 
         this.game = game;
@@ -139,21 +129,28 @@ public class PlayScreen implements Screen {
         params.textureMinFilter = Texture.TextureFilter.Nearest;
 
 
+        Texture bgTexture = new Texture("temple_bg.png");
+//        Texture bgTexture = new Texture("background_dungeon.png");
+        background = new Sprite(bgTexture);
+
+//        Texture bgTexture = new Texture("BackgroundLong.png");
+//        background = new Sprite(bgTexture);
+//        Texture bgTextureFar = new Texture("BackgroundCloud.png");
+//        backgroundFar = new Sprite(bgTextureFar);
+
+
 //        map = mapLoader.load("forest_castle.tmx");
 //        map = mapLoader.load("forest_castle_1.tmx", params);
-        map = mapLoader.load("dungeon_1.tmx", params);
+//        map = mapLoader.load("dungeon_1.tmx", params);
 //        map = mapLoader.load("Boss_test.tmx", params);
-//        map = mapLoader.load("temple.tmx", params);
-
+        map = mapLoader.load("temple.tmx", params);
 
 
         Iterator<TiledMapTileSet> iter = map.getTileSets().iterator();
-        while(iter.hasNext())
-        {
+        while (iter.hasNext()) {
             Iterator<TiledMapTile> iterTile = iter.next().iterator();
 
-            while(iterTile.hasNext())
-            {
+            while (iterTile.hasNext()) {
                 iterTile.next().getTextureRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
             }
         }
@@ -211,7 +208,7 @@ public class PlayScreen implements Screen {
 
     }
 
-    public void update(float dt){
+    public void update(float dt) {
 //        if(enemyList.isEmpty()){
 //            player.fullHealth();
 //            bossCounter++;
@@ -223,57 +220,57 @@ public class PlayScreen implements Screen {
 //                enemyList.add(new FireGolem(this, 9.12f, 2.4f));
 //            }
 //        }
-        if(!tearDownComplete){
-            for(CheckPoint checkPoint : checkPoints){
+        if (!tearDownComplete) {
+            for (CheckPoint checkPoint : checkPoints) {
                 checkPoint.destroy();
                 checkPoints.removeValue(checkPoint, true);
             }
             worldCreator.destroyBodies();
-            if(worldCreator.tearDownComplete()){
+            if (worldCreator.tearDownComplete()) {
                 tearDownComplete = true;
             }
-            if(tearDownComplete){
+            if (tearDownComplete) {
                 worldCreator = new B2WorldCreator(world, map, this);
             }
         }
         controller.handleInput();
         controller.update(dt);
-        world.step(1/60f, 6, 2);
+        world.step(1 / 60f, 6, 2);
         player.update(dt);
-        background.setPosition(player.b2body.getPosition().x * -10, player.b2body.getPosition().y * - 5);
-        if(backgroundFar != null){
-            backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * - 5);
+        background.setPosition(player.b2body.getPosition().x * -10, player.b2body.getPosition().y * -5);
+        if (backgroundFar != null) {
+            backgroundFar.setPosition(player.b2body.getPosition().x * -5, player.b2body.getPosition().y * -5);
         }
-        for(UpdatableSprite sprite : sprites){
+        for (UpdatableSprite sprite : sprites) {
             sprite.update(dt);
         }
-        for(UpdatableSprite sprite : topLayerSprites){
+        for (UpdatableSprite sprite : topLayerSprites) {
             sprite.update(dt);
         }
-        for(Enemy enemy : enemyList){
+        for (Enemy enemy : enemyList) {
             enemy.update(dt);
         }
-        for(FireBall fireBall : fireBalls){
+        for (FireBall fireBall : fireBalls) {
             fireBall.update(dt);
         }
-        for (FireSpell spell : spells){
+        for (FireSpell spell : spells) {
             spell.update(dt);
         }
-        for(DamageNumber number : damageNumbers){
+        for (DamageNumber number : damageNumbers) {
             number.update(dt);
         }
-        for(HealthBar bar : healthBars){
+        for (HealthBar bar : healthBars) {
             bar.update(dt);
         }
-        for(Explosion explosion : explosions){
+        for (Explosion explosion : explosions) {
             explosion.update(dt);
         }
-        for(MonsterTile monsterTile : monsterTiles){
+        for (MonsterTile monsterTile : monsterTiles) {
             monsterTile.update(dt);
         }
 
         hud.setScore(player.getHealth());
-        hud.setExperience((int)player.getArrowCount());
+        hud.setExperience((int) player.getArrowCount());
 
 
         //Camera tracks player
@@ -287,7 +284,7 @@ public class PlayScreen implements Screen {
         //        gameCam.position.y = player.b2body.getPosition().y + 0.22f;
 
         gameCam.position.x = Math.round(player.b2body.getPosition().x * 575f) / 575f;
-        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) /575f + 0.3f;
+        gameCam.position.y = Math.round(player.b2body.getPosition().y * 575f) / 575f + 0.3f;
 //        float ypos = player.b2body.getPosition().y + 0.25f;
 //        if(ypos > 5){
 //            gameCam.position.y = ypos;
@@ -300,23 +297,23 @@ public class PlayScreen implements Screen {
     }
 
     private void handleInupt(float dt) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.UP)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             player.jump();
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED){
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= PLAYER_MAX_SPEED) {
             player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED){
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -PLAYER_MAX_SPEED) {
             player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             player.attack();
         }
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             player.setCanPassFloor(true);
-        }else {
+        } else {
             player.setCanPassFloor(false);
         }
     }
@@ -330,11 +327,11 @@ public class PlayScreen implements Screen {
     public void render(float delta) {
         update(delta);
         //  Clear the screen
-        Gdx.gl.glClearColor(0, 0, 0 , 0);
+        Gdx.gl.glClearColor(0, 0, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.batch.begin();
-        if(backgroundFar != null){
+        if (backgroundFar != null) {
             backgroundFar.draw(game.batch);
         }
         background.draw(game.batch);
@@ -345,53 +342,57 @@ public class PlayScreen implements Screen {
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
 
-        if(enemyList.size > 0){
-            for(Enemy enemy : enemyList){
+        if (enemyList.size > 0) {
+            for (Enemy enemy : enemyList) {
+                if (enemy.flashFrame) {
+                    game.batch.setShader(shader);
+                }
                 enemy.draw(game.batch);
+                game.batch.setShader(null);
             }
         }
-        if(fireBalls.size > 0){
-            for(FireBall fireBall : fireBalls){
+        if (fireBalls.size > 0) {
+            for (FireBall fireBall : fireBalls) {
                 fireBall.draw(game.batch);
             }
         }
-        for(UpdatableSprite sprite : sprites){
+        for (UpdatableSprite sprite : sprites) {
             sprite.draw(game.batch);
         }
-        for(DamageNumber number : damageNumbers){
-            if(!number.isForPlayer()){
+        for (DamageNumber number : damageNumbers) {
+            if (!number.isForPlayer()) {
                 game.batch.setShader(shader);
             }
             number.draw(game.batch);
             game.batch.setShader(null);
         }
-        for(HealthBar bar : healthBars){
+        for (HealthBar bar : healthBars) {
             bar.draw(game.batch);
         }
 
-        for (Explosion explosion : explosions){
+        for (Explosion explosion : explosions) {
             explosion.draw(game.batch);
         }
-        for(FireSpell spell : spells){
+        for (FireSpell spell : spells) {
             spell.draw(game.batch);
         }
-        for(MonsterTile monsterTile : monsterTiles){
+        for (MonsterTile monsterTile : monsterTiles) {
             monsterTile.draw(game.batch);
         }
 
 
         game.batch.end();
 
-        if(player.getCurrentState() == Player.State.DYING ){
+        if (player.getCurrentState() == Player.State.DYING) {
             fadeTickTimer += delta;
-            if(fadeTickTimer < 10000){
+            if (fadeTickTimer < 10000) {
                 fadeTickTimer = 0;
-                if(!player.doneDying()){
-                    if(fadeScreenAlpha <= 0.993){
+                if (!player.doneDying()) {
+                    if (fadeScreenAlpha <= 0.993) {
                         fadeScreenAlpha += 0.007f;
                     }
-                }else {
-                    if(fadeScreenAlpha >= 0.00701){
+                } else {
+                    if (fadeScreenAlpha >= 0.00701) {
                         fadeScreenAlpha -= 0.007f;
                     }
                 }
@@ -399,11 +400,10 @@ public class PlayScreen implements Screen {
             }
         }
 
-        if(player.getCurrentState() != Player.State.DYING){
+        if (player.getCurrentState() != Player.State.DYING) {
             fadeScreenColor.a = 0f;
             fadeScreenAlpha = 0f;
         }
-
 
 
         // Draw the filled rectangle
@@ -419,11 +419,8 @@ public class PlayScreen implements Screen {
         game.batch.begin();
 
 
-
-//        game.batch.setShader(shader);
-//        game.batch.setShader(null);
         player.draw(game.batch);
-        for(UpdatableSprite sprite : topLayerSprites){
+        for (UpdatableSprite sprite : topLayerSprites) {
             sprite.draw(game.batch);
         }
 
@@ -437,7 +434,7 @@ public class PlayScreen implements Screen {
         hud.stage.draw();
 
 
-        if(enemyList.isEmpty()){
+        if (enemyList.isEmpty()) {
 //            enemyList.add(new Slime(this, 3.5f, 5f));
 //            FireElemental fireElemental = new FireElemental(this, 10f, 6f);
 //            enemyList.add(fireElemental);
@@ -454,91 +451,91 @@ public class PlayScreen implements Screen {
 
 
         }
-        if(!projectilesToSpawn.isEmpty()){
-            for(FireBall fireBall : projectilesToSpawn){
+        if (!projectilesToSpawn.isEmpty()) {
+            for (FireBall fireBall : projectilesToSpawn) {
                 fireBalls.add(fireBall);
                 projectilesToSpawn.removeValue(fireBall, true);
             }
         }
-        if(!spellsToSpawn.isEmpty()){
-            for(FireSpell spell : spellsToSpawn){
+        if (!spellsToSpawn.isEmpty()) {
+            for (FireSpell spell : spellsToSpawn) {
                 spells.add(spell);
                 spellsToSpawn.removeValue(spell, true);
             }
         }
-        if(!damageNumbersToAdd.isEmpty()){
-            for(DamageNumber number : damageNumbersToAdd){
+        if (!damageNumbersToAdd.isEmpty()) {
+            for (DamageNumber number : damageNumbersToAdd) {
                 damageNumbers.add(number);
                 damageNumbersToAdd.removeValue(number, true);
             }
         }
-        if(!spritesToAdd.isEmpty()){
-            for(UpdatableSprite sprite : spritesToAdd){
+        if (!spritesToAdd.isEmpty()) {
+            for (UpdatableSprite sprite : spritesToAdd) {
                 sprites.add(sprite);
                 spritesToAdd.removeValue(sprite, true);
             }
         }
 
-        if(!topLayerSpritesToAdd.isEmpty()){
-            for(UpdatableSprite sprite : topLayerSpritesToAdd){
+        if (!topLayerSpritesToAdd.isEmpty()) {
+            for (UpdatableSprite sprite : topLayerSpritesToAdd) {
                 topLayerSprites.add(sprite);
                 topLayerSpritesToAdd.removeValue(sprite, true);
             }
         }
 
-        if(!healthBarsToAdd.isEmpty()){
-            for(HealthBar bar : healthBarsToAdd){
+        if (!healthBarsToAdd.isEmpty()) {
+            for (HealthBar bar : healthBarsToAdd) {
                 healthBars.add(bar);
                 healthBarsToAdd.removeValue(bar, true);
             }
         }
 
-        if(!explosionsToAdd.isEmpty()){
-            for(Explosion explosion : explosionsToAdd){
+        if (!explosionsToAdd.isEmpty()) {
+            for (Explosion explosion : explosionsToAdd) {
                 explosions.add(explosion);
                 explosionsToAdd.removeValue(explosion, true);
             }
         }
-        for(UpdatableSprite sprite : sprites){
-            if(sprite.safeToRemove()){
+        for (UpdatableSprite sprite : sprites) {
+            if (sprite.safeToRemove()) {
                 sprites.removeValue(sprite, true);
             }
         }
-        for(UpdatableSprite sprite : topLayerSprites){
-            if(sprite.safeToRemove()){
+        for (UpdatableSprite sprite : topLayerSprites) {
+            if (sprite.safeToRemove()) {
                 topLayerSprites.removeValue(sprite, true);
             }
         }
-        for(HealthBar healthBar : healthBars){
-            if(healthBar.safeToRemove){
+        for (HealthBar healthBar : healthBars) {
+            if (healthBar.safeToRemove) {
                 healthBars.removeValue(healthBar, true);
             }
         }
 
-        for(Enemy enemy : enemyList){
-            if(enemy.safeToRemove){
+        for (Enemy enemy : enemyList) {
+            if (enemy.safeToRemove) {
                 enemyList.removeValue(enemy, true);
             }
         }
 
-        for(FireBall fireBall : fireBalls){
-            if(fireBall.safeToRemove){
+        for (FireBall fireBall : fireBalls) {
+            if (fireBall.safeToRemove) {
                 fireBalls.removeValue(fireBall, true);
             }
         }
-        for(FireSpell fireSpell : spells){
-            if(fireSpell.safeToRemove){
+        for (FireSpell fireSpell : spells) {
+            if (fireSpell.safeToRemove) {
                 spells.removeValue(fireSpell, true);
             }
         }
-        for(DamageNumber number : damageNumbers){
-            if(number.safeToRemove){
+        for (DamageNumber number : damageNumbers) {
+            if (number.safeToRemove) {
                 damageNumbers.removeValue(number, true);
             }
         }
 
-        for(HealthBar bar: healthBars){
-            if(bar.safeToRemove){
+        for (HealthBar bar : healthBars) {
+            if (bar.safeToRemove) {
                 healthBars.removeValue(bar, true);
             }
         }
@@ -578,7 +575,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.dispose();
     }
 
-    public TextureAtlas getAtlas(){
+    public TextureAtlas getAtlas() {
         return atlas;
     }
 
@@ -589,17 +586,20 @@ public class PlayScreen implements Screen {
     public World getWorld() {
         return world;
     }
-    public Player getPlayer(){
+
+    public Player getPlayer() {
         return player;
     }
 
-    public Array<Explosion> getExplosions(){
+    public Array<Explosion> getExplosions() {
         return explosions;
     }
-    public Array<Explosion> getExplosionsToAdd(){
+
+    public Array<Explosion> getExplosionsToAdd() {
         return explosionsToAdd;
     }
-    public Array<DamageNumber> getDamageNumbersToAdd(){
+
+    public Array<DamageNumber> getDamageNumbersToAdd() {
         return damageNumbersToAdd;
     }
 
@@ -612,7 +612,7 @@ public class PlayScreen implements Screen {
             + "\n" //
             + "void main()\n" //
             + "{\n" //
-            + "   v_color = vec4(1, 1, 1, 1); "+ ";\n" //
+            + "   v_color = vec4(1, 1, 1, 1); " + ";\n" //
             + "   v_texCoords = " + ShaderProgram.TEXCOORD_ATTRIBUTE + "0;\n" //
             + "   gl_Position =  u_projTrans * " + ShaderProgram.POSITION_ATTRIBUTE + ";\n" //
             + "}\n";
@@ -659,22 +659,37 @@ public class PlayScreen implements Screen {
 
     ShaderProgram shader = new ShaderProgram(vertexShader, fragmentShader);
 
-    public Array<FireSpell> getSpells(){
+    public Array<FireSpell> getSpells() {
         return spells;
     }
-    public Array<Enemy> getEnemyList(){
+
+    public Array<Enemy> getEnemyList() {
         return enemyList;
     }
-    public Array<HealthBar> getHealthBars(){
+
+    public Array<HealthBar> getHealthBars() {
         return healthBars;
     }
-    public Array<HealthBar> getHealthBarsToAdd(){
+
+    public Array<HealthBar> getHealthBarsToAdd() {
         return healthBarsToAdd;
     }
-    public Array<UpdatableSprite> getSpritesToAdd(){ return spritesToAdd;}
-    public Array<UpdatableSprite> getTopLayerSpritesToAdd(){ return topLayerSpritesToAdd;}
-    public Array<UpdatableSprite> getTopLayerSprites(){ return topLayerSprites;}
-    public Array<CheckPoint> getCheckPoints(){return checkPoints;}
+
+    public Array<UpdatableSprite> getSpritesToAdd() {
+        return spritesToAdd;
+    }
+
+    public Array<UpdatableSprite> getTopLayerSpritesToAdd() {
+        return topLayerSpritesToAdd;
+    }
+
+    public Array<UpdatableSprite> getTopLayerSprites() {
+        return topLayerSprites;
+    }
+
+    public Array<CheckPoint> getCheckPoints() {
+        return checkPoints;
+    }
 
 
     public void changeMap() {
@@ -697,12 +712,12 @@ public class PlayScreen implements Screen {
 
     }
 
-    private void removeEntities(){
-        for(Enemy enemy : enemyList){
+    private void removeEntities() {
+        for (Enemy enemy : enemyList) {
             enemy.setToDestroy();
 //            enemyList.removeValue(enemy, true);
         }
-        for(UpdatableSprite sprite : sprites){
+        for (UpdatableSprite sprite : sprites) {
             sprite.setToDestroy();
 //            sprites.removeValue(sprite, true);
         }

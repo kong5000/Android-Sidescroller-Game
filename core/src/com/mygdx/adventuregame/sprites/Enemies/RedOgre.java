@@ -22,18 +22,18 @@ public class RedOgre extends Enemy {
             0.11f, -0.2f,
             0.11f, 0.2f};
     private static final float[] SWORD_HITBOX_RIGHT = {
-            0.3f, -0.2f,
-            0.3f, 0.1f,
+            0.375f, -0.2f,
+            0.375f, 0.1f,
             0.1f, -0.2f,
             0f, 0.15f};
     private static final float[] SWORD_HITBOX_LEFT = {
-            -0.3f, -0.2f,
-            -0.3f, 0.1f,
+            -0.375f, -0.2f,
+            -0.375f, 0.1f,
             -0.1f, -0.2f,
             0f, 0.15f};
 
     private static final float ATTACK_RATE = 1.1f;
-
+    private static final float X_OFFSET = 0.1f;
     private static final int WIDTH_PIXELS = 75;
     private static final int HEIGHT_PIXELS = 48;
 
@@ -48,16 +48,7 @@ public class RedOgre extends Enemy {
     private float jumpTimer = -1f;
     private float deathTimer;
     private boolean active;
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
-    private Animation<TextureRegion> jumpAnimation;
+
 
     private boolean setToDie = false;
 
@@ -107,6 +98,9 @@ public class RedOgre extends Enemy {
 
     @Override
     public void update(float dt) {
+        if(flashRedTimer < 0){
+            flashFrame = false;
+        }
         if (!active) {
             if (playerInActivationRange()) {
                 active = true;
@@ -131,7 +125,7 @@ public class RedOgre extends Enemy {
                 if (deathTimer > CORPSE_EXISTS_TIME) {
                     setToDestroy = true;
                     if (!destroyed) {
-                        screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
+                        screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4 + X_OFFSET, getY() - getHeight()));
                     }
                 }
             }
@@ -148,7 +142,7 @@ public class RedOgre extends Enemy {
                 if (runningRight) {
                     setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
                 } else {
-                    setPosition(b2body.getPosition().x - getWidth() / 2 - 0.1f, b2body.getPosition().y - getHeight() / 2);
+                    setPosition(b2body.getPosition().x - getWidth() / 2 - X_OFFSET, b2body.getPosition().y - getHeight() / 2);
 
                 }
                 updateStateTimers(dt);
@@ -236,43 +230,7 @@ public class RedOgre extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
 
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case JUMPING:
-                attackEnabled = false;
-                texture = jumpAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
 
     private void disableAttackHitBox() {
         if (attackFixture != null) {
@@ -303,7 +261,8 @@ public class RedOgre extends Enemy {
         }
     }
 
-    private State getState() {
+    @Override
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -338,6 +297,7 @@ public class RedOgre extends Enemy {
     @Override
     public void damage(int amount) {
         if (isAlive()) {
+            active = true;
             if (invincibilityTimer < 0) {
                 health -= amount;
                 invincibilityTimer = INVINCIBILITY_TIME;
@@ -380,7 +340,8 @@ public class RedOgre extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    @Override
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;

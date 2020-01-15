@@ -279,7 +279,8 @@ public class Minotaur extends Enemy implements BossAttack {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
+    @Override
+    protected TextureRegion getFrame(float dt) {
         currentState = getState();
 
         TextureRegion texture;
@@ -289,28 +290,28 @@ public class Minotaur extends Enemy implements BossAttack {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case CHARGING:
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer);;
                 break;
             case ATTACKING:
                 if (strongAttacking) {
-                    texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
+                    texture = attackAnimation.getKeyFrame(stateTimer);
                 } else {
-                    texture = selectBrightFrameOrRegularFrame(fastAttackAnimation, fastAttackAnimationDamaged);
+                    texture = fastAttackAnimation.getKeyFrame(stateTimer);
                 }
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
+                texture =hurtAnimation.getKeyFrame(stateTimer);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
+                texture = idleAnimation.getKeyFrame(stateTimer);
                 break;
         }
         if(currentState != State.CHARGING && currentState != State.HURT){
@@ -398,7 +399,7 @@ public class Minotaur extends Enemy implements BossAttack {
 
     }
 
-    private State getState() {
+    protected State getState() {
         if(!active){
             return State.IDLE;
         }
@@ -487,7 +488,7 @@ public class Minotaur extends Enemy implements BossAttack {
         Vector2 vectorToPlayer = getVectorToPlayer();
         runningRight = vectorToPlayer.x > 0;
     }
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING ) {
 
             if (!runningRight && region.isFlipX()) {

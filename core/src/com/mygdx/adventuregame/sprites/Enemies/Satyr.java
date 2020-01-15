@@ -33,7 +33,7 @@ public class Satyr extends Enemy {
             0.05f, 0.2f};
     private static final float MAX_HORIZONTAL_SPEED = 1.1f;
     private static final float MAX_VERTICAL_SPEED = 3;
-    private float jumpTimer = -1f;
+    private float jumpTimer = JUMP_COOLDOWN;
     private static final float JUMP_COOLDOWN = 2;
     private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
@@ -50,20 +50,12 @@ public class Satyr extends Enemy {
 
     private float deathTimer;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> jumpAnimation;
-
     private boolean setToDie = false;
 
     private Fixture attackFixture;
     private float idleTimer = -1f;
     private static final float IDLE_TIME = 0.5f;
-
+    private boolean active = false;
 
     public Satyr(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -74,8 +66,6 @@ public class Satyr extends Enemy {
         attackAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_attack"),
                 7, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         hurtAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("satyr_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("satyr_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
@@ -98,6 +88,12 @@ public class Satyr extends Enemy {
 
     @Override
     public void update(float dt) {
+        if (!active) {
+            if (playerInActivationRange()) {
+                active = true;
+                jumpTimer = JUMP_COOLDOWN;
+            }
+        }
         if (runningRight) {
             barXOffset = -0.15f;
         } else {
@@ -132,8 +128,9 @@ public class Satyr extends Enemy {
                 setPosition(b2body.getPosition().x - 0.5f, b2body.getPosition().y - getHeight() / 2);
             }
             updateStateTimers(dt);
-
-            act();
+            if(active){
+                act();
+            }
         }
     }
 
@@ -200,44 +197,6 @@ public class Satyr extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case JUMPING:
-                attackEnabled =false;
-                texture = jumpAnimation.getKeyFrame(stateTimer,true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -267,14 +226,14 @@ public class Satyr extends Enemy {
         }
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
-        } else if(b2body.getLinearVelocity().y > 0){
-           return State.JUMPING;
-        }  else if (idleTimer > 0) {
+        } else if (b2body.getLinearVelocity().y > 0) {
+            return State.JUMPING;
+        } else if (idleTimer > 0) {
             return State.IDLE;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
@@ -295,6 +254,7 @@ public class Satyr extends Enemy {
 
     @Override
     public void damage(int amount) {
+        active = true;
         if (invincibilityTimer < 0) {
             health -= amount;
             invincibilityTimer = INVINCIBILITY_TIME;
@@ -341,7 +301,7 @@ public class Satyr extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
@@ -415,11 +375,15 @@ public class Satyr extends Enemy {
     }
 
     private void jump() {
-        if(runningRight){
+        if (runningRight) {
             b2body.applyLinearImpulse(new Vector2(1, 2.6f), b2body.getWorldCenter(), true);
-        }else {
+        } else {
             b2body.applyLinearImpulse(new Vector2(-1, 2.6f), b2body.getWorldCenter(), true);
 
         }
+    }
+
+    private boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
     }
 }

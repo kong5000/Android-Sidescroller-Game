@@ -29,13 +29,6 @@ public class EarthElemental extends Enemy {
     private float attackTimer;
     private float attackCooldown;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
-
     private boolean canFireProjectile = true;
 
     private boolean specialDrop = false;
@@ -52,8 +45,6 @@ public class EarthElemental extends Enemy {
         attackAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_attack"),
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         hurtAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("earth_elemental_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
@@ -168,39 +159,6 @@ public class EarthElemental extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
 
     private void chasePlayer() {
         if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM
@@ -213,7 +171,7 @@ public class EarthElemental extends Enemy {
         }
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDestroy) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -256,7 +214,7 @@ public class EarthElemental extends Enemy {
         return (invincibilityTimer < 0);
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;

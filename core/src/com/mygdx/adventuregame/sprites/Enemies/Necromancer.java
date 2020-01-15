@@ -30,8 +30,6 @@ public class Necromancer extends Enemy {
     private float BULLET_SPEED = 1.25f;
     private float startingAngle = -45;
 
-    private enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, SUMMON, CHARGING, CAST}
-
     private State currentState;
     private State previousState;
     private static final float[] KOBOLD_HITBOX = {
@@ -225,43 +223,6 @@ public class Necromancer extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = hurtAnimation.getKeyFrame(stateTimer);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case SUMMON:
-                texture = summonAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture, dt);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -345,7 +306,7 @@ public class Necromancer extends Enemy {
         }
     }
 
-    private State getState() {
+    protected Enemy.State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -363,6 +324,11 @@ public class Necromancer extends Enemy {
         } else {
             return State.IDLE;
         }
+    }
+
+    @Override
+    protected void orientTextureTowardsPlayer(TextureRegion texture) {
+
     }
 
     @Override

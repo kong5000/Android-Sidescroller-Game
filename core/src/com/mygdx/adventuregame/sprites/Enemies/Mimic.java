@@ -46,12 +46,6 @@ public class Mimic extends Enemy {
     private float deathTimer;
     private float transformTimer;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
     private Animation<TextureRegion> transformAnimation;
 
     private boolean setToDie = false;
@@ -72,8 +66,6 @@ public class Mimic extends Enemy {
         attackAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_attack"),
                 11, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         hurtAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationBright = generateAnimation(screen.getAtlas().findRegion("mimic_hurt_bright"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("mimic_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
@@ -179,45 +171,6 @@ public class Mimic extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case TRANSFORMING:
-                attackEnabled = false;
-                texture = transformAnimation.getKeyFrame(stateTimer);
-                break;
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = inactiveTexture;
-//                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -247,7 +200,7 @@ public class Mimic extends Enemy {
         }
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         }else if(!hasBeenAttacked){
@@ -325,7 +278,7 @@ public class Mimic extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING && hasBeenAttacked) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;

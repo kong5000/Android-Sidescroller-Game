@@ -18,6 +18,7 @@ import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 import com.mygdx.adventuregame.sprites.Projectiles.VerticalFireBall;
 import com.mygdx.adventuregame.sprites.Projectiles.VerticalIce;
+import com.mygdx.adventuregame.sprites.player.Player;
 
 import java.util.ArrayList;
 
@@ -76,17 +77,8 @@ public class IceGolem extends Enemy {
     float chargeDirection = 2.2f;
     private float strongAttackTimer = -1f;
     private boolean strongAttacking = false;
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> fastAttackAnimation;
     private Animation<TextureRegion> fastAttackAnimationDamaged;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
     private Animation<TextureRegion> launchBallAnimation;
     private Animation<TextureRegion> jumpAnimation;
 
@@ -102,6 +94,7 @@ public class IceGolem extends Enemy {
     private float specialCooldownTimer = SPECIAL_COOLDOWN;
     private float specialAttackTimer = -1;
     private static final float SPECIAL_ATTACK_TIME = 3;
+    private boolean active = false;
 
     public IceGolem(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -168,6 +161,11 @@ public class IceGolem extends Enemy {
 
     @Override
     public void update(float dt) {
+        if(!active){
+            if(playerInActivationRange()){
+                active = true;
+            }
+        }
         if (runningRight) {
             barXOffset = -0.2f;
         } else {
@@ -178,29 +176,7 @@ public class IceGolem extends Enemy {
                 setToDie = true;
             }
         }
-        if (currentState == State.ATTACKING) {
-            if (!strongAttacking) {
-                if (fastAttackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
-                    attackTimer = -1f;
-                }
-            } else if (strongAttacking) {
-                if (attackAnimation.isAnimationFinished(stateTimer - 0.25f)) {
-                    strongAttacking = false;
 
-                }
-            }
-        }
-        if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
-            }
-            deathTimer += dt;
-            if (deathTimer > CORPSE_EXISTS_TIME) {
-                setToDestroy = true;
-                if (!destroyed) {
-                    screen.getSpritesToAdd().add(new Vortex(screen, getX() + 0.1f, getY() - getHeight() / 2 + 0.1f));
-                }
-            }
-        }
 
         if (setToDestroy && !destroyed) {
 //            screen.getSpritesToAdd().add(new FireElemental(screen, b2body.getPosition().x + 0.25f, b2body.getPosition().y + 0.1f, true));
@@ -220,7 +196,10 @@ public class IceGolem extends Enemy {
             }
             updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act(dt);
+            if(active){
+                act(dt);
+            }
+
             limitSpeed();
         }
     }
@@ -257,6 +236,29 @@ public class IceGolem extends Enemy {
     }
 
     private void act(float dt) {
+        if (currentState == State.ATTACKING) {
+            if (!strongAttacking) {
+                if (fastAttackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
+                    attackTimer = -1f;
+                }
+            } else if (strongAttacking) {
+                if (attackAnimation.isAnimationFinished(stateTimer - 0.25f)) {
+                    strongAttacking = false;
+
+                }
+            }
+        }
+        if (currentState == State.DYING) {
+            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            }
+            deathTimer += dt;
+            if (deathTimer > CORPSE_EXISTS_TIME) {
+                setToDestroy = true;
+                if (!destroyed) {
+                    screen.getSpritesToAdd().add(new Vortex(screen, getX() + 0.1f, getY() - getHeight() / 2 + 0.1f));
+                }
+            }
+        }
         if (currentState == State.CHASING) {
             chasePlayer();
             if (playerInLungeRange()) {
@@ -316,9 +318,10 @@ public class IceGolem extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
+    @Override
+    protected TextureRegion getFrame(float dt) {
         currentState = getState();
-
+        selectBrightFrameOrRegularFrame();
         TextureRegion texture;
         switch (currentState) {
             case DYING:
@@ -326,26 +329,26 @@ public class IceGolem extends Enemy {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case CHARGING:
-                texture = selectBrightFrameOrRegularFrame(launchBallAnimation, launchBallAnimation);
+                texture = launchBallAnimation.getKeyFrame(stateTimer);
                 break;
             case ATTACKING:
 
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
+                texture = attackAnimation.getKeyFrame(stateTimer);
 
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
+                texture = hurtAnimation.getKeyFrame(stateTimer);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
+                texture = idleAnimation.getKeyFrame(stateTimer);
                 break;
         }
         if (currentState != State.CHARGING && currentState != State.HURT) {
@@ -424,7 +427,10 @@ public class IceGolem extends Enemy {
         strongAttackTimer = STRONG_ATTACK_COOLDOWN;
     }
 
-    private State getState() {
+    protected State getState() {
+        if(!active) {
+            return State.IDLE;
+        }
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -433,7 +439,7 @@ public class IceGolem extends Enemy {
             return State.CHARGING;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 430 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -459,6 +465,7 @@ public class IceGolem extends Enemy {
     @Override
     public void damage(int amount) {
         if (isAlive()) {
+            active = true;
             damageForStun += 1;
             if (damageForStun > 3) {
                 hurtTimer = STUN_TIME;
@@ -511,7 +518,7 @@ public class IceGolem extends Enemy {
         runningRight = vectorToPlayer.x > 0;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
 
             if (!runningRight && region.isFlipX()) {
@@ -625,5 +632,7 @@ public class IceGolem extends Enemy {
             b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
         }
     }
-
+    private boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
+    }
 }

@@ -24,13 +24,13 @@ public class Slug extends Enemy {
             0.2f, -0.175f,
             0.2f, 0.12f};
     private static final float[] SWORD_HITBOX_RIGHT = {
-            0.3f, -0.2f,
-            0.3f, 0.1f,
+            0.35f, -0.2f,
+            0.35f, 0.1f,
             0.1f, -0.2f,
             0f, 0.15f};
     private static final float[] SWORD_HITBOX_LEFT = {
-            -0.3f, -0.2f,
-            -0.3f, 0.1f,
+            -0.35f, -0.2f,
+            -0.35f, 0.1f,
             -0.1f, -0.2f,
             0f, 0.15f};
     private static final float BULLET_SPEED = 1;
@@ -51,16 +51,6 @@ public class Slug extends Enemy {
     private float attackTimer;
     private float jumpTimer = -1f;
     private float deathTimer;
-
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
 
     private boolean setToDie = false;
 
@@ -127,6 +117,9 @@ public class Slug extends Enemy {
             if (deathAnimation.isAnimationFinished(stateTimer)) {
             }
             deathTimer += dt;
+            if(deathTimer > 0.85f && flashRedTimer < 0){
+                flashRedTimer = 2;
+            }
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
                 if (!destroyed) {
@@ -153,16 +146,17 @@ public class Slug extends Enemy {
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
-            if (runningRight) {
-                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            } else {
-                setPosition(b2body.getPosition().x - getWidth() / 2 - 0.2f, b2body.getPosition().y - getHeight() / 2);
-            }
+
             updateStateTimers(dt);
 
             setRegion(getFrame(dt));
             if(active){
                 act(dt);
+            }
+            if (runningRight) {
+                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+            } else {
+                setPosition(b2body.getPosition().x - getWidth() / 2 - 0.2f, b2body.getPosition().y - getHeight() / 2);
             }
         }
 
@@ -234,43 +228,6 @@ public class Slug extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
-                break;
-        }
-
-
-        orientTextureTowardsPlayer(texture);
-
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -300,7 +257,7 @@ public class Slug extends Enemy {
         }
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -375,7 +332,7 @@ public class Slug extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
@@ -408,7 +365,7 @@ public class Slug extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 55 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x) < 60 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {

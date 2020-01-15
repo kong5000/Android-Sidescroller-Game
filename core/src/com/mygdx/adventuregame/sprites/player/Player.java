@@ -284,11 +284,19 @@ public class Player extends Sprite {
         playerBody = new PlayerBody(world, this);
         mana = FULL_MANA;
         chargeEffect = new Charge(screen, getX(), getY(), this);
-//        spawnPointX = 10.05f;
-//        spawnPointY = 5.65f;
+        //Temple Spawn
+//        spawnPointX = 3.05f;
+//        spawnPointY = 8f;
 
+        //FOR DUNGEON1
         spawnPointX = 4f;
         spawnPointY = 3f;
+        //Boss Dungeon1
+//        spawnPointX = 50f;
+//        spawnPointY = 12f;
+
+
+
         //bossroom
 //        spawnPointX = 82f;
 //        spawnPointY = 7f;

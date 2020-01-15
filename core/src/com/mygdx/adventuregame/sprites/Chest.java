@@ -93,8 +93,8 @@ public class Chest extends Enemy implements UpdatableSprite {
     }
 
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
+    protected TextureRegion getFrame(float dt) {
+        currentState = getChestState();
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
         TextureRegion texture;
@@ -107,12 +107,22 @@ public class Chest extends Enemy implements UpdatableSprite {
         return texture;
     }
 
-    private State getState() {
+    public State getChestState() {
         if (isClosed) {
             return State.CLOSED;
         } else {
             return State.OPEN;
         }
+    }
+
+    @Override
+    protected Enemy.State getState() {
+        return null;
+    }
+
+    @Override
+    protected void orientTextureTowardsPlayer(TextureRegion texture) {
+
     }
 
 

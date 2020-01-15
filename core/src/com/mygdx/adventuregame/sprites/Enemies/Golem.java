@@ -62,17 +62,8 @@ public class Golem extends Enemy implements BossAttack {
     float chargeDirection = 2.2f;
     private float strongAttackTimer = -1f;
     private boolean strongAttacking = false;
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
     private Animation<TextureRegion> fastAttackAnimation;
-    private Animation<TextureRegion> fastAttackAnimationDamaged;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
+
 
     private Array<MonsterTile> monsterTiles;
     private boolean chargeStarted = false;
@@ -87,9 +78,6 @@ public class Golem extends Enemy implements BossAttack {
         super(screen, x, y);
           fastAttackAnimation = generateAnimation(screen.getAtlas().findRegion("golem_launch_ball"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        fastAttackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_launch_ball"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("golem_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
@@ -290,9 +278,10 @@ public class Golem extends Enemy implements BossAttack {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
+    @Override
+    protected TextureRegion getFrame(float dt) {
         currentState = getState();
-
+        selectBrightFrameOrRegularFrame();
         TextureRegion texture;
         switch (currentState) {
             case DYING:
@@ -300,28 +289,28 @@ public class Golem extends Enemy implements BossAttack {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case CHARGING:
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer);;
                 break;
             case ATTACKING:
                 if (strongAttacking) {
-                    texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
+                    texture = attackAnimation.getKeyFrame(stateTimer);
                 } else {
-                    texture = selectBrightFrameOrRegularFrame(fastAttackAnimation, fastAttackAnimationDamaged);
+                    texture = fastAttackAnimation.getKeyFrame(stateTimer);
                 }
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
+                texture = hurtAnimation.getKeyFrame(stateTimer);;
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
+                texture = walkAnimation.getKeyFrame(stateTimer);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
+                texture = idleAnimation.getKeyFrame(stateTimer);
                 break;
         }
         if (currentState != State.CHARGING && currentState != State.HURT) {
@@ -411,7 +400,7 @@ public class Golem extends Enemy implements BossAttack {
 
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -499,7 +488,7 @@ public class Golem extends Enemy implements BossAttack {
         runningRight = vectorToPlayer.x > 0;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
 
             if (!runningRight && region.isFlipX()) {
@@ -590,4 +579,6 @@ public class Golem extends Enemy implements BossAttack {
     public void onPlayerHit() {
 
     }
+
+
 }

@@ -15,7 +15,7 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 
 public abstract class Enemy extends Sprite implements UpdatableSprite {
-    public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING, CHARGING, CAST, SPECIAL_ATTACK, JUMPING}
+    public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING, CHARGING, CAST, SPECIAL_ATTACK, SUMMON, JUMPING}
 
     public State currentState;
     public State previousState;
@@ -36,7 +36,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     protected boolean setToDestroy;
     protected boolean runningRight;
     private int flashCount = 0;
-    private boolean flashFrame = true;
+    public boolean flashFrame = false;
     protected int health;
     protected boolean showHealthBar = false;
 
@@ -48,6 +48,17 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     public float barYOffset = 0;
 
     protected int experiencePoints = 10;
+
+    protected Animation<TextureRegion> walkAnimation;
+    protected Animation<TextureRegion> walkAnimationDamaged;
+    protected Animation<TextureRegion> deathAnimation;
+    protected Animation<TextureRegion> attackAnimation;
+    protected Animation<TextureRegion> attackAnimationDamaged;
+    protected Animation<TextureRegion> hurtAnimation;
+    protected Animation<TextureRegion> hurtAnimationDamaged;
+    protected Animation<TextureRegion> idleAnimation;
+    protected Animation<TextureRegion> idleAnimationDamaged;
+    protected Animation<TextureRegion> jumpAnimation;
 
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -116,8 +127,7 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         return currentState == State.HURT;
     }
 
-    protected TextureRegion selectBrightFrameOrRegularFrame(Animation<TextureRegion> animation, Animation<TextureRegion> brightAnimation) {
-        TextureRegion textureRegion;
+    protected void selectBrightFrameOrRegularFrame() {
         if (flashRedTimer > 0) {
             if (flashFrame) {
                 flashCount++;
@@ -125,21 +135,57 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
                     flashFrame = false;
                     flashCount = 0;
                 }
-                textureRegion = brightAnimation.getKeyFrame(stateTimer);
             } else {
                 flashCount++;
                 if (flashCount > 2) {
                     flashFrame = true;
                     flashCount = 0;
                 }
-                textureRegion = animation.getKeyFrame(stateTimer);
             }
         } else {
-            textureRegion = animation.getKeyFrame(stateTimer);
+            flashFrame = false;
         }
-        return textureRegion;
     }
+    protected abstract State getState();
+    protected abstract void orientTextureTowardsPlayer(TextureRegion texture);
 
+    protected TextureRegion getFrame(float dt) {
+        currentState = getState();
+        TextureRegion texture;
+        selectBrightFrameOrRegularFrame();
+        switch (currentState) {
+            case DYING:
+                attackEnabled = false;
+                texture= deathAnimation.getKeyFrame(stateTimer);
+                break;
+            case JUMPING:
+                attackEnabled = false;
+                texture = jumpAnimation.getKeyFrame(stateTimer, true);
+                break;
+            case ATTACKING:
+                texture = attackAnimation.getKeyFrame(stateTimer);
+                attackEnabled = true;
+                break;
+            case HURT:
+                attackEnabled = false;
+                texture = hurtAnimation.getKeyFrame(stateTimer);
+                break;
+            case CHASING:
+                attackEnabled = false;
+                texture = walkAnimation.getKeyFrame(stateTimer, true);
+                break;
+            case IDLE:
+            default:
+                attackEnabled = false;
+                texture = idleAnimation.getKeyFrame(stateTimer, true);
+                break;
+        }
+        orientTextureTowardsPlayer(texture);
+
+        stateTimer = currentState == previousState ? stateTimer + dt : 0;
+        previousState = currentState;
+        return texture;
+    }
     public void hitByFire() {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
     }

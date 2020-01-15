@@ -74,6 +74,11 @@ public class Lever extends Enemy implements UpdatableSprite {
     }
 
     @Override
+    protected Enemy.State getState() {
+        return null;
+    }
+
+    @Override
     public void draw(Batch batch) {
         if (!destroyed) {
             super.draw(batch);
@@ -83,8 +88,8 @@ public class Lever extends Enemy implements UpdatableSprite {
     }
 
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
+    protected TextureRegion getFrame(float dt) {
+        currentState = getLeverState();
         stateTimer = currentState == previousState ? stateTimer + dt : 0;
         previousState = currentState;
         TextureRegion texture;
@@ -96,12 +101,17 @@ public class Lever extends Enemy implements UpdatableSprite {
         return texture;
     }
 
-    private State getState() {
+    public State getLeverState() {
         if (isClosed) {
             return State.OFF;
         } else {
             return State.ON;
         }
+    }
+
+    @Override
+    protected void orientTextureTowardsPlayer(TextureRegion texture) {
+
     }
 
 

@@ -63,16 +63,6 @@ public class FireGolem extends Enemy {
     private float deathTimer;
 
     private Animation<TextureRegion> chargeAnimation;
-    private Animation<TextureRegion> chargeAnimationDamaged;
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> walkAnimationDamaged;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> attackAnimationDamaged;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationDamaged;
-    private Animation<TextureRegion> idleAnimation;
-    private Animation<TextureRegion> idleAnimationDamaged;
     private Animation<TextureRegion> launchBallAnimation;
 
     private Array<MonsterTile> monsterTiles;
@@ -323,48 +313,6 @@ public class FireGolem extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case CAST:
-                attackEnabled = true;
-                texture = launchBallAnimation.getKeyFrame(stateTimer);
-                break;
-            case CHARGING:
-                attackEnabled = true;
-                texture = chargeAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = selectBrightFrameOrRegularFrame(attackAnimation, attackAnimationDamaged);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationDamaged);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(walkAnimation, walkAnimationDamaged);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(idleAnimation, idleAnimationDamaged);
-                break;
-        }
-
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
 
     private void disableAttackHitBox() {
         if (attackFixture != null) {
@@ -403,7 +351,7 @@ public class FireGolem extends Enemy {
     }
 
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
@@ -533,7 +481,7 @@ public class FireGolem extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;

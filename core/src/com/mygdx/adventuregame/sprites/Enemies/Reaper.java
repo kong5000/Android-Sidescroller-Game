@@ -52,13 +52,6 @@ public class Reaper extends Enemy {
     private float deathTimer;
     private boolean active = false;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
-
     private boolean setToDie = false;
 
     private Fixture attackFixture;
@@ -192,7 +185,8 @@ public class Reaper extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
+    @Override
+    protected TextureRegion getFrame(float dt) {
         currentState = getState();
 
         TextureRegion texture;
@@ -207,7 +201,7 @@ public class Reaper extends Enemy {
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
+                texture = hurtAnimation.getKeyFrame(stateTimer);;
                 break;
             case CHASING:
                 attackEnabled = false;
@@ -268,7 +262,7 @@ public class Reaper extends Enemy {
     }
 
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         }
@@ -337,7 +331,7 @@ public class Reaper extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;

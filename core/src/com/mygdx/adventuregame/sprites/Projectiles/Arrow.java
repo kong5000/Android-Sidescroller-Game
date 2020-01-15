@@ -267,10 +267,10 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
         b2body.setGravityScale(1);
         b2body.setLinearVelocity(0, 0);
         if (goingRight) {
-            b2body.applyLinearImpulse(new Vector2(-0.003f, 0.005f), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(-0.002f, 0.003f), b2body.getWorldCenter(), true);
         } else {
 
-            b2body.applyLinearImpulse(new Vector2(0.003f, 0.005f), b2body.getWorldCenter(), true);
+            b2body.applyLinearImpulse(new Vector2(0.002f, 0.003f), b2body.getWorldCenter(), true);
 
         }
     }

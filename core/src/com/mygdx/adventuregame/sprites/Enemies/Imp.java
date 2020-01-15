@@ -57,13 +57,6 @@ public class Imp extends Enemy {
     private float deathTimer;
     private boolean active = false;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
-
     private boolean setToDie = false;
 
     private Fixture attackFixture;
@@ -83,11 +76,9 @@ public class Imp extends Enemy {
                 10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("imp_idle"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
         hurtAnimation= generateAnimation(screen.getAtlas().findRegion("imp_hurt"),
                 3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimationBright= generateAnimation(screen.getAtlas().findRegion("imp_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);;
-
 
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
@@ -101,7 +92,7 @@ public class Imp extends Enemy {
         deathTimer = 0;
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
-        health = 6;
+        health = 5;
         barYOffset = 0.09f;
         b2body.setGravityScale(0);
         active = true;
@@ -225,40 +216,6 @@ public class Imp extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -316,7 +273,7 @@ public class Imp extends Enemy {
         return b2body.getPosition().x;
     }
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         } else if (!active) {
@@ -382,7 +339,7 @@ public class Imp extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
 
             runningRight = b2body.getLinearVelocity().x >= 0;

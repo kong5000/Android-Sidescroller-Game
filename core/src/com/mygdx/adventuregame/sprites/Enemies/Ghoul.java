@@ -51,13 +51,6 @@ public class Ghoul extends Enemy {
     private float deathTimer;
     private boolean active = false;
 
-    private Animation<TextureRegion> walkAnimation;
-    private Animation<TextureRegion> deathAnimation;
-    private Animation<TextureRegion> attackAnimation;
-    private Animation<TextureRegion> hurtAnimation;
-    private Animation<TextureRegion> hurtAnimationBright;
-    private Animation<TextureRegion> idleAnimation;
-
     private boolean setToDie = false;
 
     private Fixture attackFixture;
@@ -73,7 +66,7 @@ public class Ghoul extends Enemy {
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
@@ -193,40 +186,6 @@ public class Ghoul extends Enemy {
         }
     }
 
-    private TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = selectBrightFrameOrRegularFrame(hurtAnimation, hurtAnimationBright);
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -277,7 +236,7 @@ public class Ghoul extends Enemy {
     }
 
 
-    private State getState() {
+    protected State getState() {
         if (setToDie) {
             return State.DYING;
         }
@@ -346,7 +305,7 @@ public class Ghoul extends Enemy {
         return hitbox;
     }
 
-    private void orientTextureTowardsPlayer(TextureRegion region) {
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
         if (currentState != State.DYING) {
             Vector2 vectorToPlayer = getVectorToPlayer();
             runningRight = vectorToPlayer.x > 0;
