@@ -80,11 +80,12 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
 
     public void update(float dt) {
         if (setToDestroyHitBox && !arrowGenerated) {
-            Item arrow = new Item(screen, b2body.getPosition().x, b2body.getPosition().y - 0.04f, AdventureGame.ARROW);
-            arrow.setRotation(rotation);
-            arrow.setGoingRight(goingRight);
-            screen.getSpritesToAdd().add(arrow);
-            arrowGenerated = true;
+//            screen.getSoundEffects().playArrowHitSound();
+//            Item arrow = new Item(screen, b2body.getPosition().x, b2body.getPosition().y - 0.04f, AdventureGame.ARROW);
+//            arrow.setRotation(rotation);
+//            arrow.setGoingRight(goingRight);
+//            screen.getSpritesToAdd().add(arrow);
+//            arrowGenerated = true;
         }
         if (!hitBoxDestroyed) {
             if(hasHitGround || hasCollidedWithEnemy){
@@ -209,7 +210,10 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
     }
 
     public void setToDestroy() {
-        setToDestroy = true;
+        if(!setToDestroy){
+            setToDestroy = true;
+            screen.getSoundEffects().playArrowPickupSound();
+        }
     }
 
     private Animation<TextureRegion> generateAnimation(
@@ -253,8 +257,11 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
 
     @Override
     public void targetHit() {
-        richochet();
-        hasCollidedWithEnemy = true;
+        if(!hasCollidedWithEnemy){
+            richochet();
+            hasCollidedWithEnemy = true;
+            screen.getSoundEffects().playArrowHitSound();
+        }
 //        setToDestroy();
     }
 
@@ -282,9 +289,12 @@ public class Arrow extends Sprite implements UpdatableSprite, EnemyProjectile, P
 
     @Override
     public void hitGround() {
-        b2body.setGravityScale(0);
-        b2body.setLinearVelocity(0, 0);
-        hasHitGround = true;
+        if(!hasHitGround){
+            screen.getSoundEffects().playArrowHitSound();
+            b2body.setGravityScale(0);
+            b2body.setLinearVelocity(0, 0);
+            hasHitGround = true;
+        }
     }
 
     @Override

@@ -211,7 +211,8 @@ public class FireElemental extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM);
+        return  (Math.abs(getVectorToPlayer().x )< 180 / AdventureGame.PPM &&
+                (Math.abs(getVectorToPlayer().y )< 180 / AdventureGame.PPM));
 
     }
 

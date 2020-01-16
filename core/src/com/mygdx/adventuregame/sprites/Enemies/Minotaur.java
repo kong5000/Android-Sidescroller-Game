@@ -19,7 +19,11 @@ import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 
 public class Minotaur extends Enemy implements BossAttack {
-    private  boolean active;
+    private boolean active;
+    private static final float SOUND_COOLDOWN = 0.6f;
+    private float soundCooldownTimer = -1f;
+    private float stepSoundCooldownTimer = -1f;
+    private static final float STEP_SOUND_COOLDOWN = 0.2f;
     private static final float[] MINOTAUR_HITBOX = {
             -0.15f, 0.1f,
             -0.15f, -0.35f,
@@ -132,8 +136,8 @@ public class Minotaur extends Enemy implements BossAttack {
 
     @Override
     public void update(float dt) {
-        if(!active){
-            if(playerInActivationRange()){
+        if (!active) {
+            if (playerInActivationRange()) {
                 active = true;
                 screen.getSoundEffects().playBossMusic();
             }
@@ -189,7 +193,7 @@ public class Minotaur extends Enemy implements BossAttack {
             }
 
             setRegion(getFrame(dt));
-            if(active){
+            if (active) {
                 act(dt);
                 updateStateTimers(dt);
             }
@@ -197,10 +201,20 @@ public class Minotaur extends Enemy implements BossAttack {
     }
 
     private void updateStateTimers(float dt) {
+        if (stepSoundCooldownTimer > 0) {
+            stepSoundCooldownTimer -= dt;
+        } else {
+            stepSoundCooldownTimer = STEP_SOUND_COOLDOWN;
+        }
+        if (soundCooldownTimer > 0) {
+            soundCooldownTimer -= dt;
+        } else {
+            soundCooldownTimer = SOUND_COOLDOWN;
+        }
         if (chargeTimer > 0) {
             chargeTimer -= dt;
-        }else {
-            if(playerInChargeRange()){
+        } else {
+            if (playerInChargeRange()) {
                 chargeTimer = CHARGE_COOLDOWN;
                 charging = true;
             }
@@ -237,12 +251,16 @@ public class Minotaur extends Enemy implements BossAttack {
         }
         if (currentState == State.ATTACKING) {
             if (currentFrameIsAnAttack()) {
+                if (soundCooldownTimer < 0) {
+                    screen.getSoundEffects().playEnemyMeleeSound();
+                    soundCooldownTimer = SOUND_COOLDOWN;
+                }
                 enableAttackHitBox();
             }
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
-        }else {
+        } else {
             disableAttackHitBox();
         }
         if (currentState == State.CHARGING) {
@@ -252,18 +270,21 @@ public class Minotaur extends Enemy implements BossAttack {
 //                    chargeDirection *= -1;
 //                }
 //            }
-
+            if(stepSoundCooldownTimer < 0){
+                screen.getSoundEffects().playHeavyStepSound();
+                stepSoundCooldownTimer = STEP_SOUND_COOLDOWN;
+            }
             float speed = b2body.getLinearVelocity().len();
-            if(b2body.getLinearVelocity().len() < 0.01f && stateTimer > 0.2f){
+            if (b2body.getLinearVelocity().len() < 0.01f && stateTimer > 0.2f) {
                 endCharge();
             }
-            if(runningRight){
+            if (runningRight) {
                 charge(chargeDirection);
-            }else {
+            } else {
                 charge(-chargeDirection);
             }
             enableChargeHitBox();
-        }else {
+        } else {
             disableChargeHitBox();
         }
         if (attackTimer > 0) {
@@ -291,7 +312,8 @@ public class Minotaur extends Enemy implements BossAttack {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case CHARGING:
-                texture = walkAnimation.getKeyFrame(stateTimer);;
+                texture = walkAnimation.getKeyFrame(stateTimer);
+                ;
                 break;
             case ATTACKING:
                 if (strongAttacking) {
@@ -303,7 +325,7 @@ public class Minotaur extends Enemy implements BossAttack {
                 break;
             case HURT:
                 attackEnabled = false;
-                texture =hurtAnimation.getKeyFrame(stateTimer);
+                texture = hurtAnimation.getKeyFrame(stateTimer);
                 break;
             case CHASING:
                 attackEnabled = false;
@@ -315,9 +337,10 @@ public class Minotaur extends Enemy implements BossAttack {
                 texture = idleAnimation.getKeyFrame(stateTimer);
                 break;
         }
-        if(currentState != State.CHARGING && currentState != State.HURT){
+        if (currentState != State.CHARGING && currentState != State.HURT) {
 //                orientTextureTowardsPlayer(texture);
 //                orientTexture(texture);
+
             updatePlayerVector();
         }
         orientTextureTowardsPlayer(texture);
@@ -345,6 +368,7 @@ public class Minotaur extends Enemy implements BossAttack {
         if (attackFixture == null)
             createAttack();
     }
+
     private void enableChargeHitBox() {
         if (chargeFixture == null)
             createChargeHitbox();
@@ -373,28 +397,29 @@ public class Minotaur extends Enemy implements BossAttack {
     }
 
     private void createChargeHitbox() {
-            FixtureDef fixtureDef = new FixtureDef();
-            fixtureDef.filter.categoryBits = AdventureGame.BOSS_ATTACK_BIT;
-            fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
-            PolygonShape polygonShape = new PolygonShape();
-            polygonShape.set(CHARGE_HITBOX);
-            fixtureDef.shape = polygonShape;
-            fixtureDef.isSensor = false;
-            chargeFixture = b2body.createFixture(fixtureDef);
-            chargeFixture.setUserData(this);
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = AdventureGame.BOSS_ATTACK_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
+        PolygonShape polygonShape = new PolygonShape();
+        polygonShape.set(CHARGE_HITBOX);
+        fixtureDef.shape = polygonShape;
+        fixtureDef.isSensor = false;
+        chargeFixture = b2body.createFixture(fixtureDef);
+        chargeFixture.setUserData(this);
     }
 
     private void endCharge() {
         screen.getSoundEffects().playOgreRoarSound();
+        screen.getSoundEffects().playThudSound();
         disableChargeHitBox();
         charging = false;
         chargeStarted = false;
         hurtTimer = 2f;
         flashRedTimer = FLASH_RED_TIME;
         strongAttackTimer = STRONG_ATTACK_COOLDOWN;
-        if(runningRight){
+        if (runningRight) {
             b2body.applyLinearImpulse(new Vector2(-.85f, 2.4f), b2body.getWorldCenter(), true);
-        }else {
+        } else {
             b2body.applyLinearImpulse(new Vector2(.85f, 2.4f), b2body.getWorldCenter(), true);
 
         }
@@ -402,10 +427,9 @@ public class Minotaur extends Enemy implements BossAttack {
     }
 
     protected State getState() {
-        if(!active){
+        if (!active) {
             return State.IDLE;
-        }
-        else if (setToDie) {
+        } else if (setToDie) {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
@@ -470,12 +494,13 @@ public class Minotaur extends Enemy implements BossAttack {
         return hitbox;
     }
 
-    private void updatePlayerVector(){
+    private void updatePlayerVector() {
         Vector2 vectorToPlayer = getVectorToPlayer();
         runningRight = vectorToPlayer.x > 0;
     }
+
     protected void orientTextureTowardsPlayer(TextureRegion region) {
-        if (currentState != State.DYING ) {
+        if (currentState != State.DYING) {
 
             if (!runningRight && region.isFlipX()) {
                 region.flip(true, false);
@@ -498,6 +523,7 @@ public class Minotaur extends Enemy implements BossAttack {
             }
         }
     }
+
     private boolean playerIsToTheRight() {
         return getVectorToPlayer().x > 0;
     }
@@ -513,6 +539,7 @@ public class Minotaur extends Enemy implements BossAttack {
     private boolean playerInAttackRange() {
         return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
     }
+
     private boolean playerInChargeRange() {
         return (Math.abs(getVectorToPlayer().x) > 30 / AdventureGame.PPM);
     }
@@ -563,6 +590,7 @@ public class Minotaur extends Enemy implements BossAttack {
     public void onPlayerHit() {
 
     }
+
     private boolean playerInActivationRange() {
         return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
     }

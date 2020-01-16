@@ -231,41 +231,6 @@ public class Reaper extends Enemy {
         }
     }
 
-    @Override
-    protected TextureRegion getFrame(float dt) {
-        currentState = getState();
-
-        TextureRegion texture;
-        switch (currentState) {
-            case DYING:
-                attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
-                break;
-            case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
-                attackEnabled = true;
-                break;
-            case HURT:
-                attackEnabled = false;
-                texture = hurtAnimation.getKeyFrame(stateTimer);;
-                break;
-            case CHASING:
-                attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
-                break;
-            case IDLE:
-            default:
-                attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
-                break;
-        }
-        orientTextureTowardsPlayer(texture);
-
-        stateTimer = currentState == previousState ? stateTimer + dt : 0;
-        previousState = currentState;
-        return texture;
-    }
-
     private void disableAttackHitBox() {
         if (attackFixture != null) {
             b2body.destroyFixture(attackFixture);
@@ -419,6 +384,7 @@ public class Reaper extends Enemy {
     }
 
     private void goIntoAttackState() {
+        screen.getSoundEffects().playEnemyMeleeSound();
         attackTimer = ATTACK_RATE;
     }
 

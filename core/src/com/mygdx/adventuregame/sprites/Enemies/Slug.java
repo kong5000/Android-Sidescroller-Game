@@ -159,9 +159,12 @@ public class Slug extends Enemy {
                 setToDestroy = true;
                 if (!destroyed) {
                     launchProjectiles();
-                    float xOffset = 0.2f;
+                    float xOffset = 0f;
                     if (runningRight) {
                         xOffset = -0.1f;
+                    }
+                    if(runningRight){
+
                     }
                     SmallExplosion explosion = new SmallExplosion(screen, getX() + xOffset, getY() - getHeight());
                     explosion.setScale(1.9f);

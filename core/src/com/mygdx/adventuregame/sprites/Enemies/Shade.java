@@ -127,6 +127,7 @@ public class Shade extends Enemy {
         if (health <= 0) {
             if (!setToDie) {
                 setToDie = true;
+                screen.getSoundEffects().playShadeAttackSound();
             }
         }
         if (setToDestroy && !destroyed) {
@@ -207,6 +208,7 @@ public class Shade extends Enemy {
                         x_offset = X_OFFSET;
                     }
                     screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 2 + x_offset, getY() - getHeight()));
+
                 }
             }
         }

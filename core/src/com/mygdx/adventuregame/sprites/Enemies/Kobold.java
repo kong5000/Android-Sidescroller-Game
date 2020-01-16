@@ -358,6 +358,7 @@ public class Kobold extends Enemy {
     }
 
     private void goIntoAttackState() {
+        screen.getSoundEffects().playEnemyMeleeSound();
         attackTimer = ATTACK_RATE;
     }
 

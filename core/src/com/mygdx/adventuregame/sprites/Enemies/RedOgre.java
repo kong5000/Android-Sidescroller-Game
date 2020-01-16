@@ -391,7 +391,8 @@ public class RedOgre extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (getVectorToPlayer().len() < 60 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x )< 100 / AdventureGame.PPM &&
+                (Math.abs(getVectorToPlayer().y )< 100 / AdventureGame.PPM));
     }
 
     private void jumpingAttackLeft() {
@@ -403,6 +404,7 @@ public class RedOgre extends Enemy {
     }
 
     private void goIntoAttackState() {
+        screen.getSoundEffects().playEnemyMeleeSound();
         screen.getSoundEffects().playOgreRoarSound();
         attackTimer = ATTACK_RATE;
     }

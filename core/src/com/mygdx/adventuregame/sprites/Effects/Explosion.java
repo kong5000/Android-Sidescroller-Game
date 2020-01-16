@@ -12,6 +12,7 @@ public class Explosion extends Effects implements UpdatableSprite {
 
     @Override
     protected void initializeAnimation() {
+        screen.getSoundEffects().playFlameSound();
         animation = generateAnimation(screen.getAtlas().findRegion("explosion"),
                 44, 96, 96, 0.02f);
         setBounds(getX(), getY(), 96 / AdventureGame.PPM, 96 / AdventureGame.PPM);

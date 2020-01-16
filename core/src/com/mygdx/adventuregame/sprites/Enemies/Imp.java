@@ -425,6 +425,7 @@ public class Imp extends Enemy {
     }
 
     private void goIntoAttackState() {
+        screen.getSoundEffects().playImpAttackSound();
         attackTimer = ATTACK_RATE;
     }
 

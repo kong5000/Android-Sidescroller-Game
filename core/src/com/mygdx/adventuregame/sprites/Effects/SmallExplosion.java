@@ -13,6 +13,7 @@ public class SmallExplosion extends Effects {
             super(screen, x, y);
             setOrigin(getWidth() / 2, getHeight() / 2);
             setPosition(x, y);
+            screen.getSoundEffects().playExplosionSound();
         }
 
         @Override

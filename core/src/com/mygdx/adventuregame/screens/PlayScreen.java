@@ -126,6 +126,15 @@ public class PlayScreen implements Screen {
         assetManager.load("audio/ogre_roar.ogg", Sound.class);
         assetManager.load("audio/slash.ogg", Sound.class);
         assetManager.load("audio/minotaur_die.ogg", Sound.class);
+        assetManager.load("audio/explosion.wav", Sound.class);
+        assetManager.load("audio/thud.ogg", Sound.class);
+        assetManager.load("audio/big_explosion.wav", Sound.class);
+        assetManager.load("audio/swish1.ogg", Sound.class);
+        assetManager.load("audio/coin.ogg", Sound.class);
+        assetManager.load("audio/imp_attack.ogg", Sound.class);
+        assetManager.load("audio/arrow_pickup.ogg", Sound.class);
+        assetManager.load("audio/arrow_hit.ogg", Sound.class);
+        assetManager.load("audio/heavy_step.ogg", Sound.class);
 
 
         assetManager.finishLoading();
@@ -433,7 +442,7 @@ public class PlayScreen implements Screen {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.rect(0, 0, AdventureGame.V_WIDTH * AdventureGame.PPM, AdventureGame.V_HEIGHT * AdventureGame.PPM);
         shapeRenderer.end();
-        b2dr.render(world, gameCam.combined);
+//        b2dr.render(world, gameCam.combined);
         //Set to render only what camera can see
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
