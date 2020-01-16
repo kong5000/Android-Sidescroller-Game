@@ -213,6 +213,7 @@ public class Shade extends Enemy {
     }
 
     private void launchFireBall() {
+        screen.getSoundEffects().playShadeAttackSound();
         boolean playerToRight = getVectorToPlayer().x > 0;
         screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, playerToRight, false));
     }
@@ -259,21 +260,6 @@ public class Shade extends Enemy {
 
 
     @Override
-    public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
-            hurtTimer = HURT_TIME;
-        }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
-    }
-
-    @Override
     public boolean notDamagedRecently() {
         return (invincibilityTimer < 0);
     }
@@ -308,7 +294,7 @@ public class Shade extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 140 / AdventureGame.PPM);
+        return (getVectorToPlayer().len() < 170 / AdventureGame.PPM);
 
     }
 

@@ -196,26 +196,6 @@ public class Slime extends Enemy {
         setToDestroy = true;
     }
 
-
-    @Override
-    public void damage(int amount) {
-        health -= amount;
-        if (currentState != State.HURT) {
-            if (hurtTimer < 0) {
-                hurtTimer = HURT_RATE;
-            }
-            if (getVectorToPlayer().x < 0) {
-                b2body.applyLinearImpulse(new Vector2(1f, 1f), b2body.getWorldCenter(), true);
-            } else {
-                b2body.applyLinearImpulse(new Vector2(-1f, 1f), b2body.getWorldCenter(), true);
-            }
-
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-    showHealthBar = true;
-    }
-
     @Override
     public boolean notDamagedRecently() {
         return (hurtTimer < 0);

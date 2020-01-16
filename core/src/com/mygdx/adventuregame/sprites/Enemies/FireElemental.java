@@ -179,22 +179,6 @@ public class FireElemental extends Enemy {
         damage(2);
     }
 
-
-    @Override
-    public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
-            hurtTimer = HURT_TIME;
-        }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
-    }
-
     @Override
     public boolean notDamagedRecently() {
         return (invincibilityTimer < 0);

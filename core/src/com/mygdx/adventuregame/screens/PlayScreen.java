@@ -1,10 +1,12 @@
 package com.mygdx.adventuregame.screens;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -26,6 +28,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.GameAssets;
+import com.mygdx.adventuregame.SoundEffects;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.scenes.Hud;
 import com.mygdx.adventuregame.sprites.Cage;
@@ -105,14 +109,30 @@ public class PlayScreen implements Screen {
     private B2WorldCreator worldCreator;
     private ShapeRenderer shapeRenderer;
     private boolean tearDownComplete = true;
-
+    private Sound sound;
+    private SoundEffects soundEffects;
+    private GameAssets gameAssets;
     public PlayScreen(AdventureGame game) {
+        gameAssets = new GameAssets();
         assetManager = new AssetManager();
         assetManager.load("game_sprites.pack", TextureAtlas.class);
-        assetManager.load("Boss_Battle.wav", Music.class);
+        assetManager.load("audio/Boss_Battle.wav", Music.class);
+        assetManager.load("audio/Junkyard_Drive.ogg", Music.class);
+        assetManager.load("audio/flame.ogg", Sound.class);
+        assetManager.load("audio/parry.ogg", Sound.class);
+        assetManager.load("audio/swish2.ogg", Sound.class);
+        assetManager.load("audio/shade_attack.ogg", Sound.class);
+        assetManager.load("audio/slug_attack.ogg", Sound.class);
+        assetManager.load("audio/ogre_roar.ogg", Sound.class);
+        assetManager.load("audio/slash.ogg", Sound.class);
+        assetManager.load("audio/minotaur_die.ogg", Sound.class);
+
+
         assetManager.finishLoading();
+        soundEffects = new SoundEffects(assetManager);
+        soundEffects.playTempleMusic();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
-        music = assetManager.get("Boss_Battle.wav", Music.class);
+        music = assetManager.get("audio/Boss_Battle.wav", Music.class);
 
         music.setLooping(true);
         music.setVolume(0.2f);
@@ -722,5 +742,9 @@ public class PlayScreen implements Screen {
 //            sprites.removeValue(sprite, true);
         }
 
+    }
+
+    public SoundEffects getSoundEffects(){
+        return soundEffects;
     }
 }

@@ -19,6 +19,8 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     public State currentState;
     public State previousState;
+    private static final float INVINCIBILITY_TIME = 0.45f;
+    private static final float FLASH_RED_TIME = 0.3f;
 
     //Todo getter and setters
     //Todo move protected variable to subclasses as private variables.
@@ -59,6 +61,8 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     protected Animation<TextureRegion> idleAnimation;
     protected Animation<TextureRegion> idleAnimationDamaged;
     protected Animation<TextureRegion> jumpAnimation;
+
+    protected boolean active = false;
 
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
@@ -186,9 +190,12 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         b2body.createFixture(fixtureDef).setUserData(this);
     }
 
+    public void damageSound(){
+        screen.getSoundEffects().playSlashSound();
+    }
+
     public abstract void hitOnHead();
 
-    public abstract void damage(int amount);
 
     public abstract boolean notDamagedRecently();
 
@@ -272,6 +279,24 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     public void hitByFire() {
         screen.getExplosions().add(new Explosion(screen, getX() - getWidth() / 2, getY() - getHeight() / 2));
+    }
+
+    public void damage(int amount) {
+        if (isAlive()) {
+            active = true;
+            if (invincibilityTimer < 0) {
+                screen.getSoundEffects().playSlashSound();
+                health -= amount;
+                invincibilityTimer = INVINCIBILITY_TIME;
+            }
+            if (flashRedTimer < 0) {
+                flashRedTimer = FLASH_RED_TIME;
+            }
+            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
+                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
+            showHealthBar = true;
+            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
+        }
     }
 
     public int getDamage() {

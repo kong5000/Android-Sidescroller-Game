@@ -94,7 +94,6 @@ public class IceGolem extends Enemy {
     private float specialCooldownTimer = SPECIAL_COOLDOWN;
     private float specialAttackTimer = -1;
     private static final float SPECIAL_ATTACK_TIME = 3;
-    private boolean active = false;
 
     public IceGolem(PlayScreen screen, float x, float y) {
         super(screen, x, y);
@@ -467,22 +466,8 @@ public class IceGolem extends Enemy {
         if (isAlive()) {
             active = true;
             damageForStun += 1;
-            if (damageForStun > 3) {
-                hurtTimer = STUN_TIME;
-                damageForStun = 0;
-            }
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
         }
+        super.damage(amount);
     }
 
     @Override

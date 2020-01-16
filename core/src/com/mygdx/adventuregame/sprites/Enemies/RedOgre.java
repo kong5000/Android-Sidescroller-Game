@@ -32,7 +32,7 @@ public class RedOgre extends Enemy {
             -0.1f, -0.2f,
             0f, 0.15f};
 
-    private static final float ATTACK_RATE = 1.1f;
+    private static final float ATTACK_RATE = 1.4f;
     private static final float X_OFFSET = 0.1f;
     private static final int WIDTH_PIXELS = 75;
     private static final int HEIGHT_PIXELS = 48;
@@ -47,7 +47,6 @@ public class RedOgre extends Enemy {
     private float attackTimer;
     private float jumpTimer = -1f;
     private float deathTimer;
-    private boolean active;
 
 
     private boolean setToDie = false;
@@ -156,6 +155,7 @@ public class RedOgre extends Enemy {
             if (health <= 0) {
                 if (!setToDie) {
                     setToDie = true;
+                    screen.getSoundEffects().playminotaurDieSound();
                 }
             }
             if (currentState == State.DYING) {
@@ -330,26 +330,6 @@ public class RedOgre extends Enemy {
     @Override
     public void hitOnHead() {
         damage(2);
-
-    }
-
-
-    @Override
-    public void damage(int amount) {
-        if (isAlive()) {
-            active = true;
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
-        }
     }
 
     @Override
@@ -411,7 +391,7 @@ public class RedOgre extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 60 / AdventureGame.PPM);
+        return (getVectorToPlayer().len() < 60 / AdventureGame.PPM);
     }
 
     private void jumpingAttackLeft() {
@@ -423,6 +403,7 @@ public class RedOgre extends Enemy {
     }
 
     private void goIntoAttackState() {
+        screen.getSoundEffects().playOgreRoarSound();
         attackTimer = ATTACK_RATE;
     }
 

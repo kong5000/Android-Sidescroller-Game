@@ -55,29 +55,62 @@ public class Executioner extends Enemy {
 
     private Fixture attackFixture;
 
+    private static final String MOVE_ANIMATION_FILENAME = "executioner_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "executioner_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "executioner_idle";
+    private static final String HURT_ANIMATION_FILENAME = "executioner_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "executioner_die";
+
+    private static final int MOVE_FRAME_COUNT = 6;
+    private static final int ATTACK_FRAME_COUNT = 6;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 9;
+
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.1f;
+    private static final float HURT_ANIMATION_FPS = 0.1f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
     public Executioner(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_run_bright"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_die"),
-                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_attack"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_attack_bright"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_hurt_bright"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("executioner_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("executioner_idle_bright"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
@@ -253,30 +286,6 @@ public class Executioner extends Enemy {
     @Override
     public void hitOnHead() {
         damage(2);
-
-    }
-
-
-    @Override
-    public void damage(int amount) {
-        if (isAlive()) {
-            damageForStun += 1;
-            if(damageForStun > 3){
-                hurtTimer = STUN_TIME;
-                damageForStun = 0;
-            }
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
-        }
     }
 
     @Override

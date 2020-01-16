@@ -135,7 +135,7 @@ public class Minotaur extends Enemy implements BossAttack {
         if(!active){
             if(playerInActivationRange()){
                 active = true;
-                screen.music.play();
+                screen.getSoundEffects().playBossMusic();
             }
         }
         if (runningRight) {
@@ -146,6 +146,7 @@ public class Minotaur extends Enemy implements BossAttack {
         if (health <= 0) {
             if (!setToDie) {
                 setToDie = true;
+                screen.getSoundEffects().playminotaurDieSound();
             }
         }
         if (currentState == State.ATTACKING) {
@@ -282,7 +283,7 @@ public class Minotaur extends Enemy implements BossAttack {
     @Override
     protected TextureRegion getFrame(float dt) {
         currentState = getState();
-
+        selectBrightFrameOrRegularFrame();
         TextureRegion texture;
         switch (currentState) {
             case DYING:
@@ -384,6 +385,7 @@ public class Minotaur extends Enemy implements BossAttack {
     }
 
     private void endCharge() {
+        screen.getSoundEffects().playOgreRoarSound();
         disableChargeHitBox();
         charging = false;
         chargeStarted = false;
@@ -436,24 +438,8 @@ public class Minotaur extends Enemy implements BossAttack {
 
     @Override
     public void damage(int amount) {
-        if (isAlive()) {
-            damageForStun += 1;
-            if (damageForStun > 3) {
-                hurtTimer = STUN_TIME;
-                damageForStun = 0;
-            }
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
-        }
+        super.damage(amount);
+        damageForStun += 1;
     }
 
     @Override

@@ -291,27 +291,6 @@ public class Kobold extends Enemy {
         damage(2);
     }
 
-
-    @Override
-    public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
-            hurtTimer = HURT_TIME;
-        }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen,b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
-        if(amount >= 9){
-            deathTimer = CORPSE_EXISTS_TIME;
-        }
-            b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
-
-    }
-
     @Override
     public boolean notDamagedRecently() {
         return (invincibilityTimer < 0);

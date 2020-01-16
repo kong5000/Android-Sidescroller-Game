@@ -66,12 +66,11 @@ public class Imp extends Enemy {
     private static final float SLOW_SPEED = 0.6f;
     private float movementSpeed = MAX_SPEED;
 
-    private static final String MOVE_ANIMATION_FILENAME = "imp_run";
+    private static final String MOVE_ANIMATION_FILENAME = "imp_move";
     private static final String ATTACK_ANIMATION_FILENAME = "imp_attack";
     private static final String IDLE_ANIMATION_FILENAME = "imp_idle";
     private static final String HURT_ANIMATION_FILENAME = "imp_hurt";
     private static final String DEATH_ANIMATION_FILENAME = "imp_die";
-    private static final String JUMP_ANIMATION_FILENAME = "imp_jump";
 
     private static final int MOVE_FRAME_COUNT = 5;
     private static final int ATTACK_FRAME_COUNT = 10;
@@ -334,25 +333,6 @@ public class Imp extends Enemy {
     @Override
     public void hitOnHead() {
         damage(2);
-    }
-
-
-    @Override
-    public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
-            hurtTimer = HURT_TIME;
-        }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
-
-        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
-
     }
 
     @Override

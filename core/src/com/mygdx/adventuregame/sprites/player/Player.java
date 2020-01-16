@@ -126,6 +126,7 @@ public class Player extends Sprite {
 
     public void deflectProjectile(int type) {
 //        launchSpellBall();
+        screen.getSoundEffects().playParrySound();
         timeToDeflect = true;
         deflectType = type;
     }
@@ -680,7 +681,7 @@ public class Player extends Sprite {
     public void attack() {
         if (attackCooldownTimer < 0) {
             attackCooldownTimer = ATTACK_COOLDOWN_TIME;
-
+            screen.getSoundEffects().playSwordSound();
             b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
             if (attackTimer < 0) {
                 attackTimer = ATTACK_TIME;
@@ -1323,4 +1324,5 @@ public class Player extends Sprite {
     public int getArrowCount() {
         return arrowCount;
     }
+
 }

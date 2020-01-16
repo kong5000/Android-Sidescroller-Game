@@ -76,7 +76,7 @@ public class Golem extends Enemy implements BossAttack {
 
     public Golem(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-          fastAttackAnimation = generateAnimation(screen.getAtlas().findRegion("golem_launch_ball"),
+        fastAttackAnimation = generateAnimation(screen.getAtlas().findRegion("golem_launch_ball"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("golem_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
@@ -108,8 +108,6 @@ public class Golem extends Enemy implements BossAttack {
         idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("golem_idle"),
                 5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
         idleAnimationDamaged.setPlayMode(Animation.PlayMode.LOOP);
-
-
 
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
@@ -261,8 +259,8 @@ public class Golem extends Enemy implements BossAttack {
             attackTimer -= dt;
         }
 
-        if(currentState != State.DYING){
-            if(spawnEnemyCounter > 2){
+        if (currentState != State.DYING) {
+            if (spawnEnemyCounter > 2) {
 //                screen.getSpritesToAdd().add(new EarthElemental(screen, b2body.getPosition().x, b2body.getPosition().y + 0.1f, runningRight));
                 spawnEnemyCounter = 0;
             }
@@ -289,7 +287,8 @@ public class Golem extends Enemy implements BossAttack {
                 texture = deathAnimation.getKeyFrame(stateTimer);
                 break;
             case CHARGING:
-                texture = walkAnimation.getKeyFrame(stateTimer);;
+                texture = walkAnimation.getKeyFrame(stateTimer);
+                ;
                 break;
             case ATTACKING:
                 if (strongAttacking) {
@@ -301,7 +300,8 @@ public class Golem extends Enemy implements BossAttack {
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = hurtAnimation.getKeyFrame(stateTimer);;
+                texture = hurtAnimation.getKeyFrame(stateTimer);
+                ;
                 break;
             case CHASING:
                 attackEnabled = false;
@@ -434,24 +434,13 @@ public class Golem extends Enemy implements BossAttack {
 
     @Override
     public void damage(int amount) {
-        spawnEnemyCounter++;
         if (isAlive()) {
             damageForStun += 1;
             if (damageForStun > 3) {
                 hurtTimer = STUN_TIME;
                 damageForStun = 0;
             }
-            if (invincibilityTimer < 0) {
-                health -= amount;
-                invincibilityTimer = INVINCIBILITY_TIME;
-            }
-            if (flashRedTimer < 0) {
-                flashRedTimer = FLASH_RED_TIME;
-            }
-            screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                    , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-            showHealthBar = true;
-            b2body.applyLinearImpulse(new Vector2(0, 0.6f), b2body.getWorldCenter(), true);
+            super.damage(amount);
         }
     }
 

@@ -55,9 +55,63 @@ public class Ghoul extends Enemy {
 
     private Fixture attackFixture;
 
+    private static final String MOVE_ANIMATION_FILENAME = "ghoul_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "ghoul_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "ghoul_idle";
+    private static final String HURT_ANIMATION_FILENAME = "ghoul_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "ghoul_die";
+
+    private static final int MOVE_FRAME_COUNT = 6;
+    private static final int ATTACK_FRAME_COUNT = 5;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 8;
+
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.1f;
+    private static final float HURT_ANIMATION_FPS = 0.1f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
 
     public Ghoul(PlayScreen screen, float x, float y) {
         super(screen, x, y);
+        initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         deathAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_die"),
@@ -256,25 +310,6 @@ public class Ghoul extends Enemy {
     @Override
     public void hitOnHead() {
         damage(2);
-    }
-
-
-    @Override
-    public void damage(int amount) {
-        if (invincibilityTimer < 0) {
-            health -= amount;
-            invincibilityTimer = INVINCIBILITY_TIME;
-            hurtTimer = HURT_TIME;
-        }
-        if (flashRedTimer < 0) {
-            flashRedTimer = FLASH_RED_TIME;
-        }
-        screen.getDamageNumbersToAdd().add(new DamageNumber(screen, b2body.getPosition().x - getWidth() / 2 + 0.4f
-                , b2body.getPosition().y - getHeight() / 2 + 0.2f, false, amount));
-        showHealthBar = true;
-
-        b2body.applyLinearImpulse(new Vector2(0, 0.8f), b2body.getWorldCenter(), true);
-
     }
 
     @Override
