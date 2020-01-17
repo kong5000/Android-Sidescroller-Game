@@ -4,19 +4,16 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.EdgeShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
+import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
 import com.mygdx.adventuregame.sprites.Enemy;
-import com.mygdx.adventuregame.items.Item;
 
-import java.util.Random;
 
 public class Slime extends Enemy {
     private static final float[] SLIME_HITBOX = {
@@ -24,12 +21,41 @@ public class Slime extends Enemy {
             -0.15f, -0.1f,
             0.15f, -0.1f,
             0.15f, 0.02f};
-    private static final float ATTACK_RATE = 3f;
-    private static final float HURT_RATE = 0.3f;
-    private static final float CORPSE_TIME = 0.25f;
-    private float attackRateTimer;
+    private static final float[] SPEAR_HITBOX_RIGHT = {
+            0.3f, -0.1f,
+            0.3f, 0.00f,
+            0.1f, -0.1f,
+            0.1f, 0.00f};
+    private static final float[] SPEAR_HITBOX_LEFT = {
+            -0.3f, -0.1f,
+            -0.3f, 0.00f,
+            -0.1f, -0.1f,
+            -0.1f, 0.00f};
+    private float jumpTimer = -1f;
+    private static final float JUMP_COOLDOWN = 2;
+    private static final float HURT_TIME = 0.3f;
+    private static final float ATTACK_RATE = 1.75f;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
+    private static final float MAX_VERTICAL_SPEED = 3;
+    private static final int WIDTH_PIXELS = 68;
+    private static final int HEIGHT_PIXELS = 35;
+
+    private static final float CORPSE_EXISTS_TIME = 0.5f;
+    private static final float INVINCIBILITY_TIME = 0.35f;
+    private static final float FLASH_RED_TIME = 0.4f;
+
+    private float attackTimer;
+    private float idleTimer = -1f;
+    private static final float IDLE_TIME = 0.5f;
+
+    private float deathTimer;
+
+    private boolean setToDie = false;
+
+    private Fixture attackFixture;
 
     private static final String MOVE_ANIMATION_FILENAME = "slime_move";
+    private static final String JUMP_ANIMATION_FILENAME = "slime_move";
     private static final String ATTACK_ANIMATION_FILENAME = "slime_attack";
     private static final String IDLE_ANIMATION_FILENAME = "slime_idle";
     private static final String HURT_ANIMATION_FILENAME = "slime_hurt";
@@ -40,18 +66,23 @@ public class Slime extends Enemy {
     private static final int IDLE_FRAME_COUNT = 4;
     private static final int HURT_FRAME_COUNT = 4;
     private static final int DEATH_FRAME_COUNT = 4;
+    private static final int JUMP_FRAME_COUNT = 2;
 
     private static final float MOVE_ANIMATION_FPS = 0.1f;
     private static final float ATTACK_ANIMATION_FPS = 0.1f;
     private static final float IDLE_ANIMATION_FPS = 0.1f;
     private static final float HURT_ANIMATION_FPS = 0.1f;
     private static final float DEATH_ANIMATION_FPS = 0.1f;
-
-    private static final int WIDTH_PIXELS = 34;
-    private static final int HEIGHT_PIXELS = 27;
+    private static final float JUMP_ANIMATION_FPS = 0.1f;
 
     public Slime(PlayScreen screen, float x, float y) {
         super(screen, x, y);
+        initJumpAnimation(
+                JUMP_ANIMATION_FILENAME,
+                JUMP_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                JUMP_ANIMATION_FPS);
         initMoveAnimation(
                 MOVE_ANIMATION_FILENAME,
                 MOVE_FRAME_COUNT,
@@ -88,137 +119,284 @@ public class Slime extends Enemy {
                 DEATH_ANIMATION_FPS
         );
 
+        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
+
         stateTimer = 0;
-        setBounds(getX(), getY(), 34 / AdventureGame.PPM, 27 / AdventureGame.PPM);
         setToDestroy = false;
         destroyed = false;
-        currentState = State.WALKING;
-        previousState = State.WALKING;
-        attackRateTimer = ATTACK_RATE;
-        attackDamage = 2;
-        health = 2;
+        currentState = State.IDLE;
+        previousState = State.IDLE;
+        attackTimer = ATTACK_RATE;
+        deathTimer = 0;
+        invincibilityTimer = -1f;
+        flashRedTimer = -1f;
+        health = 3;
+        barYOffset = 0.09f;
     }
-
 
     @Override
     public void update(float dt) {
-        if (health <= 0) {
-            setToDestroy = true;
+        if(runningRight){
+            barXOffset = -0.15f;
+        }else {
+            barXOffset = 0f;
         }
+        if (health <= 0) {
+            if (!setToDie) {
+                setToDie = true;
+            }
+        }
+        if (currentState == State.DYING) {
+            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            }
+            deathTimer += dt;
+            if (deathTimer > CORPSE_EXISTS_TIME) {
+                setToDestroy = true;
+                if(!destroyed){
+                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth()/4, getY() - getHeight() - 0.1f));
+                }
+            }
+        }
+
         if (setToDestroy && !destroyed) {
-            screen.getPlayer().giveXP(experiencePoints);
             world.destroyBody(b2body);
-            spawnLoot();
             destroyed = true;
             stateTimer = 0;
         } else if (!destroyed) {
-            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            if (hurtTimer > 0) {
-                hurtTimer -= dt;
+            updateStateTimers(dt);
+            setRegion(getFrame(dt));
+            if (runningRight) {
+                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+            } else {
+                setPosition(b2body.getPosition().x - 0.5f, b2body.getPosition().y - getHeight() / 2);
+            }
+            act();
+        }
+    }
+
+    private void updateStateTimers(float dt) {
+        if (jumpTimer > 0) {
+            jumpTimer -= dt;
+        }
+        if (idleTimer > 0) {
+            idleTimer -= dt;
+        }
+        if (hurtTimer > 0) {
+            hurtTimer -= dt;
+        }
+        if (invincibilityTimer > 0) {
+            invincibilityTimer -= dt;
+        }
+        if (flashRedTimer > 0) {
+            flashRedTimer -= dt;
+        }
+
+        if (attackTimer > 0) {
+            attackTimer -= dt;
+        }
+        if(affectedBySpellTimer > 0){
+            affectedBySpellTimer -=dt;
+        }
+    }
+
+    private void act() {
+        if (currentState == State.CHASING) {
+            if (playerInAttackRange()) {
+                goIntoAttackState();
+                lungeAtPlayer();
+            }else if (Math.abs(b2body.getLinearVelocity().x) < 0.01) {
+                if (jumpTimer < 0) {
+                    jump();
+                    jumpTimer = JUMP_COOLDOWN;
+                }
+            }
+            chasePlayer();
+        }
+        if (currentState == State.ATTACKING) {
+            if (currentFrameIsAnAttack()) {
+                enableAttackHitBox();
+            }
+            if (attackFramesOver()) {
+                disableAttackHitBox();
+            }
+            if (attackAnimation.isAnimationFinished(stateTimer)) {
+                disableAttackHitBox();
+                idleTimer = IDLE_TIME;
+                jumpTimer = JUMP_COOLDOWN / 2;
+                attackTimer = -1f;
             }
         }
-        setRegion(getFrame(dt));
+        limitSpeed();
     }
 
     @Override
     public void draw(Batch batch) {
-        if (!destroyed || stateTimer < CORPSE_TIME) {
+        if (!destroyed) {
             super.draw(batch);
         } else {
             safeToRemove = true;
         }
-
     }
 
-
-    protected State getState() {
-        if (setToDestroy) {
-            return State.DYING;
-        } else if (hurtTimer > 0) {
-            return State.HURT;
-        } else if (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM) {
-            return State.ATTACKING;
-
-        } else {
-            return State.WALKING;
+    private void disableAttackHitBox() {
+        if (attackFixture != null) {
+            b2body.destroyFixture(attackFixture);
+            attackFixture = null;
         }
     }
 
-    @Override
-    protected void orientTextureTowardsPlayer(TextureRegion texture) {
-
+    private void enableAttackHitBox() {
+        if (attackFixture == null)
+            createAttack();
     }
 
-    @Override
-    public void defineEnemy() {
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.position.set(getX(), getY());
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        b2body = world.createBody(bodyDef);
 
-        FixtureDef fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.GROUND_BIT
-                | AdventureGame.PLAYER_SWORD_BIT
-                | AdventureGame.ARROW_BIT
-                | AdventureGame.FIRE_SPELL_BIT;
-        PolygonShape shape = new PolygonShape();
-        shape.set(SLIME_HITBOX);
-//        CircleShape shape = new CircleShape();
-//        shape.setRadius(8 / AdventureGame.PPM);
+    private void lungeAtPlayer() {
+        if (playerIsToTheRight()) {
+            jumpingAttackRight();
+        } else {
+            jumpingAttackLeft();
+        }
+    }
 
-        fixtureDef.shape = shape;
-        b2body.createFixture(fixtureDef).setUserData(this);
+    private void chasePlayer() {
+        if (playerIsToTheRight()) {
+            runRight();
+        } else {
+            runLeft();
+        }
+    }
 
-        fixtureDef = new FixtureDef();
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_ATTACK_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
-
-        fixtureDef.shape = shape;
-        fixtureDef.isSensor = false;
-        b2body.createFixture(fixtureDef).setUserData(this);
-
-        EdgeShape head = new EdgeShape();
-        head.set(
-                new Vector2(-8 / AdventureGame.PPM, 1 / AdventureGame.PPM),
-                new Vector2(8 / AdventureGame.PPM, 1 / AdventureGame.PPM)
-        );
-        fixtureDef.shape = head;
-        fixtureDef.restitution = 1f;
-        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_HEAD_BIT;
-        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
-        fixtureDef.isSensor = false;
-        b2body.createFixture(fixtureDef).setUserData(this);
+    protected State getState() {
+        if (setToDie) {
+            return State.DYING;
+        } else if (hurtTimer > 0) {
+            return State.HURT;
+        }else if (idleTimer > 0) {
+            return State.IDLE;
+        }
+        else if (attackTimer > 0) {
+            return State.ATTACKING;
+        } else if (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM) {
+            return State.CHASING;
+        } else if (b2body.getLinearVelocity().x == 0) {
+            return State.IDLE;
+        } else {
+            return State.IDLE;
+        }
     }
 
     @Override
     public void hitOnHead() {
-        setToDestroy = true;
+        damage(2);
     }
 
     @Override
     public boolean notDamagedRecently() {
-        return (hurtTimer < 0);
+        return (invincibilityTimer < 0);
     }
 
-    private void spawnLoot(){
-        Random random = new Random();
-        int randomDraw = random.nextInt(5);
-        if(randomDraw == 3){
-            screen.getSpritesToAdd().add(new Item(screen, getX(), getY(), AdventureGame.SMALL_HEALTH));
-        }
-        if(randomDraw == 4){
-            screen.getSpritesToAdd().add(new Item(screen, getX(), getY(), AdventureGame.LARGE_HEALTH));
-        }
-        screen.getSpritesToAdd().add(new Item(screen, getX(), getY(), AdventureGame.SMALL_HEALTH));
+    private void createAttack() {
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.filter.categoryBits = AdventureGame.ENEMY_ATTACK_BIT;
+        fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT;
+        PolygonShape polygonShape = new PolygonShape();
+        float[] hitbox = getAttackHitbox();
+        polygonShape.set(hitbox);
+        fixtureDef.shape = polygonShape;
+        fixtureDef.isSensor = false;
+        attackFixture = b2body.createFixture(fixtureDef);
+        attackFixture.setUserData(this);
+    }
 
+    private float[] getAttackHitbox() {
+        float[] hitbox;
+        if (runningRight) {
+            hitbox = SLIME_HITBOX;
+        } else {
+            hitbox = SLIME_HITBOX;
+        }
+        return hitbox;
+    }
 
+    protected void orientTextureTowardsPlayer(TextureRegion region) {
+        if (currentState != State.DYING) {
+            Vector2 vectorToPlayer = getVectorToPlayer();
+            runningRight = vectorToPlayer.x > 0;
+
+            if (!runningRight && region.isFlipX()) {
+                region.flip(true, false);
+            }
+            if (runningRight && !region.isFlipX()) {
+                region.flip(true, false);
+            }
+        }
+    }
+
+    private boolean playerIsToTheRight() {
+        return getVectorToPlayer().x > 0;
+    }
+
+    private void runRight() {
+        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
+    }
+
+    private void runLeft() {
+        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
+    }
+
+    private boolean playerInAttackRange() {
+        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
+    }
+
+    private void jumpingAttackLeft() {
+        b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
+    }
+
+    private void jumpingAttackRight() {
+        b2body.applyLinearImpulse(new Vector2(.2f, 0), b2body.getWorldCenter(), true);
+    }
+
+    private void goIntoAttackState() {
+        screen.getSoundEffects().playEnemyMeleeSound();
+        attackTimer = ATTACK_RATE;
+    }
+
+    private boolean currentFrameIsAnAttack() {
+        return (currentState == State.ATTACKING && stateTimer > 0.2f);
+    }
+
+    private boolean attackFramesOver() {
+        if (currentState == State.ATTACKING) {
+            return stateTimer > 0.7f;
+        }
+        return false;
     }
 
     @Override
     protected Shape getHitBoxShape() {
-        CircleShape shape = new CircleShape();
-        shape.setRadius(12 / AdventureGame.PPM);
+        PolygonShape shape = new PolygonShape();
+        shape.set(SLIME_HITBOX);
         return shape;
+    }
+
+    private void jump() {
+        if(runningRight){
+            b2body.applyLinearImpulse(new Vector2(1, 2.6f), b2body.getWorldCenter(), true);
+        }else {
+            b2body.applyLinearImpulse(new Vector2(-1, 2.6f), b2body.getWorldCenter(), true);
+
+        }
+    }
+    private void limitSpeed() {
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
+            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
+        }
     }
 }

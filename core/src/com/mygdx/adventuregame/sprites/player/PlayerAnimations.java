@@ -71,6 +71,7 @@ public class PlayerAnimations {
         playerIdleDamaged = generateAnimation(textureAtlas.findRegion("player_idle1_bright"), 3, 52, 39, 0.2f);
         playerIdleDamaged.setPlayMode(Animation.PlayMode.LOOP);
         playerFall = generateAnimation(textureAtlas.findRegion("player_fall"), 2, 52, 39, 0.1f);
+        playerFall.setPlayMode(Animation.PlayMode.LOOP);
         playerFallDamaged = generateAnimation(textureAtlas.findRegion("player_fall_bright"), 2, 52, 39, 0.1f);
         playerJump = generateAnimation(textureAtlas.findRegion("player_jump"), 4, 52, 39, 0.1f);
         playerJumpDamaged = generateAnimation(textureAtlas.findRegion("player_jump_bright"), 4, 52, 39, 0.1f);
@@ -180,6 +181,7 @@ public class PlayerAnimations {
                 region = selectBrightFrameOrRegularFrame(playerFall, playerFallDamaged, stateTimer);
                 break;
             case STANDING:
+            case TELEPORTING:
             default:
                 region = selectBrightFrameOrRegularFrame(playerIdle, playerIdleDamaged, stateTimer);
                 break;

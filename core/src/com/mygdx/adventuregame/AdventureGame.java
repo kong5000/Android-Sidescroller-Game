@@ -28,6 +28,11 @@ public class AdventureGame extends Game {
 	public static final int RING_OF_PROTECTION = 9;
 	public static final int GOLD_COIN = 10;
 	public static final int ARROW = 11;
+	public static final int GOLD_KEY = 12;
+	public static final int BLUE_KEY = 13;
+	public static final int RED_KEY = 14;
+	public static final int SILVER_KEY = 15;
+
 
 	public static final short GROUND_BIT = 1;
 	public static final short PLAYER_BIT = 2;
@@ -63,6 +68,15 @@ public class AdventureGame extends Game {
 	public static final int GREEN_PROJECTILE = 3;
 	public static final int SHADE_PROJECTILE = 4;
 	public static final int IMP_PROJECTILE = 5;
+
+	public static final int FOREST_CASTLE_1 = 0;
+	public static final int DUNGEON_1 = 1;
+	public static final int TEMPLE_1 = 2;
+
+	public static final float DUNGEON_START_X = 3.899999f;
+	public static final float DUNGEON_START_Y = 2.46f;
+	public static final float TEMPLE_START_X = 3.74f;
+	public static final float TEMPLE_START_Y = 2.62f;
 
 
 

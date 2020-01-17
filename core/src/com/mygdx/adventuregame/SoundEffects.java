@@ -30,6 +30,9 @@ public class SoundEffects {
 
 
     private Music templeMusic;
+    private Music forestMusic;
+    private Music dungeonMusic;
+    private Music titleThemeMusic;
     private Music bossMusic;
     private Music currentTrack;
 
@@ -58,8 +61,17 @@ public class SoundEffects {
         templeMusic = assetManager.get("audio/Junkyard_Drive.ogg", Music.class);
         initializeMusic(templeMusic);
 
+        forestMusic = assetManager.get("audio/Bubble_City.ogg", Music.class);
+        initializeMusic(forestMusic);
+
+        dungeonMusic = assetManager.get("audio/Desert_Coast.ogg", Music.class);
+        initializeMusic(dungeonMusic);
+
         bossMusic = assetManager.get("audio/Boss_Battle.wav", Music.class);
         initializeMusic(bossMusic);
+
+        titleThemeMusic = assetManager.get("audio/Runing_Gunning_Title_Theme.ogg", Music.class);
+        initializeMusic(titleThemeMusic);
 
 
     }
@@ -84,6 +96,27 @@ public class SoundEffects {
         templeMusic.setVolume(0.5f);
         templeMusic.play();
     }
+
+    public void playDungeonMusic(){
+        stopMusic();
+        currentTrack = dungeonMusic;
+        dungeonMusic.setVolume(0.5f);
+        dungeonMusic.play();
+    }
+
+    public void playForestMusic(){
+        stopMusic();
+        currentTrack = forestMusic;
+        forestMusic.setVolume(0.5f);
+        forestMusic.play();
+    }
+    public void playTitleThemeMusic(){
+        stopMusic();
+        currentTrack = titleThemeMusic;
+        currentTrack.setVolume(0.5f);
+        currentTrack.play();
+    }
+
     public void playBossMusic(){
         stopMusic();
         currentTrack = bossMusic;
@@ -102,7 +135,7 @@ public class SoundEffects {
         shadeAttackSound.play(effectsVolume *1f);
     }
     public void playSlugAttackSound(){
-        slugAttackSound.play(effectsVolume *0.85f);
+        slugAttackSound.play(effectsVolume *0.5f);
     }
     public void playOgreRoarSound(){
         ogreRoarSound.play(effectsVolume *1f);
@@ -111,13 +144,13 @@ public class SoundEffects {
         slashSound.play(effectsVolume *0.3f);
     }
     public void playminotaurDieSound(){ minotaurDieSound.play(effectsVolume *0.65f); }
-    public void playExplosionSound(){ explodeSound.play(effectsVolume *0.25f); }
-    public void playThudSound(){ thudSound.play(effectsVolume ); }
+    public void playExplosionSound(){ explodeSound.play(effectsVolume *0.10f); }
+    public void playThudSound(){ thudSound.play(effectsVolume *0.5f); }
     public void playBigExplosion(){ bigExplosionSound.play(effectsVolume *0.5f); }
     public void playEnemyMeleeSound(){ enemyMeleeSound.play(effectsVolume *0.2f); }
     public void playImpAttackSound(){ impAttackSound.play(effectsVolume *0.2f); }
     public void playCoinSound(){ coinSound.play(effectsVolume *0.5f); }
-    public void playArrowHitSound(){ arrowImpactSound.play(effectsVolume); }
-    public void playArrowPickupSound(){ arrowPickupSound.play(effectsVolume *0.6f); }
-    public void playHeavyStepSound(){ heavyStepSound.play(effectsVolume); }
+    public void playArrowHitSound(){ arrowImpactSound.play(effectsVolume *0.5f); }
+    public void playArrowPickupSound(){ arrowPickupSound.play(effectsVolume *0.5f); }
+    public void playHeavyStepSound(){ heavyStepSound.play(effectsVolume * 0.5f); }
 }

@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
@@ -148,7 +149,7 @@ public class IceGolem extends Enemy {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 60;
+        health = 75;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         setScale(1.25f);
@@ -255,6 +256,8 @@ public class IceGolem extends Enemy {
                 setToDestroy = true;
                 if (!destroyed) {
                     screen.getSpritesToAdd().add(new Vortex(screen, getX() + 0.1f, getY() - getHeight() / 2 + 0.1f));
+                    screen.getSpritesToAdd().add(new Item(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, AdventureGame.BLUE_KEY));
+
                 }
             }
         }

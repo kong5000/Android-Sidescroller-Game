@@ -122,7 +122,7 @@ public class Golem extends Enemy implements BossAttack {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 30;
+        health = 80;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         setScale(1.1f);

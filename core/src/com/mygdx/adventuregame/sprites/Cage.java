@@ -16,7 +16,6 @@ public class Cage extends Sprite implements UpdatableSprite {
     protected World world;
     protected PlayScreen screen;
     public Body b2body;
-    public Body sensorBody;
     private boolean active = false;
 
     protected float movementTimer = -1f;
@@ -95,7 +94,6 @@ public class Cage extends Sprite implements UpdatableSprite {
         }
         if (setToDestroy && !destroyed) {
             world.destroyBody(b2body);
-            world.destroyBody(sensorBody);
             destroyed = true;
 
         } else if (!destroyed) {
@@ -115,7 +113,6 @@ public class Cage extends Sprite implements UpdatableSprite {
 
     private void pauseMovement() {
         b2body.setLinearVelocity(new Vector2(0, 0));
-        sensorBody.setLinearVelocity(0, 0);
     }
 
     protected void move(){

@@ -787,6 +787,13 @@ golem_hurt
   orig: 228, 59
   offset: 0, 0
   index: -1
+slime_idle
+  rotate: false
+  xy: 3183, 0
+  size: 128, 25
+  orig: 128, 25
+  offset: 0, 0
+  index: -1
 water_elemental_hurt
   rotate: false
   xy: 1574, 0
@@ -1158,13 +1165,6 @@ blue_flame
   orig: 90, 144
   offset: 0, 0
   index: -1
-ghoul_hurt
-  rotate: false
-  xy: 3183, 3
-  size: 159, 22
-  orig: 159, 22
-  offset: 0, 0
-  index: -1
 player_idle1_bright
   rotate: false
   xy: 3805, 49
@@ -1233,6 +1233,13 @@ reaper_idle
   xy: 4013, 23
   size: 200, 48
   orig: 200, 48
+  offset: 0, 0
+  index: -1
+ghoul_hurt
+  rotate: false
+  xy: 3587, 3
+  size: 159, 22
+  orig: 159, 22
   offset: 0, 0
   index: -1
 necromancer_hurt
@@ -1648,7 +1655,7 @@ arrow
   orig: 16, 16
   offset: 0, 0
   index: -1
-bow
+blue_key
   rotate: false
   xy: 4369, 29
   size: 16, 16
@@ -1662,7 +1669,7 @@ shuriken
   orig: 15, 15
   offset: 0, 0
   index: -1
-fire_spellbook
+bow
   rotate: false
   xy: 3571, 283
   size: 16, 16
@@ -1683,51 +1690,79 @@ fire_spellbook
   orig: 75, 75
   offset: 0, 0
   index: -1
-large_health
+fire_spellbook
   rotate: false
   xy: 4828, 105
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-medium_health
+gold_key
   rotate: false
   xy: 980, 216
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-ring_of_double_jump
+large_health
   rotate: false
   xy: 3592, 481
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-ring_of_protection
+medium_health
   rotate: false
   xy: 2722, 84
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-ring_of_regeneration
+red_key
   rotate: false
   xy: 4366, 690
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-small_health
+ring_of_double_jump
   rotate: false
   xy: 4382, 690
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-sword
+ring_of_protection
   rotate: false
   xy: 952, 58
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+ring_of_regeneration
+  rotate: false
+  xy: 4254, 2016
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+silver_key
+  rotate: false
+  xy: 4704, 2335
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+small_health
+  rotate: false
+  xy: 4664, 2016
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+sword
+  rotate: false
+  xy: 4880, 1915
   size: 16, 16
   orig: 16, 16
   offset: 0, 0

@@ -391,8 +391,8 @@ public class RedOgre extends Enemy {
     }
 
     private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x )< 100 / AdventureGame.PPM &&
-                (Math.abs(getVectorToPlayer().y )< 100 / AdventureGame.PPM));
+        return (Math.abs(getVectorToPlayer().x )< 35 / AdventureGame.PPM &&
+                (Math.abs(getVectorToPlayer().y )< 50 / AdventureGame.PPM));
     }
 
     private void jumpingAttackLeft() {
@@ -428,6 +428,7 @@ public class RedOgre extends Enemy {
     }
 
     private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
+        return (Math.abs(getVectorToPlayer().x )< 120 / AdventureGame.PPM &&
+                (Math.abs(getVectorToPlayer().y )< 40 / AdventureGame.PPM));
     }
 }

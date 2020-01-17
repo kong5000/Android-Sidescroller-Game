@@ -54,7 +54,7 @@ public class CheckPoint {
         return xPos +0.06f;
     }
     public float getYPos(){
-        return yPos -1.15f;
+        return yPos -1.12f;
     }
 
     public void playAnimation() {

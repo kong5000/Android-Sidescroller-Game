@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.BossAttack;
 import com.mygdx.adventuregame.sprites.DamageNumber;
@@ -128,7 +129,7 @@ public class Minotaur extends Enemy implements BossAttack {
         invincibilityTimer = -1f;
         flashRedTimer = -1f;
         attackDamage = 3;
-        health = 40;
+        health = 65;
         barYOffset = 0.02f;
         monsterTiles = new Array<>();
         setScale(1.2f);
@@ -173,6 +174,8 @@ public class Minotaur extends Enemy implements BossAttack {
                 setToDestroy = true;
                 if (!destroyed) {
                     screen.getSpritesToAdd().add(new Vortex(screen, getX() + 0.1f, getY() - getHeight() / 2 + 0.1f));
+                    screen.getSpritesToAdd().add(new Item(screen, getX() + getWidth() / 2, getY() + getHeight() / 2, AdventureGame.GOLD_KEY));
+
                 }
             }
         }
@@ -437,7 +440,7 @@ public class Minotaur extends Enemy implements BossAttack {
             return State.CHARGING;
         } else if (attackTimer > 0) {
             return State.ATTACKING;
-        } else if (Math.abs(getVectorToPlayer().x) < 230 / AdventureGame.PPM) {
+        } else if (Math.abs(getVectorToPlayer().x) < 430 / AdventureGame.PPM) {
             return State.CHASING;
         } else if (b2body.getLinearVelocity().x == 0) {
             return State.IDLE;
@@ -463,6 +466,9 @@ public class Minotaur extends Enemy implements BossAttack {
     @Override
     public void damage(int amount) {
         super.damage(amount);
+        if(!active){
+            active = true;
+        }
         damageForStun += 1;
     }
 

@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -59,6 +60,7 @@ import com.mygdx.adventuregame.tools.WorldContactListener;
 import java.util.Iterator;
 
 public class PlayScreen implements Screen {
+    private int currentLevel = AdventureGame.FOREST_CASTLE_1;
     public Music music;
     private int bossCounter = 0;
     private Sprite background;
@@ -112,12 +114,18 @@ public class PlayScreen implements Screen {
     private Sound sound;
     private SoundEffects soundEffects;
     private GameAssets gameAssets;
+
     public PlayScreen(AdventureGame game) {
         gameAssets = new GameAssets();
         assetManager = new AssetManager();
         assetManager.load("game_sprites.pack", TextureAtlas.class);
         assetManager.load("audio/Boss_Battle.wav", Music.class);
         assetManager.load("audio/Junkyard_Drive.ogg", Music.class);
+        assetManager.load("audio/Desert_Coast.ogg", Music.class);
+        assetManager.load("audio/Bubble_City.ogg", Music.class);
+        assetManager.load("audio/Runing_Gunning_Title_Theme.ogg", Music.class);
+
+
         assetManager.load("audio/flame.ogg", Sound.class);
         assetManager.load("audio/parry.ogg", Sound.class);
         assetManager.load("audio/swish2.ogg", Sound.class);
@@ -139,7 +147,7 @@ public class PlayScreen implements Screen {
 
         assetManager.finishLoading();
         soundEffects = new SoundEffects(assetManager);
-        soundEffects.playTempleMusic();
+        soundEffects.playForestMusic();
         atlas = assetManager.get("game_sprites.pack", TextureAtlas.class);
         music = assetManager.get("audio/Boss_Battle.wav", Music.class);
 
@@ -158,21 +166,23 @@ public class PlayScreen implements Screen {
         params.textureMinFilter = Texture.TextureFilter.Nearest;
 
 
-        Texture bgTexture = new Texture("temple_bg.png");
+//        Texture bgTexture = new Texture("temple_background.png");
+//        Texture bgTexture = new Texture("temple_bg.png");
 //        Texture bgTexture = new Texture("background_dungeon.png");
-        background = new Sprite(bgTexture);
-
-//        Texture bgTexture = new Texture("BackgroundLong.png");
 //        background = new Sprite(bgTexture);
-//        Texture bgTextureFar = new Texture("BackgroundCloud.png");
-//        backgroundFar = new Sprite(bgTextureFar);
+
+        Texture bgTexture = new Texture("BackgroundLong.png");
+        background = new Sprite(bgTexture);
+        Texture bgTextureFar = new Texture("BackgroundCloud.png");
+//        Texture bgTextureFar = new Texture("temple_background.png");
+        backgroundFar = new Sprite(bgTextureFar);
 
 
 //        map = mapLoader.load("forest_castle.tmx");
-//        map = mapLoader.load("forest_castle_1.tmx", params);
+        map = mapLoader.load("forest_castle_1.tmx", params);
 //        map = mapLoader.load("dungeon_1.tmx", params);
 //        map = mapLoader.load("Boss_test.tmx", params);
-        map = mapLoader.load("temple.tmx", params);
+//        map = mapLoader.load("temple.tmx", params);
 
 
         Iterator<TiledMapTileSet> iter = map.getTileSets().iterator();
@@ -229,11 +239,12 @@ public class PlayScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
 
 //        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
-//        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.ARROW));
+//        spritesToAdd.add(new Item(this, 3.5f, 4f,AdventureGame.GOLD_KEY));
 //        enemyList.add(new RedOgre(this, 4, 5.2f));
 //        enemyList.add(new Slug(this, 4, 7f));
 //        enemyList.add(new Slug(this, 5, 7f));
 //        checkPoints.add(new CheckPoint(this, 5, 5));
+
 
     }
 
@@ -250,6 +261,9 @@ public class PlayScreen implements Screen {
 //            }
 //        }
         if (!tearDownComplete) {
+            for (HealthBar healthBar : healthBars) {
+                healthBars.removeValue(healthBar, true);
+            }
             for (CheckPoint checkPoint : checkPoints) {
                 checkPoint.destroy();
                 checkPoints.removeValue(checkPoint, true);
@@ -412,11 +426,11 @@ public class PlayScreen implements Screen {
 
         game.batch.end();
 
-        if (player.getCurrentState() == Player.State.DYING) {
+        if (player.getCurrentState() == Player.State.DYING || player.currentState == Player.State.TELEPORTING) {
             fadeTickTimer += delta;
             if (fadeTickTimer < 10000) {
                 fadeTickTimer = 0;
-                if (!player.doneDying()) {
+                if (!player.doneTeleporting()) {
                     if (fadeScreenAlpha <= 0.993) {
                         fadeScreenAlpha += 0.007f;
                     }
@@ -429,7 +443,9 @@ public class PlayScreen implements Screen {
             }
         }
 
-        if (player.getCurrentState() != Player.State.DYING) {
+
+        if (player.getCurrentState() != Player.State.DYING
+                && player.getCurrentState() != Player.State.TELEPORTING) {
             fadeScreenColor.a = 0f;
             fadeScreenAlpha = 0f;
         }
@@ -722,23 +738,29 @@ public class PlayScreen implements Screen {
 
 
     public void changeMap() {
+        currentLevel++;
+        final String mapName;
+
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
                 tearDownComplete = false;
                 renderer.getMap().dispose(); //dispose the old map
-                map = mapLoader.load("forest_castle_1.tmx"); //load the new map
+                if (currentLevel == 1) {
+                    map = mapLoader.load("dungeon_1.tmx");
+                    soundEffects.playDungeonMusic();
+                } else if (currentLevel == 2) {
+                    map = mapLoader.load("temple.tmx");
+                    soundEffects.playTempleMusic();
+                } else {
+                    map = mapLoader.load("game_over.tmx");
+                    soundEffects.playTitleThemeMusic();
+                }
                 renderer.setMap(map); //set the map in your renderer
                 removeEntities();
-
-                Texture bgTexture = new Texture("BackgroundLong.png");
-                background = new Sprite(bgTexture);
-                Texture bgTextureFar = new Texture("BackgroundCloud.png");
-                backgroundFar = new Sprite(bgTextureFar);
-//
+                changeBackground(currentLevel);
             }
         });
-
     }
 
     private void removeEntities() {
@@ -753,7 +775,39 @@ public class PlayScreen implements Screen {
 
     }
 
-    public SoundEffects getSoundEffects(){
+    public SoundEffects getSoundEffects() {
         return soundEffects;
+    }
+
+    private void changeLevel() {
+    }
+
+    private void changeBackground(int level) {
+        Texture backgroundTexture;
+        Texture backgroundFarTexture;
+        switch (level) {
+            case AdventureGame.FOREST_CASTLE_1:
+                backgroundTexture = new Texture("BackgroundLong.png");
+                background = new Sprite(backgroundTexture);
+                backgroundFarTexture = new Texture("BackgroundCloud.png");
+                backgroundFar = new Sprite(backgroundFarTexture);
+                break;
+            case AdventureGame.DUNGEON_1:
+                backgroundTexture = new Texture("background_dungeon.png");
+                background = new Sprite(backgroundTexture);
+                backgroundFar = null;
+                break;
+            case AdventureGame.TEMPLE_1:
+                backgroundTexture = new Texture("temple_background.png");
+                background = new Sprite(backgroundTexture);
+                backgroundFar = null;
+                break;
+            default:
+                backgroundTexture = new Texture("BackgroundLong.png");
+                background = new Sprite(backgroundTexture);
+                backgroundFarTexture = new Texture("BackgroundCloud.png");
+                backgroundFar = new Sprite(backgroundFarTexture);
+                break;
+        }
     }
 }

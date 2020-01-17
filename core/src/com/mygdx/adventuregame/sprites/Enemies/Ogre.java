@@ -74,6 +74,9 @@ public class Ogre extends Enemy {
     private static final float DEATH_ANIMATION_FPS = 0.1f;
     private static final float JUMP_ANIMATION_FPS = 0.1f;
 
+
+    private boolean active;
+
     public Ogre(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         initJumpAnimation(
@@ -137,6 +140,12 @@ public class Ogre extends Enemy {
 
     @Override
     public void update(float dt) {
+        if (!active) {
+            if (playerInActivationRange()) {
+                active = true;
+                jumpTimer = JUMP_COOLDOWN;
+            }
+        }
         if (runningRight) {
             barXOffset = -0.2f;
         } else {
@@ -171,7 +180,10 @@ public class Ogre extends Enemy {
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
             updateStateTimers(dt);
             setRegion(getFrame(dt));
-            act(dt);
+            if(active){
+                act(dt);
+            }
+
         }
     }
 
@@ -395,5 +407,9 @@ public class Ogre extends Enemy {
         PolygonShape shape = new PolygonShape();
         shape.set(OGRE_HITBOX);
         return shape;
+    }
+
+    private boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
     }
 }

@@ -9,8 +9,8 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
+import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.Effects.SlashEffect;
 import com.mygdx.adventuregame.sprites.Projectiles.Arrow;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
@@ -25,9 +25,9 @@ import com.mygdx.adventuregame.sprites.Projectiles.ImpSpell;
 import com.mygdx.adventuregame.sprites.Projectiles.ShadeProjectile;
 import com.mygdx.adventuregame.sprites.SpellBall;
 
-import java.util.Random;
 
 public class Player extends Sprite {
+    private int teleportCount = 0;
     public static final float DEFLECT_OFFSET_Y = 0.22f;
     private static final float DEFLECT_OFFSET_X_RIGHT = 0.35f;
     private static final float DEFLECT_OFFSET_X_LEFT = 0.27f;
@@ -39,6 +39,7 @@ public class Player extends Sprite {
     private boolean onElevator = false;
     private CheckPoint currentCheckPoint;
 
+    private float invisibilityTimer = 0.5f;
     private float attackCooldownTimer = -1f;
     private static final float ATTACK_COOLDOWN_TIME = 0.5f;
     public float currentSpeed = 1.3f;
@@ -54,7 +55,9 @@ public class Player extends Sprite {
     private boolean hitBoxUpdated = true;
     private float wallRunCooldown;
     private boolean squarePortalStarted = false;
+    private boolean teleportPortalStarted = false;
     private boolean resurrectStarted = false;
+    private boolean teleportResurrectStarted = false;
     private float stickRotation;
     private boolean spellBallEnabled;
     private float spellBallTimer = -1f;
@@ -77,7 +80,10 @@ public class Player extends Sprite {
     private Charge chargeEffect;
     private boolean canCastSpell = true;
     private float spellCooldownTimer = -1f;
-    private int arrowCount = 5;
+    private int arrowCount = MAX_ARROWS;
+    private boolean teleporting = false;
+    private boolean hasTeleportItem = false;
+
 
     public boolean canTurn() {
         return currentState == State.CHARGING_BOW || currentState == State.CASTING;
@@ -90,10 +96,21 @@ public class Player extends Sprite {
         firingSpell = false;
     }
 
+    public void teleport() {
+        teleportCount++;
+        switch(teleportCount){
+            case 1:    playerBody.setSpawnPoint(AdventureGame.DUNGEON_START_X, AdventureGame.DUNGEON_START_Y);
+            break;
+            case 2: playerBody.setSpawnPoint(AdventureGame.TEMPLE_START_X, AdventureGame.TEMPLE_START_Y);
+            break;
+        }
+        if (!teleporting) {
+            teleporting = true;
+        }
+    }
+
     public void beginRangedAttack() {
         if (canMove()) {
-
-
             if (hasArrows()) {
                 if (spellBallTimer < 0) {
                     fireBow();
@@ -121,7 +138,7 @@ public class Player extends Sprite {
     }
 
     public void reloadArrows() {
-        arrowCount = 10;
+        arrowCount = MAX_ARROWS;
     }
 
     public void deflectProjectile(int type) {
@@ -133,8 +150,8 @@ public class Player extends Sprite {
 
     private void launchDeflectedProjectile() {
         float xOffset = DEFLECT_OFFSET_X_LEFT;
-        if(runningRight){
-           xOffset = DEFLECT_OFFSET_X_RIGHT;
+        if (runningRight) {
+            xOffset = DEFLECT_OFFSET_X_RIGHT;
         }
         switch (deflectType) {
             case AdventureGame.FIRE_PROJECTILE:
@@ -169,7 +186,7 @@ public class Player extends Sprite {
         AIR_ATTACKING, FLIPPING,
         CASTING, DODGING, CROUCHING, CROUCH_WALKING,
         SHOOTING, DYING, REVIVING, PICKUP,
-        WALLCLIMB, CHARGING_BOW, DOWN_ATTACK
+        WALLCLIMB, CHARGING_BOW, DOWN_ATTACK, TELEPORTING
     }
 
     public enum Spell {FIREBALL, SHIELD, BOW, NONE}
@@ -218,9 +235,13 @@ public class Player extends Sprite {
     private float passThroughFloorTimer = 0;
     private float shootingTimer = 0;
     private float deathTimer = 0;
+    private float teleportTimer = 0;
     private static final float REVIVE_TIME = 7;
+    private static final float TELEPORT_REVIVE_TIME = 7;
     private static final float DEATH_TIME = 4;
+    private static final float TELEPORT_TIME = 4;
     private static final float DEATH_SPELL_TIME = 2;
+    private static final float TELEPORT_SPELL_TIME = 2f;
     private float castCooldown;
     private float dodgeCooldown = 0;
     private float arrowCooldown = 0;
@@ -240,7 +261,7 @@ public class Player extends Sprite {
     private static final float MAX_HORIZONTAL_SPEED = 2f;
 
     private int health;
-    private static final int FULL_HEALTH = 200;
+    private static final int FULL_HEALTH = 2;
 
     TextureAtlas textureAtlas;
 
@@ -289,13 +310,17 @@ public class Player extends Sprite {
 //        spawnPointX = 3.05f;
 //        spawnPointY = 8f;
 
-        //FOR DUNGEON1
+        //FOR DUNGEON1 and forest_castle
         spawnPointX = 4f;
         spawnPointY = 3f;
+
+        //Temple Boss
+//        spawnPointX = 15f;
+//        spawnPointY =15f;
+
         //Boss Dungeon1
 //        spawnPointX = 50f;
 //        spawnPointY = 12f;
-
 
 
         //bossroom
@@ -369,6 +394,7 @@ public class Player extends Sprite {
         if (!isFalling()) {
             downAttacking = false;
         }
+
         if (currentState == State.DODGING || currentState == State.CROUCHING || currentState == State.CROUCH_WALKING && !hitBoxUpdated) {
 //            hitBoxUpdated = true;
 //            changeToSmallHitBox();
@@ -442,7 +468,6 @@ public class Player extends Sprite {
                 }
             }
             if (deathTimer >= REVIVE_TIME) {
-
                 reviveTimer = 2.2f;
                 stateTimer = 0;
                 deathTimer = 0;
@@ -451,6 +476,41 @@ public class Player extends Sprite {
                 squarePortalStarted = false;
             }
         }
+
+        if (currentState == State.TELEPORTING) {
+            teleportTimer += dt;
+            if (teleportTimer >= TELEPORT_SPELL_TIME) {
+                if (!teleportPortalStarted) {
+                    setAlpha(0);
+                    screen.getTopLayerSpritesToAdd().add(new SquarePortal(screen, getX() + 0.07f, getY() - 0.15f));
+                    teleportPortalStarted = true;
+                }
+            }
+            if (teleportTimer >= TELEPORT_TIME) {
+                if (!playerReset) {
+                    resetPlayer();
+                    if (!teleportResurrectStarted) {
+                        screen.getTopLayerSpritesToAdd().add(new Resurrect(screen, b2body.getPosition().x - 0.25f, b2body.getPosition().y));
+                        teleportResurrectStarted = true;
+                        screen.changeMap();
+                    }
+                }
+            }
+            if(teleportTimer > TELEPORT_TIME + 0.5)
+            {
+                setAlpha(1);
+            }
+
+            if (teleportTimer >= TELEPORT_REVIVE_TIME) {
+                teleportTimer = 0;
+                stateTimer = 0;
+                teleportResurrectStarted = false;
+                playerReset = false;
+                teleporting = false;
+                teleportPortalStarted = false;
+            }
+        }
+
         if (currentState == State.CHARGING_BOW) {
             if (!chargingBow) {
                 bowAttack();
@@ -462,6 +522,15 @@ public class Player extends Sprite {
                     launchArrow();
                     arrowLaunched = true;
                 }
+            }
+        }
+
+        if(currentState == State.PICKUP){
+            if(itemPickupTimer < 0.2f && hasTeleportItem){
+                hasTeleportItem = false;
+                itemPickupTimer = 0;
+                teleport();
+
             }
         }
 
@@ -576,6 +645,9 @@ public class Player extends Sprite {
     }
 
     private State getState() {
+        if (teleporting) {
+            return State.TELEPORTING;
+        }
         if (downAttacking) {
             return State.DOWN_ATTACK;
         }
@@ -956,8 +1028,25 @@ public class Player extends Sprite {
         return false;
     }
 
+    public boolean doneTeleporting() {
+        if (currentState == State.DYING) {
+            return deathTimer >= DEATH_TIME;
+        } else {
+            return teleportTimer >= TELEPORT_TIME;
+        }
+    }
+
     public boolean canMove() {
-        return (currentState != State.DYING && currentState != State.REVIVING && currentState != State.PICKUP && currentState != State.HURT && currentState != State.CHARGING_BOW && currentState != State.CASTING && currentState != State.ATTACKING);
+        return (
+                currentState != State.DYING
+                        && currentState != State.REVIVING
+                        && currentState != State.PICKUP
+                        && currentState != State.HURT
+                        && currentState != State.CHARGING_BOW
+                        && currentState != State.CASTING
+                        && currentState != State.ATTACKING
+                        && currentState != State.TELEPORTING
+        );
     }
 
     public void pickupItem(int itemID) {
@@ -966,6 +1055,7 @@ public class Player extends Sprite {
                 equipedSpell = Spell.BOW;
                 hasBow = true;
                 itemPickupTimer = 2f;
+
                 break;
             case AdventureGame.FIRE_SPELLBOOK:
                 equipedSpell = Spell.FIREBALL;
@@ -1008,12 +1098,19 @@ public class Player extends Sprite {
                     arrowCount += 1;
                 }
                 break;
+            case AdventureGame.GOLD_KEY:
+            case AdventureGame.RED_KEY:
+            case AdventureGame.BLUE_KEY:
+            case AdventureGame.SILVER_KEY:
+                itemPickupTimer = 2f;
+                hasTeleportItem = true;
+                break;
             default:
                 break;
         }
         pickedUpItem = getItemTexture(itemID);
         itemSprite.setRegion(pickedUpItem);
-        dialogBox.setRegion(getItemDialog(itemID));
+//        dialogBox.setRegion(getItemDialog(itemID));
     }
 
     private TextureRegion getItemTexture(int id) {
@@ -1042,6 +1139,18 @@ public class Player extends Sprite {
                 break;
             case AdventureGame.SWORD:
                 assetName = "sword";
+                break;
+            case AdventureGame.GOLD_KEY:
+                assetName = "gold_key";
+                break;
+            case AdventureGame.RED_KEY:
+                assetName = "red_key";
+                break;
+            case AdventureGame.BLUE_KEY:
+                assetName = "blue_key";
+                break;
+            case AdventureGame.SILVER_KEY:
+                assetName = "silver_key";
                 break;
             default:
                 assetName = "small_health";
@@ -1184,6 +1293,9 @@ public class Player extends Sprite {
                 b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
             }
         }
+        if (currentState == State.TELEPORTING) {
+                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+        }
     }
 
     public boolean canAct() {
@@ -1220,6 +1332,8 @@ public class Player extends Sprite {
     }
 
     public void setRespawnPoint(CheckPoint checkPoint) {
+        health = FULL_HEALTH;
+        reloadArrows();
         currentCheckPoint = checkPoint;
         spawnPointY = checkPoint.getYPos();
         spawnPointX = checkPoint.getXPos();

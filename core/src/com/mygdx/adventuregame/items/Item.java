@@ -99,6 +99,18 @@ public class Item extends Sprite implements UpdatableSprite {
             case AdventureGame.ARROW:
                 assetName = "arrow";
                 break;
+            case AdventureGame.GOLD_KEY:
+                assetName = "gold_key";
+                break;
+            case AdventureGame.RED_KEY:
+                assetName = "red_key";
+                break;
+            case AdventureGame.BLUE_KEY:
+                assetName = "blue_key";
+                break;
+            case AdventureGame.SILVER_KEY:
+                assetName = "silver_key";
+                break;
             default:
                 assetName = "small_health";
                 break;

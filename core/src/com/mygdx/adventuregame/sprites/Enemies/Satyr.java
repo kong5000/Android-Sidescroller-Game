@@ -68,7 +68,7 @@ public class Satyr extends Enemy {
     private static final int IDLE_FRAME_COUNT = 4;
     private static final int HURT_FRAME_COUNT = 3;
     private static final int DEATH_FRAME_COUNT = 8;
-    private static final int JUMP_FRAME_COUNT = 28;
+    private static final int JUMP_FRAME_COUNT = 2;
 
     private static final float MOVE_ANIMATION_FPS = 0.1f;
     private static final float ATTACK_ANIMATION_FPS = 0.1f;

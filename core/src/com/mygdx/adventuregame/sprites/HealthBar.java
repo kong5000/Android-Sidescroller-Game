@@ -18,7 +18,12 @@ public class HealthBar extends Sprite implements UpdatableSprite{
         greenBar = new Sprite();
         greenBar.setPosition(getX(),getY());
         greenBar.setRegion(screen.getAtlas().findRegion("bar_border"));
-        greenBar.setBounds(getX(), getY(), 20 * enemy.getHealth()/ AdventureGame.PPM, 80 / AdventureGame.PPM);
+        if(enemy.getHealth() > 30){
+            greenBar.setBounds(getX(), getY(), 5 * enemy.getHealth()/ AdventureGame.PPM, 80 / AdventureGame.PPM);
+        }else {
+            greenBar.setBounds(getX(), getY(), 20 * enemy.getHealth()/ AdventureGame.PPM, 80 / AdventureGame.PPM);
+        }
+
         greenBar.setScale(0.1f);
         greenBar.setAlpha(0);
         setAlpha(0);

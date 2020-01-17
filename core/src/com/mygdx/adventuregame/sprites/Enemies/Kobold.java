@@ -59,7 +59,7 @@ public class Kobold extends Enemy {
     private static final String IDLE_ANIMATION_FILENAME = "kobold_idle";
     private static final String HURT_ANIMATION_FILENAME = "kobold_hurt";
     private static final String DEATH_ANIMATION_FILENAME = "kobold_die";
-    private static final String JUMP_ANIMATION_FILENAME = "kobold_jump";
+    private static final String JUMP_ANIMATION_FILENAME = "slime_attack";
 
     private static final int MOVE_FRAME_COUNT = 6;
     private static final int ATTACK_FRAME_COUNT = 5;
