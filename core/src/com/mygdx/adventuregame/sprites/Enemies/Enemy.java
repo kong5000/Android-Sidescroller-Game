@@ -1,4 +1,4 @@
-package com.mygdx.adventuregame.sprites;
+package com.mygdx.adventuregame.sprites.Enemies;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -12,7 +12,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
+import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.UpdatableSprite;
 
 public abstract class Enemy extends Sprite implements UpdatableSprite {
     public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING, CHARGING, CAST, SPECIAL_ATTACK, SUMMON, JUMPING}
@@ -64,13 +66,18 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     protected boolean active = false;
 
+    private EnemyAnimations enemyAnimations;
+
     public Enemy(PlayScreen screen, float x, float y) {
         this.world = screen.getWorld();
         this.screen = screen;
         setPosition(x, y);
         defineEnemy();
+        enemyAnimations = new EnemyAnimations(screen.getAtlas());
         attackEnabled = false;
     }
+
+    protected EnemyAnimations getEnemyAnimations(){return enemyAnimations;}
 
     protected void initMoveAnimation(
             String region_name,
@@ -322,13 +329,6 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         return safeToRemove;
     }
 
-    protected void initializeTimers() {
-
-    }
-
-    public int getExperiencePoints() {
-        return experiencePoints;
-    }
 
     public void dispose() {
         if (b2body != null) {
@@ -339,11 +339,11 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     public void setToDestroy() {
         setToDestroy = true;
     }
-
-    ;
-
-    public void generateArrow(boolean goingRight) {
-
+    public boolean isSetToDestroy(){
+        return setToDestroy;
+    }
+    public boolean isRunningRight() {
+        return runningRight;
     }
 }
 

@@ -9,8 +9,6 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Chest;
-import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
 
 

@@ -1,6 +1,5 @@
 package com.mygdx.adventuregame.sprites.Enemies;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -10,9 +9,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
-import com.mygdx.adventuregame.sprites.Enemy;
 
 
 public class Kobold extends Enemy {
@@ -59,7 +56,7 @@ public class Kobold extends Enemy {
     private static final String IDLE_ANIMATION_FILENAME = "kobold_idle";
     private static final String HURT_ANIMATION_FILENAME = "kobold_hurt";
     private static final String DEATH_ANIMATION_FILENAME = "kobold_die";
-    private static final String JUMP_ANIMATION_FILENAME = "slime_attack";
+    private static final String JUMP_ANIMATION_FILENAME = "kobold_jump";
 
     private static final int MOVE_FRAME_COUNT = 6;
     private static final int ATTACK_FRAME_COUNT = 5;
@@ -272,7 +269,10 @@ public class Kobold extends Enemy {
             return State.DYING;
         } else if (hurtTimer > 0) {
             return State.HURT;
-        }else if (idleTimer > 0) {
+        }else if(b2body.getLinearVelocity().y > 0.1f){
+            return State.JUMPING;
+        }
+        else if (idleTimer > 0) {
             return State.IDLE;
         }
         else if (attackTimer > 0) {

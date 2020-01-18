@@ -16,7 +16,6 @@ import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.GreenFlame;
 import com.mygdx.adventuregame.sprites.Effects.Vortex;
-import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Projectiles.GreenProjectile;
 
 

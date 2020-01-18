@@ -13,8 +13,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.Xplosion;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 
 import static com.badlogic.gdx.math.MathUtils.cos;
 import static com.badlogic.gdx.math.MathUtils.degreesToRadians;
@@ -92,7 +92,7 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
     }
 
     public void update(float dt) {
-        if(enemy.setToDestroy){
+        if(enemy.isSetToDestroy()){
             setToDestroy = true;
         }
         angleToPlayer = getVectorToPlayer().angle();
@@ -100,8 +100,8 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         if(b2body != null){
             setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
         }else {
-            goingRight = enemy.runningRight;
-            if(enemy.runningRight){
+            goingRight = enemy.isRunningRight();
+            if(enemy.isRunningRight()){
                 setPosition(enemy.getX() - enemy.getWidth() / 2 + xOffset,
                         enemy.getY() - enemy.getHeight() / 2  + 0.1f);
             }else {
@@ -300,4 +300,7 @@ public class GolemFireAttack extends Sprite implements UpdatableSprite, EnemyPro
         setToDestroy();
         explode();
     }
+
+
+
 }

@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 
 public class Lever extends Enemy implements UpdatableSprite {
     private static final float[] LEVER_HITBOX = {

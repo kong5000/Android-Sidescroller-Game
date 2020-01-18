@@ -1,6 +1,5 @@
 package com.mygdx.adventuregame.screens;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -13,7 +12,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -33,18 +31,9 @@ import com.mygdx.adventuregame.GameAssets;
 import com.mygdx.adventuregame.SoundEffects;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.scenes.Hud;
-import com.mygdx.adventuregame.sprites.Cage;
 import com.mygdx.adventuregame.sprites.CheckPoint;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
-import com.mygdx.adventuregame.sprites.Enemies.Golem;
-import com.mygdx.adventuregame.sprites.Enemies.IceGolem;
-import com.mygdx.adventuregame.sprites.Enemies.Imp;
-import com.mygdx.adventuregame.sprites.Enemies.Kobold;
-import com.mygdx.adventuregame.sprites.Enemies.Necromancer;
-import com.mygdx.adventuregame.sprites.Enemies.RedOgre;
-import com.mygdx.adventuregame.sprites.Enemies.Satyr;
-import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Projectiles.FireBall;
 
@@ -239,7 +228,7 @@ public class PlayScreen implements Screen {
         shapeRenderer = new ShapeRenderer();
 
 //        spritesToAdd.add(new Item(this, 2.5f, 8f,AdventureGame.GOLD_COIN));
-//        spritesToAdd.add(new Item(this, 3.5f, 4f,AdventureGame.GOLD_KEY));
+        spritesToAdd.add(new Item(this, 3.5f, 4f,AdventureGame.GOLD_KEY));
 //        enemyList.add(new RedOgre(this, 4, 5.2f));
 //        enemyList.add(new Slug(this, 4, 7f));
 //        enemyList.add(new Slug(this, 5, 7f));

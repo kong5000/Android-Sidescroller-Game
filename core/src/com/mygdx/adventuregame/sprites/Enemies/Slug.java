@@ -1,6 +1,5 @@
 package com.mygdx.adventuregame.sprites.Enemies;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -11,10 +10,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.SmallExplosion;
-import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.Projectiles.GreenProjectile;
 
 public class Slug extends Enemy {
@@ -78,6 +75,43 @@ public class Slug extends Enemy {
 
     public Slug(PlayScreen screen, float x, float y) {
         super(screen, x, y);
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+
+
         initMoveAnimation(
                 MOVE_ANIMATION_FILENAME,
                 MOVE_FRAME_COUNT,
@@ -132,72 +166,143 @@ public class Slug extends Enemy {
     }
 
     @Override
+    protected TextureRegion getFrame(float dt) {
+        currentState = getState();
+        TextureRegion texture;
+        selectBrightFrameOrRegularFrame();
+        switch (currentState) {
+            case DYING:
+                attackEnabled = false;
+                texture = getEnemyAnimations().getDeathFrame(stateTimer);
+                break;
+            case JUMPING:
+                attackEnabled = false;
+                texture = getEnemyAnimations().getJumpFrame(stateTimer);
+                break;
+            case ATTACKING:
+                texture = getEnemyAnimations().getAttackFrame(stateTimer);
+                attackEnabled = true;
+                break;
+            case HURT:
+                attackEnabled = false;
+                texture = getEnemyAnimations().getHurtFrame(stateTimer);
+                break;
+            case CHASING:
+                attackEnabled = false;
+                texture = getEnemyAnimations().getMoveFrame(stateTimer);
+                break;
+            case IDLE:
+            default:
+                attackEnabled = false;
+                texture = getEnemyAnimations().getIdleFrame(stateTimer);
+                break;
+        }
+        orientTextureTowardsPlayer(texture);
+
+        stateTimer = currentState == previousState ? stateTimer + dt : 0;
+        previousState = currentState;
+        return texture;
+    }
+
+    @Override
     public void update(float dt) {
-        if (!active) {
-            if (playerInActivationRange()) {
-                active = true;
+        checkIfEnemyActivated();
+        correctHealthBarPosition();
+        checkEnemyIsAlive();
+        if (currentState == State.DYING) {
+            deathTimer += dt;
+            startExplosionWarningFlash();
+            if (timeToRemoveCorpse()) {
+                setToDestroy = true;
+                if (!destroyed) {
+                    launchProjectiles();
+                    generateDeathExplosion();
+                    //Todo copy for all enemy attack hitboxes
+                    disableAttackHitBox();
+                }
             }
         }
-        if (runningRight) {
-            barXOffset = -0.2f;
-        } else {
-            barXOffset = -0.05f;
+        if (currentState == State.ATTACKING) {
+            if (attackFinished()) {
+                leaveAttackState();
+            }
         }
+        if (setToDestroy && !destroyed) {
+            destroyHitBox();
+            destroyed = true;
+            stateTimer = 0;
+        } else if (!destroyed) {
+            updateStateTimers(dt);
+            setRegion(getFrame(dt));
+            if (active) {
+                act(dt);
+            }
+            setSpritePosition();
+        }
+    }
+
+    private void destroyHitBox() {
+        world.destroyBody(b2body);
+    }
+
+    private void leaveAttackState() {
+        attackTimer = -1;
+    }
+
+    private boolean attackFinished() {
+        return attackAnimation.isAnimationFinished(stateTimer - 0.2f);
+    }
+
+    private void startExplosionWarningFlash() {
+        if (deathTimer > 0.85f && flashRedTimer < 0) {
+            flashRedTimer = 2;
+        }
+    }
+
+    private boolean timeToRemoveCorpse() {
+        return deathTimer > CORPSE_EXISTS_TIME;
+    }
+
+    private void setSpritePosition() {
+        if (runningRight) {
+            setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
+        } else {
+            setPosition(b2body.getPosition().x - getWidth() / 2 - 0.2f, b2body.getPosition().y - getHeight() / 2);
+        }
+    }
+
+    private void generateDeathExplosion() {
+        float xOffset = 0f;
+        if (runningRight) {
+            xOffset = -0.1f;
+        }
+        SmallExplosion explosion = new SmallExplosion(screen, getX() + xOffset, getY() - getHeight());
+        explosion.setScale(1.9f);
+        screen.getSpritesToAdd().add(explosion);
+    }
+
+    private void checkEnemyIsAlive() {
         if (health <= 0) {
             if (!setToDie) {
                 setToDie = true;
             }
         }
-        if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
-            }
-            deathTimer += dt;
-            if (deathTimer > 0.85f && flashRedTimer < 0) {
-                flashRedTimer = 2;
-            }
-            if (deathTimer > CORPSE_EXISTS_TIME) {
-                setToDestroy = true;
-                if (!destroyed) {
-                    launchProjectiles();
-                    float xOffset = 0f;
-                    if (runningRight) {
-                        xOffset = -0.1f;
-                    }
-                    if(runningRight){
+    }
 
-                    }
-                    SmallExplosion explosion = new SmallExplosion(screen, getX() + xOffset, getY() - getHeight());
-                    explosion.setScale(1.9f);
+    private void correctHealthBarPosition() {
+        if (runningRight) {
+            barXOffset = -0.2f;
+        } else {
+            barXOffset = -0.05f;
+        }
+    }
 
-                    screen.getSpritesToAdd().add(explosion);
-//                    screen.getSpritesToAdd().add(new SmallExplosion(screen, getX() - getWidth() / 4, getY() - getHeight() - 0.1f));
-                }
+    private void checkIfEnemyActivated() {
+        if (!active) {
+            if (playerInActivationRange()) {
+                active = true;
             }
         }
-        if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
-                attackTimer = -1;
-            }
-        }
-        if (setToDestroy && !destroyed) {
-            world.destroyBody(b2body);
-            destroyed = true;
-            stateTimer = 0;
-        } else if (!destroyed) {
-
-            updateStateTimers(dt);
-
-            setRegion(getFrame(dt));
-            if (active) {
-                act(dt);
-            }
-            if (runningRight) {
-                setPosition(b2body.getPosition().x - getWidth() / 2, b2body.getPosition().y - getHeight() / 2);
-            } else {
-                setPosition(b2body.getPosition().x - getWidth() / 2 - 0.2f, b2body.getPosition().y - getHeight() / 2);
-            }
-        }
-
     }
 
     private void updateStateTimers(float dt) {

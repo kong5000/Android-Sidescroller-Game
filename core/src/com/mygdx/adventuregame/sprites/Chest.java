@@ -14,6 +14,7 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 
 public class Chest extends Enemy implements UpdatableSprite {
     private enum State {CLOSED, OPEN}

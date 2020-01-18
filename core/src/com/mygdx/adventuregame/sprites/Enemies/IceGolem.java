@@ -12,14 +12,10 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
-import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.Vortex;
-import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.MonsterTile;
-import com.mygdx.adventuregame.sprites.Projectiles.VerticalFireBall;
 import com.mygdx.adventuregame.sprites.Projectiles.VerticalIce;
-import com.mygdx.adventuregame.sprites.player.Player;
 
 import java.util.ArrayList;
 
@@ -150,7 +146,7 @@ public class IceGolem extends Enemy {
         flashRedTimer = -1f;
         attackDamage = 3;
         health = 75;
-        barYOffset = 0.02f;
+        barYOffset = 0.15f;
         monsterTiles = new Array<>();
         setScale(1.25f);
         projectileCoords = new ArrayList<>();

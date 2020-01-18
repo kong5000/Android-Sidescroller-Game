@@ -8,7 +8,7 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.sprites.BossAttack;
 import com.mygdx.adventuregame.sprites.CheckPoint;
-import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 import com.mygdx.adventuregame.sprites.EnemyProjectile;
 import com.mygdx.adventuregame.sprites.FireSpell;
 import com.mygdx.adventuregame.items.Item;

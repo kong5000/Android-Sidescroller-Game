@@ -6,7 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Effects.Effects;
-import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 
 public class FireSpinEffect extends Effects {
     private Enemy enemy;
@@ -17,7 +17,7 @@ public class FireSpinEffect extends Effects {
 
     @Override
     public void update(float dt) {
-        if(enemy.setToDestroy){
+        if(enemy.isSetToDestroy()){
             setToDestroy();
         }
         stateTimer += dt;

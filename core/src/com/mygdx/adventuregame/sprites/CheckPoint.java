@@ -18,6 +18,7 @@ public class CheckPoint {
     private boolean torchLit = false;
     float xPos;
     float yPos;
+    private boolean active = false;
     private static final float[] CHECKPOINT_BOX = {
             -0.2f, 0.25f,
             -0.2f, -1.25f,
@@ -64,7 +65,12 @@ public class CheckPoint {
             screen.getSpritesToAdd().add(new BlueFlame(screen, getXPos(), getYPos() + 0.75f));
         }
     }
-
+    public boolean activated(){
+        return active;
+    }
+    public void setActive(){
+        active = true;
+    }
     public void destroy(){
         world.destroyBody(b2body);
     }

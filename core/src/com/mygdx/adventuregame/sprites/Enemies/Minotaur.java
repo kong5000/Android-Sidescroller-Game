@@ -13,10 +13,8 @@ import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.BossAttack;
-import com.mygdx.adventuregame.sprites.DamageNumber;
 import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.Effects.Vortex;
-import com.mygdx.adventuregame.sprites.Enemy;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 
 public class Minotaur extends Enemy implements BossAttack {
@@ -130,7 +128,7 @@ public class Minotaur extends Enemy implements BossAttack {
         flashRedTimer = -1f;
         attackDamage = 3;
         health = 65;
-        barYOffset = 0.02f;
+        barYOffset = 0.1f;
         monsterTiles = new Array<>();
         setScale(1.2f);
     }

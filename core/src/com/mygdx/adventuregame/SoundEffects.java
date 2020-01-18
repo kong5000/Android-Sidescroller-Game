@@ -146,7 +146,7 @@ public class SoundEffects {
     public void playminotaurDieSound(){ minotaurDieSound.play(effectsVolume *0.65f); }
     public void playExplosionSound(){ explodeSound.play(effectsVolume *0.10f); }
     public void playThudSound(){ thudSound.play(effectsVolume *0.5f); }
-    public void playBigExplosion(){ bigExplosionSound.play(effectsVolume *0.5f); }
+    public void playBigExplosion(){ bigExplosionSound.play(effectsVolume *0.3f); }
     public void playEnemyMeleeSound(){ enemyMeleeSound.play(effectsVolume *0.2f); }
     public void playImpAttackSound(){ impAttackSound.play(effectsVolume *0.2f); }
     public void playCoinSound(){ coinSound.play(effectsVolume *0.5f); }

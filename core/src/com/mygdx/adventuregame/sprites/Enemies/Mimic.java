@@ -11,7 +11,6 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.mygdx.adventuregame.AdventureGame;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.DamageNumber;
-import com.mygdx.adventuregame.sprites.Enemy;
 
 
 public class Mimic extends Enemy {

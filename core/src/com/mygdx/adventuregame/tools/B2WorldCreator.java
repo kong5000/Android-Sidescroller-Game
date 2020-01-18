@@ -28,7 +28,7 @@ import com.mygdx.adventuregame.sprites.Enemies.RedOgre;
 import com.mygdx.adventuregame.sprites.Enemies.Satyr;
 import com.mygdx.adventuregame.sprites.Enemies.Shade;
 import com.mygdx.adventuregame.sprites.Enemies.Slug;
-import com.mygdx.adventuregame.sprites.Enemy;
+import com.mygdx.adventuregame.sprites.Enemies.Enemy;
 import com.mygdx.adventuregame.sprites.Enemies.FireElemental;
 import com.mygdx.adventuregame.sprites.Enemies.FireGolem;
 import com.mygdx.adventuregame.sprites.HealthBar;
@@ -41,8 +41,6 @@ import com.mygdx.adventuregame.sprites.Enemies.Ogre;
 import com.mygdx.adventuregame.sprites.Enemies.Slime;
 import com.mygdx.adventuregame.sprites.SpikeBlock;
 import com.mygdx.adventuregame.sprites.Lever;
-
-import java.util.ArrayList;
 
 public class B2WorldCreator {
     private PlayScreen screen;
@@ -250,6 +248,7 @@ public class B2WorldCreator {
             fixtureDef.filter.categoryBits = AdventureGame.SPIKE_BIT;
             fixtureDef.filter.maskBits = AdventureGame.PLAYER_BIT | AdventureGame.ENEMY_BIT;
             body.createFixture(fixtureDef);
+            bodies.add(body);
         }
 
         for (MapObject object : map.getLayers().get(15).getObjects().getByType(RectangleMapObject.class)) {
@@ -291,7 +290,7 @@ public class B2WorldCreator {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Enemy enemy = new Minotaur(screen, rect.getX() / AdventureGame.PPM, rect.getY() / AdventureGame.PPM);
             screen.getEnemyList().add(enemy);
-//            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
+            screen.getHealthBarsToAdd().add(new HealthBar(screen, 0, 0, enemy));
             ((Minotaur )enemy).attachNearbyTiles(monsterTiles);
         }
         for (MapObject object : map.getLayers().get(9).getObjects().getByType(RectangleMapObject.class)) {

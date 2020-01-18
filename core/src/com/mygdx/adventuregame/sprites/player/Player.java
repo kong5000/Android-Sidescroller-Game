@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.World;
 import com.mygdx.adventuregame.AdventureGame;
-import com.mygdx.adventuregame.items.Item;
 import com.mygdx.adventuregame.screens.PlayScreen;
 import com.mygdx.adventuregame.sprites.Projectiles.Arrow;
 import com.mygdx.adventuregame.sprites.CheckPoint;
@@ -25,8 +24,8 @@ import com.mygdx.adventuregame.sprites.Projectiles.ImpSpell;
 import com.mygdx.adventuregame.sprites.Projectiles.ShadeProjectile;
 import com.mygdx.adventuregame.sprites.SpellBall;
 
-
 public class Player extends Sprite {
+    public static final float TELEPORT_DELAY = 0.75f;
     private int teleportCount = 0;
     public static final float DEFLECT_OFFSET_Y = 0.22f;
     private static final float DEFLECT_OFFSET_X_RIGHT = 0.35f;
@@ -84,99 +83,6 @@ public class Player extends Sprite {
     private boolean teleporting = false;
     private boolean hasTeleportItem = false;
 
-
-    public boolean canTurn() {
-        return currentState == State.CHARGING_BOW || currentState == State.CASTING;
-    }
-
-    public void endRangedAttack() {
-//        if(spellBallTimer < 0){
-//            bowAttack();
-//        }
-        firingSpell = false;
-    }
-
-    public void teleport() {
-        teleportCount++;
-        switch(teleportCount){
-            case 1:    playerBody.setSpawnPoint(AdventureGame.DUNGEON_START_X, AdventureGame.DUNGEON_START_Y);
-            break;
-            case 2: playerBody.setSpawnPoint(AdventureGame.TEMPLE_START_X, AdventureGame.TEMPLE_START_Y);
-            break;
-        }
-        if (!teleporting) {
-            teleporting = true;
-        }
-    }
-
-    public void beginRangedAttack() {
-        if (canMove()) {
-            if (hasArrows()) {
-                if (spellBallTimer < 0) {
-                    fireBow();
-                } else {
-                    firingSpell = true;
-                }
-                chargingTimer = 0;
-            }
-        }
-////        if (mana > 0) {
-////            firingSpell = true;
-////        }
-//        if (mana > 0 && canCastSpell) {
-//
-//            launchSpellBall();
-//        }
-    }
-
-    public boolean isFullyCharge() {
-        return fullyCharged;
-    }
-
-    public void fullHealth() {
-        health = FULL_HEALTH;
-    }
-
-    public void reloadArrows() {
-        arrowCount = MAX_ARROWS;
-    }
-
-    public void deflectProjectile(int type) {
-//        launchSpellBall();
-        screen.getSoundEffects().playParrySound();
-        timeToDeflect = true;
-        deflectType = type;
-    }
-
-    private void launchDeflectedProjectile() {
-        float xOffset = DEFLECT_OFFSET_X_LEFT;
-        if (runningRight) {
-            xOffset = DEFLECT_OFFSET_X_RIGHT;
-        }
-        switch (deflectType) {
-            case AdventureGame.FIRE_PROJECTILE:
-                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-            case AdventureGame.EARTH_PROJECTILE:
-                screen.getSpritesToAdd().add(new EarthBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-            case AdventureGame.ICE_PROJECTILE:
-                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-            case AdventureGame.IMP_PROJECTILE:
-                screen.getSpritesToAdd().add(new ImpSpell(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-            case AdventureGame.SHADE_PROJECTILE:
-                screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-            case AdventureGame.GREEN_PROJECTILE:
-                screen.getSpritesToAdd().add(new GreenProjectile(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-            default:
-                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
-                break;
-        }
-    }
 
     private boolean timeToDeflect = false;
 
@@ -261,7 +167,7 @@ public class Player extends Sprite {
     private static final float MAX_HORIZONTAL_SPEED = 2f;
 
     private int health;
-    private static final int FULL_HEALTH = 2;
+    private static final int FULL_HEALTH = 20;
 
     TextureAtlas textureAtlas;
 
@@ -355,7 +261,111 @@ public class Player extends Sprite {
         playerBody.setSpawnPoint(spawnPointX, spawnPointY);
         b2body = playerBody.definePlayer();
         setBounds(0, 0, 60 / AdventureGame.PPM, 44 / AdventureGame.PPM);
+
     }
+
+
+
+
+    public boolean canTurn() {
+        return currentState == State.CHARGING_BOW || currentState == State.CASTING;
+    }
+
+    public void endRangedAttack() {
+//        if(spellBallTimer < 0){
+//            bowAttack();
+//        }
+        firingSpell = false;
+    }
+
+    public void teleport() {
+        teleportCount++;
+        switch (teleportCount) {
+            case 1:
+                playerBody.setSpawnPoint(AdventureGame.DUNGEON_START_X, AdventureGame.DUNGEON_START_Y);
+                break;
+            case 2:
+                playerBody.setSpawnPoint(AdventureGame.TEMPLE_START_X, AdventureGame.TEMPLE_START_Y);
+                break;
+            case 3:
+                playerBody.setSpawnPoint(AdventureGame.TEMPLE_START_X, AdventureGame.TEMPLE_START_Y);
+                break;
+        }
+        if (!teleporting) {
+            teleporting = true;
+        }
+    }
+
+    public void beginRangedAttack() {
+        if (canMove()) {
+            if (hasArrows()) {
+                if (spellBallTimer < 0) {
+                    fireBow();
+                } else {
+                    firingSpell = true;
+                }
+                chargingTimer = 0;
+            }
+        }
+////        if (mana > 0) {
+////            firingSpell = true;
+////        }
+//        if (mana > 0 && canCastSpell) {
+//
+//            launchSpellBall();
+//        }
+    }
+
+
+    public boolean isFullyCharge() {
+        return fullyCharged;
+    }
+
+    public void fullHealth() {
+        health = FULL_HEALTH;
+    }
+
+    public void reloadArrows() {
+        arrowCount = MAX_ARROWS;
+    }
+
+    public void deflectProjectile(int type) {
+//        launchSpellBall();
+        screen.getSoundEffects().playParrySound();
+        timeToDeflect = true;
+        deflectType = type;
+    }
+
+    private void launchDeflectedProjectile() {
+        float xOffset = DEFLECT_OFFSET_X_LEFT;
+        if (runningRight) {
+            xOffset = DEFLECT_OFFSET_X_RIGHT;
+        }
+        switch (deflectType) {
+            case AdventureGame.FIRE_PROJECTILE:
+                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+            case AdventureGame.EARTH_PROJECTILE:
+                screen.getSpritesToAdd().add(new EarthBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+            case AdventureGame.ICE_PROJECTILE:
+                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+            case AdventureGame.IMP_PROJECTILE:
+                screen.getSpritesToAdd().add(new ImpSpell(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+            case AdventureGame.SHADE_PROJECTILE:
+                screen.getSpritesToAdd().add(new ShadeProjectile(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+            case AdventureGame.GREEN_PROJECTILE:
+                screen.getSpritesToAdd().add(new GreenProjectile(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+            default:
+                screen.getSpritesToAdd().add(new FireBall(screen, getX() + xOffset, getY() + DEFLECT_OFFSET_Y, runningRight, true));
+                break;
+        }
+    }
+
 
     public void update(float dt) {
         if (timeToDeflect) {
@@ -395,21 +405,8 @@ public class Player extends Sprite {
             downAttacking = false;
         }
 
-        if (currentState == State.DODGING || currentState == State.CROUCHING || currentState == State.CROUCH_WALKING && !hitBoxUpdated) {
-//            hitBoxUpdated = true;
-//            changeToSmallHitBox();
-        }
-        if (currentState != State.DODGING && currentState != State.CROUCHING && currentState != State.CROUCH_WALKING && hitBoxUpdated) {
-//            hitBoxUpdated = false;
-//            changeToBigHitBox();
-        }
         if (currentState == State.CHARGING_BOW) {
-            if (arrowCharge < MAX_ARROW_CHARGE) {
-                arrowCharge += dt;
-            }
-            if (stateTimer > MAX_ARROW_CHARGE) {
-                animations.pauseChargingAnimation();
-            }
+            chargeBow(dt);
         }
         if (charging) {
             spellCharge += dt;
@@ -425,22 +422,13 @@ public class Player extends Sprite {
         } else {
             currentMaxSpeed = MAX_RUN_SPEED;
         }
-        if (isCanWallRun()) {
-            if (positiveXInput || negativeXInput) {
-                b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1.5f);
+        if (canWallRun()) {
+            if (thereIsXInputOnJoystick()) {
+                climbWall();
             }
         }
         if (currentState != State.DYING) {
-            if (hasRegeneration) {
-                if (regenTimer > 0) {
-                    regenTimer -= dt;
-                } else {
-                    regenTimer = REGEN_TIME;
-                    if (health < FULL_HEALTH) {
-                        health += 1;
-                    }
-                }
-            }
+            applyHealthRegeneration(dt);
         }
         if (currentState == State.REVIVING) {
             if (animations.reviveAnimationDone(stateTimer)) {
@@ -449,12 +437,8 @@ public class Player extends Sprite {
         }
         if (currentState == State.DYING) {
             deathTimer += dt;
-            if (deathTimer >= DEATH_SPELL_TIME) {
-                if (!squarePortalStarted) {
-                    setAlpha(0);
-                    screen.getTopLayerSpritesToAdd().add(new SquarePortal(screen, getX() + 0.07f, getY() - 0.15f));
-                    squarePortalStarted = true;
-                }
+            if (timeToStartTeleport()) {
+                startTeleportEffectIfNotStarted();
             }
             if (deathTimer >= DEATH_TIME) {
                 if (!playerReset) {
@@ -463,11 +447,10 @@ public class Player extends Sprite {
                         setAlpha(1);
                         screen.getTopLayerSpritesToAdd().add(new Resurrect(screen, b2body.getPosition().x - 0.25f, b2body.getPosition().y));
                         resurrectStarted = true;
-
                     }
                 }
             }
-            if (deathTimer >= REVIVE_TIME) {
+            if (ressurectComplete()) {
                 reviveTimer = 2.2f;
                 stateTimer = 0;
                 deathTimer = 0;
@@ -496,12 +479,10 @@ public class Player extends Sprite {
                     }
                 }
             }
-            if(teleportTimer > TELEPORT_TIME + 0.5)
-            {
+            if (teleportAnimationOver()) {
                 setAlpha(1);
             }
-
-            if (teleportTimer >= TELEPORT_REVIVE_TIME) {
+            if (teleportResurectionOver()) {
                 teleportTimer = 0;
                 stateTimer = 0;
                 teleportResurrectStarted = false;
@@ -525,15 +506,70 @@ public class Player extends Sprite {
             }
         }
 
-        if(currentState == State.PICKUP){
-            if(itemPickupTimer < 0.2f && hasTeleportItem){
+        if (currentState == State.PICKUP) {
+            if (itemPickupTimer < 0.2f && hasTeleportItem) {
                 hasTeleportItem = false;
                 itemPickupTimer = 0;
                 teleport();
 
             }
         }
+        updateTimers(dt);
 
+        if (currentState == State.CASTING) {
+            if (stateTimer > 0.1f && castCooldown > 0) {
+                castFireSpell();
+                canFireProjectile = false;
+            }
+        }
+    }
+
+    private boolean ressurectComplete() {
+        return deathTimer >= REVIVE_TIME;
+    }
+
+    private boolean timeToStartTeleport() {
+        return deathTimer >= DEATH_SPELL_TIME;
+    }
+
+    private void startTeleportEffectIfNotStarted() {
+        if (!squarePortalStarted) {
+            setAlpha(0);
+            screen.getTopLayerSpritesToAdd().add(new SquarePortal(screen, getX() + 0.07f, getY() - 0.15f));
+            squarePortalStarted = true;
+        }
+    }
+
+    private void applyHealthRegeneration(float dt) {
+        if (hasRegeneration) {
+            if (regenTimer > 0) {
+                regenTimer -= dt;
+            } else {
+                regenTimer = REGEN_TIME;
+                if (health < FULL_HEALTH) {
+                    health += 1;
+                }
+            }
+        }
+    }
+
+    private void climbWall() {
+        b2body.setLinearVelocity(b2body.getLinearVelocity().x, 1.5f);
+    }
+
+    private boolean thereIsXInputOnJoystick() {
+        return positiveXInput || negativeXInput;
+    }
+
+    private void chargeBow(float dt) {
+        if (arrowCharge < MAX_ARROW_CHARGE) {
+            arrowCharge += dt;
+        }else {
+            animations.pauseChargingAnimation();
+        }
+    }
+
+    private void updateTimers(float dt) {
         if (attackCooldownTimer > 0) {
             attackCooldownTimer -= dt;
         }
@@ -564,9 +600,8 @@ public class Player extends Sprite {
         if (itemPickupTimer > 0) {
             itemPickupTimer -= dt;
         }
-        if (reviveTimer > 0) {
+        if (reviveTimer > 0)
             reviveTimer -= dt;
-        }
         if (flipTimer > 0)
             flipTimer -= dt;
         if (castTimer > 0)
@@ -580,8 +615,7 @@ public class Player extends Sprite {
         } else {
             attackNumber = 0;
         }
-        if (dodgeTimer > 0) {
-
+        if (isDodging()) {
             dodgeTimer -= dt;
         }
         if (passThroughFloorTimer > 0) {
@@ -601,13 +635,14 @@ public class Player extends Sprite {
         if (arrowCooldown > 0) {
             arrowCooldown -= dt;
         }
+    }
 
-        if (currentState == State.CASTING) {
-            if (stateTimer > 0.1f && castCooldown > 0) {
-                castFireSpell();
-                canFireProjectile = false;
-            }
-        }
+    private boolean teleportResurectionOver() {
+        return teleportTimer >= TELEPORT_REVIVE_TIME;
+    }
+
+    private boolean teleportAnimationOver() {
+        return teleportTimer > TELEPORT_TIME + TELEPORT_DELAY;
     }
 
     private void castFireSpell() {
@@ -626,7 +661,7 @@ public class Player extends Sprite {
             dialogBox.setPosition(b2body.getPosition().x - dialogBox.getWidth() / 2, b2body.getPosition().y + dialogBox.getHeight() / 2);
             itemSprite.setPosition(b2body.getPosition().x - 0.1f, b2body.getPosition().y + 0.15f);
             itemSprite.draw(batch);
-            dialogBox.draw(batch);
+//            dialogBox.draw(batch);
         }
     }
 
@@ -652,7 +687,7 @@ public class Player extends Sprite {
             return State.DOWN_ATTACK;
         }
         if (canWallRun && wallrunTimer > 0) {
-            if (positiveXInput || negativeXInput)
+            if (thereIsXInputOnJoystick())
                 return State.WALLCLIMB;
         }
         if (reviveTimer > 0) {
@@ -664,9 +699,6 @@ public class Player extends Sprite {
         if (itemPickupTimer > 0) {
             return State.PICKUP;
         }
-//        if (firingSpell) {
-//            return State.CASTING;
-//        }
         if (chargingBow && arrowCooldown <= 0) {
             return State.CHARGING_BOW;
         }
@@ -678,9 +710,6 @@ public class Player extends Sprite {
                     return State.RUNNING;
                 }
             }
-//            if (Math.abs(b2body.getLinearVelocity().y) > 0 && !onElevator && !downAttacking) {
-//                return State.AIR_ATTACKING;
-//            }
             if (Math.abs(averageYVelocity) > 0.01f && !onElevator && !downAttacking) {
                 return State.AIR_ATTACKING;
             }
@@ -695,7 +724,7 @@ public class Player extends Sprite {
             return State.JUMPING;
         } else if (isFalling() && !onElevator) {
             return State.FALLING;
-        } else if (dodgeTimer > 0) {
+        } else if (isDodging()) {
             return State.DODGING;
         } else if (isRunning()) {
             flipEnabled = true;
@@ -1294,7 +1323,7 @@ public class Player extends Sprite {
             }
         }
         if (currentState == State.TELEPORTING) {
-                b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
+            b2body.setLinearVelocity(0, b2body.getLinearVelocity().y);
         }
     }
 
@@ -1303,16 +1332,17 @@ public class Player extends Sprite {
     }
 
     public void enableWallRun() {
-        if (currentState == State.FALLING || currentState == State.JUMPING || currentState == State.FLIPPING) {
-            if (jumpIsHeld) {
-                if (wallrunTimer < 0 && wallRunCooldown <= 0) {
-                    wallrunTimer = WALLRUN_TIME;
-                    wallRunCooldown = 1f;
-                }
-
-                canWallRun = true;
-            }
-        }
+        //Todo wallrun disabled
+//        if (currentState == State.FALLING || currentState == State.JUMPING || currentState == State.FLIPPING) {
+//            if (jumpIsHeld) {
+//                if (wallrunTimer < 0 && wallRunCooldown <= 0) {
+//                    wallrunTimer = WALLRUN_TIME;
+//                    wallRunCooldown = 1f;
+//                }
+//
+//                canWallRun = true;
+//            }
+//        }
     }
 
     public void addXMovement(float x) {
@@ -1323,7 +1353,7 @@ public class Player extends Sprite {
         onElevator = state;
     }
 
-    private boolean isCanWallRun() {
+    private boolean canWallRun() {
         return (wallrunTimer > 0 && canWallRun);
     }
 
@@ -1332,9 +1362,12 @@ public class Player extends Sprite {
     }
 
     public void setRespawnPoint(CheckPoint checkPoint) {
-        health = FULL_HEALTH;
-        reloadArrows();
         currentCheckPoint = checkPoint;
+        if (!currentCheckPoint.activated()) {
+            health = FULL_HEALTH;
+            reloadArrows();
+            currentCheckPoint.setActive();
+        }
         spawnPointY = checkPoint.getYPos();
         spawnPointX = checkPoint.getXPos();
         playerBody.setSpawnPoint(spawnPointX, spawnPointY);
@@ -1393,7 +1426,7 @@ public class Player extends Sprite {
         animationCenterY = getY();
 
         if (isMoving()) {
-            if (dodgeTimer > 0) {
+            if (isDodging()) {
                 if (runningRight) {
                     animationCenterX -= 0.05f;
                 } else {
@@ -1417,8 +1450,10 @@ public class Player extends Sprite {
                 animationCenterX -= 0.03f;
             }
         }
+    }
 
-
+    private boolean isDodging() {
+        return dodgeTimer > 0;
     }
 
     public float getXCoord() {
