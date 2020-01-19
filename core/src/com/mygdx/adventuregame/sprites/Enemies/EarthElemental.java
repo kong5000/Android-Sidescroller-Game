@@ -18,9 +18,9 @@ public class EarthElemental extends Enemy {
     private static final int HEIGHT_PIXELS = 43;
 
     private static final float CORPSE_EXISTS_TIME = 1.1f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.4f;
-    private static final float HURT_TIME = 0.3f;
+    public static final int ATTACK_RANGE = 180;
+    public static final int ACTIVATION_RANGE = 150;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
 
     private float attackTimer;
     private float attackCooldown;
@@ -34,16 +34,6 @@ public class EarthElemental extends Enemy {
     public EarthElemental(PlayScreen screen, float x, float y, boolean spawnRight) {
         super(screen, x, y);
         this.specialDrop = specialDrop;
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_move"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.085f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_die"),
-                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_attack"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         attackCooldown = -1f;
@@ -115,7 +105,7 @@ public class EarthElemental extends Enemy {
 
     private void act() {
         if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer)) {
+            if (attackFinished(stateTimer)) {
                 attackTimer = -1f;
             }
         }
@@ -139,6 +129,7 @@ public class EarthElemental extends Enemy {
                 canFireProjectile = false;
             }
         }
+        limitSpeed();
     }
 
     private void launchFireBall() {
@@ -212,19 +203,6 @@ public class EarthElemental extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1f, 0f);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1f, 0f);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 180 / AdventureGame.PPM);
-
-    }
-
     private void goIntoAttackState() {
         attackTimer = ATTACK_RATE;
     }
@@ -239,5 +217,35 @@ public class EarthElemental extends Enemy {
         CircleShape shape = new CircleShape();
         shape.setRadius(16 / AdventureGame.PPM);
         return shape;
+    }
+
+    @Override
+    protected void initializeAnimations() {
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_move"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.085f);
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_die"),
+                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_attack"),
+                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("earth_elemental_idle"),
+                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
     }
 }

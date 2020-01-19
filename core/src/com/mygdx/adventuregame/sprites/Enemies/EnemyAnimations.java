@@ -18,7 +18,6 @@ public class EnemyAnimations {
         this.textureAtlas = textureAtlas;
     }
 
-
     public void initMoveAnimation(
             String region_name,
             int numberOfFrames,
@@ -119,7 +118,9 @@ public class EnemyAnimations {
         Animation<TextureRegion> animation = new Animation<TextureRegion>(secondsPerFrame, frames);
         return animation;
     }
-
+    public boolean isAttackAnimationFinished(float stateTime){
+        return attackAnimation.isAnimationFinished(stateTime);
+    }
 
     public TextureRegion getDeathFrame(float stateTime){
         return deathAnimation.getKeyFrame(stateTime);
@@ -138,5 +139,9 @@ public class EnemyAnimations {
     }
     public TextureRegion getJumpFrame(float stateTime){
         return jumpAnimation.getKeyFrame(stateTime);
+    }
+
+    public boolean isDeathAnimationFinished(float stateTime) {
+        return deathAnimation.isAnimationFinished(stateTime);
     }
 }

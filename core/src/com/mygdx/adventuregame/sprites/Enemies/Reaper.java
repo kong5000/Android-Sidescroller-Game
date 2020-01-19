@@ -28,19 +28,18 @@ public class Reaper extends Enemy {
             -0.19f, -0.15f,
             0.17f, -0.15f,
             0.17f, 0.1f};
-    private static final float HURT_TIME = 0.3f;
     private static final float ATTACK_RATE = 1.75f;
 
     private static final int WIDTH_PIXELS = 50;
     private static final int HEIGHT_PIXELS = 48;
 
     private static final float CORPSE_EXISTS_TIME = 1.1f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.4f;
     private static final float MOVE_TIME = 0.2f;
     private static final float HORIZONTAL_MOVE_TIME = 0.35f;
     private static final float MAX_VERTICAL_SPEED = 0.65f;
     private static final float MAX_HORIZONTAL_SPEED = 0.65f;
+    public static final int ATTACK_RANGE = 50;
+    public static final int ACTIVATION_RANGE = 200;
 
     private float attackTimer;
     private float movementTimer = 0;
@@ -82,34 +81,6 @@ public class Reaper extends Enemy {
         idleAnimation = generateAnimation(screen.getAtlas().findRegion("reaper_idle"),
                 4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
 
-        initMoveAnimation(
-                MOVE_ANIMATION_FILENAME,
-                MOVE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                MOVE_ANIMATION_FPS
-        );
-        initAttackAnimation(
-                ATTACK_ANIMATION_FILENAME,
-                ATTACK_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                ATTACK_ANIMATION_FPS
-        );
-        initIdleAnimation(
-                IDLE_ANIMATION_FILENAME,
-                IDLE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                IDLE_ANIMATION_FPS
-        );
-        initDeathAnimation(
-                DEATH_ANIMATION_FILENAME,
-                DEATH_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                DEATH_ANIMATION_FPS
-        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -159,7 +130,7 @@ public class Reaper extends Enemy {
         }
         if (currentState == State.DYING) {
             b2body.setLinearVelocity(b2body.getLinearVelocity().x *0.97f, b2body.getLinearVelocity().y*0.97f );
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            if (deathFinished(stateTimer)) {
             }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
@@ -217,6 +188,7 @@ public class Reaper extends Enemy {
                 disableAttackHitBox();
             }
         }
+        limitSpeed();
     }
 
     @Override
@@ -347,21 +319,6 @@ public class Reaper extends Enemy {
         b2body.setLinearVelocity(b2body.getLinearVelocity().x, -MAX_VERTICAL_SPEED);
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
-    }
-
-    private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
-    }
 
     private boolean playerIsBelow() {
         float y = getVectorToPlayer().y;
@@ -421,4 +378,54 @@ public class Reaper extends Enemy {
         b2body.createFixture(fixtureDef).setUserData(this);
     }
 
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+//        getEnemyAnimations().initHurtAnimation(
+//                HURT_ANIMATION_FILENAME,
+//                HURT_FRAME_COUNT,
+//                WIDTH_PIXELS,
+//                HEIGHT_PIXELS,
+//                HURT_ANIMATION_FPS
+//        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+    }
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() { return MAX_HORIZONTAL_SPEED; }
 }

@@ -38,6 +38,9 @@ public class Mimic extends Enemy {
     private static final float CORPSE_EXISTS_TIME = 1.5f;
     private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.4f;
+    public static final int ATTACK_RANGE = 50;
+    public static final int ACTIVATION_RANGE = 200;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
 
     private float attackTimer;
 
@@ -296,18 +299,6 @@ public class Mimic extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
-    }
-
     private void jumpingAttackLeft() {
         b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
     }
@@ -337,5 +328,23 @@ public class Mimic extends Enemy {
         shape.set(MIMIC_HITBOX);
         return shape;
     }
+    @Override
+    protected void initializeAnimations() {
 
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
+    }
 }

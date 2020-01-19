@@ -64,6 +64,8 @@ public class IceGolem extends Enemy {
     private static final float FLASH_RED_TIME = 0.3f;
     private static final float STUN_TIME = 0.5f;
     private static final float STRONG_ATTACK_COOLDOWN = 4;
+    public static final int ATTACK_RANGE = 35;
+    public static final int ACTIVATION_RANGE = 150;
 
     private float attackTimer;
     private float chargeTimer;
@@ -531,22 +533,6 @@ public class IceGolem extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-//        b2body.setLinearVelocity(1.1f, b2body.getLinearVelocity().y);
-        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
-
-    }
-
-    private void runLeft() {
-//        b2body.setLinearVelocity(-1.1f, b2body.getLinearVelocity().y);
-        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
-
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 35 / AdventureGame.PPM);
-    }
-
     private boolean playerInLungeRange() {
         return (Math.abs(getVectorToPlayer().x) < 150 / AdventureGame.PPM && Math.abs(getVectorToPlayer().x) > 101 / AdventureGame.PPM);
     }
@@ -605,18 +591,22 @@ public class IceGolem extends Enemy {
 
     }
 
-    private void limitSpeed() {
-        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
-        }
-        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
-        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
+    @Override
+    protected void initializeAnimations() {
+
     }
-    private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
     }
 }

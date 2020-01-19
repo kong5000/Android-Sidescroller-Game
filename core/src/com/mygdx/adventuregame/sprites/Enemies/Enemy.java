@@ -17,12 +17,15 @@ import com.mygdx.adventuregame.sprites.Effects.Explosion;
 import com.mygdx.adventuregame.sprites.UpdatableSprite;
 
 public abstract class Enemy extends Sprite implements UpdatableSprite {
+
     public enum State {ATTACKING, WALKING, DYING, HURT, CHASING, IDLE, TRANSFORMING, CHARGING, CAST, SPECIAL_ATTACK, SUMMON, JUMPING}
 
     public State currentState;
     public State previousState;
     private static final float INVINCIBILITY_TIME = 0.45f;
     private static final float FLASH_RED_TIME = 0.3f;
+    private static final float MOVEMENT_IMPULSE = 0.175f;
+    private static final float MAX_VERTICAL_SPEED = 3;
 
     //Todo getter and setters
     //Todo move protected variable to subclasses as private variables.
@@ -45,13 +48,10 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     protected boolean showHealthBar = false;
 
     protected float affectedBySpellTimer = -1f;
-    protected static final float SPELL_EFFECT_TIME = 1f;
     protected int attackDamage = 2;
 
     public float barXOffset = 0;
     public float barYOffset = 0;
-
-    protected int experiencePoints = 10;
 
     protected Animation<TextureRegion> walkAnimation;
     protected Animation<TextureRegion> walkAnimationDamaged;
@@ -74,91 +74,13 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         setPosition(x, y);
         defineEnemy();
         enemyAnimations = new EnemyAnimations(screen.getAtlas());
+        initializeAnimations();
         attackEnabled = false;
     }
 
+    protected abstract void initializeAnimations();
+
     protected EnemyAnimations getEnemyAnimations(){return enemyAnimations;}
-
-    protected void initMoveAnimation(
-            String region_name,
-            int numberOfFrames,
-            int width, int height,
-            float secondsPerFrame
-    ) {
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
-                numberOfFrames,
-                width,
-                height,
-                secondsPerFrame);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-    }
-
-    protected void initAttackAnimation(
-            String region_name,
-            int numberOfFrames,
-            int width, int height,
-            float secondsPerFrame
-    ) {
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
-                numberOfFrames,
-                width,
-                height,
-                secondsPerFrame);
-    }
-
-    protected void initHurtAnimation(
-            String region_name,
-            int numberOfFrames,
-            int width, int height,
-            float secondsPerFrame
-    ) {
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
-                numberOfFrames,
-                width,
-                height,
-                secondsPerFrame);
-    }
-
-    protected void initIdleAnimation(
-            String region_name,
-            int numberOfFrames,
-            int width, int height,
-            float secondsPerFrame
-    ) {
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
-                numberOfFrames,
-                width,
-                height,
-                secondsPerFrame);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-    }
-
-    protected void initDeathAnimation(
-            String region_name,
-            int numberOfFrames,
-            int width, int height,
-            float secondsPerFrame
-    ) {
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
-                numberOfFrames,
-                width,
-                height,
-                secondsPerFrame);
-    }
-
-    protected void initJumpAnimation(
-            String region_name,
-            int numberOfFrames,
-            int width, int height,
-            float secondsPerFrame
-    ) {
-        jumpAnimation = generateAnimation(screen.getAtlas().findRegion(region_name),
-                numberOfFrames,
-                width,
-                height,
-                secondsPerFrame);
-        jumpAnimation.setPlayMode(Animation.PlayMode.LOOP);
-    }
 
     protected Animation<TextureRegion> generateAnimation(
             TextureRegion textureRegion,
@@ -246,6 +168,14 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
 
     protected abstract void orientTextureTowardsPlayer(TextureRegion texture);
 
+    protected boolean attackFinished(float stateTime){
+        return enemyAnimations.isAttackAnimationFinished(stateTime);
+    }
+
+    protected boolean deathFinished(float stateTime){
+        return enemyAnimations.isDeathAnimationFinished(stateTime);
+    }
+
     protected TextureRegion getFrame(float dt) {
         currentState = getState();
         TextureRegion texture;
@@ -253,28 +183,28 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
         switch (currentState) {
             case DYING:
                 attackEnabled = false;
-                texture = deathAnimation.getKeyFrame(stateTimer);
+                texture = enemyAnimations.getDeathFrame(stateTimer);
                 break;
             case JUMPING:
                 attackEnabled = false;
-                texture = jumpAnimation.getKeyFrame(stateTimer, true);
+                texture = enemyAnimations.getJumpFrame(stateTimer);
                 break;
             case ATTACKING:
-                texture = attackAnimation.getKeyFrame(stateTimer);
+                texture = enemyAnimations.getAttackFrame(stateTimer);
                 attackEnabled = true;
                 break;
             case HURT:
                 attackEnabled = false;
-                texture = hurtAnimation.getKeyFrame(stateTimer);
+                texture = enemyAnimations.getHurtFrame(stateTimer);
                 break;
             case CHASING:
                 attackEnabled = false;
-                texture = walkAnimation.getKeyFrame(stateTimer, true);
+                texture = enemyAnimations.getMoveFrame(stateTimer);
                 break;
             case IDLE:
             default:
                 attackEnabled = false;
-                texture = idleAnimation.getKeyFrame(stateTimer, true);
+                texture = enemyAnimations.getIdleFrame(stateTimer);
                 break;
         }
         orientTextureTowardsPlayer(texture);
@@ -345,5 +275,36 @@ public abstract class Enemy extends Sprite implements UpdatableSprite {
     public boolean isRunningRight() {
         return runningRight;
     }
+
+    protected abstract float getAttackRange();
+    protected abstract float getActivationRange();
+    protected abstract float getMovementSpeed();
+
+    protected boolean playerInAttackRange() {
+        return (getVectorToPlayer().len() < getAttackRange() / AdventureGame.PPM);
+    }
+    protected boolean playerInActivationRange() {
+        return (Math.abs(getVectorToPlayer().len()) < getActivationRange() / AdventureGame.PPM);
+    }
+
+    protected void runRight() {
+        b2body.applyLinearImpulse(new Vector2(MOVEMENT_IMPULSE, 0), b2body.getWorldCenter(), true);
+    }
+    protected void runLeft() {
+        b2body.applyLinearImpulse(new Vector2(-MOVEMENT_IMPULSE, 0), b2body.getWorldCenter(), true);
+    }
+
+    protected void limitSpeed() {
+        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
+            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
+        }
+        if (b2body.getLinearVelocity().x > getMovementSpeed()) {
+            b2body.setLinearVelocity(getMovementSpeed(), b2body.getLinearVelocity().y);
+        }
+        if (b2body.getLinearVelocity().x < -getMovementSpeed()) {
+            b2body.setLinearVelocity(-getMovementSpeed(), b2body.getLinearVelocity().y);
+        }
+    }
+
 }
 

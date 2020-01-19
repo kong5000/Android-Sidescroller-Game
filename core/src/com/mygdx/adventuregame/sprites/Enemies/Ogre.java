@@ -35,11 +35,11 @@ public class Ogre extends Enemy {
     private static final int HEIGHT_PIXELS = 42;
 
     private static final float CORPSE_EXISTS_TIME = 1f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.3f;
     private static final float MAX_HORIZONTAL_SPEED = 1.1f;
     private static final float MAX_VERTICAL_SPEED = 3;
     private static final float JUMP_COOLDOWN = 2;
+    public static final int ATTACK_RANGE = 50;
+    public static final int ACTIVATION_RANGE = 200;
 
     private float attackTimer;
     private float jumpTimer = -1f;
@@ -76,48 +76,6 @@ public class Ogre extends Enemy {
 
     public Ogre(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        initJumpAnimation(
-                JUMP_ANIMATION_FILENAME,
-                JUMP_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                JUMP_ANIMATION_FPS);
-        initMoveAnimation(
-                MOVE_ANIMATION_FILENAME,
-                MOVE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                MOVE_ANIMATION_FPS
-        );
-        initAttackAnimation(
-                ATTACK_ANIMATION_FILENAME,
-                ATTACK_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                ATTACK_ANIMATION_FPS
-        );
-        initIdleAnimation(
-                IDLE_ANIMATION_FILENAME,
-                IDLE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                IDLE_ANIMATION_FPS
-        );
-        initHurtAnimation(
-                HURT_ANIMATION_FILENAME,
-                HURT_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                HURT_ANIMATION_FPS
-        );
-        initDeathAnimation(
-                DEATH_ANIMATION_FILENAME,
-                DEATH_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                DEATH_ANIMATION_FPS
-        );
-
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
@@ -154,7 +112,7 @@ public class Ogre extends Enemy {
             }
         }
         if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            if (deathFinished(stateTimer)) {
             }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
@@ -165,7 +123,7 @@ public class Ogre extends Enemy {
             }
         }
         if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer - 0.2f)) {
+            if (attackFinished(stateTimer- 0.2f)) {
                 attackTimer = -1;
             }
         }
@@ -234,18 +192,6 @@ public class Ogre extends Enemy {
     private void jump() {
         b2body.applyLinearImpulse(new Vector2(0, 3f), b2body.getWorldCenter(), true);
 
-    }
-
-    private void limitSpeed() {
-        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
-        }
-        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
-        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
     }
 
     @Override
@@ -360,21 +306,6 @@ public class Ogre extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-//        b2body.setLinearVelocity(1.15f, b2body.getLinearVelocity().y);
-        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
-
-    }
-
-    private void runLeft() {
-//        b2body.setLinearVelocity(-1.15f, b2body.getLinearVelocity().y);
-        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 70 / AdventureGame.PPM);
-    }
-
     private void jumpingAttackLeft() {
         b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
     }
@@ -406,7 +337,55 @@ public class Ogre extends Enemy {
         return shape;
     }
 
-    private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
     }
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() { return MAX_HORIZONTAL_SPEED; }
+
 }

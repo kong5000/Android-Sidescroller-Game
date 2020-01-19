@@ -53,8 +53,9 @@ public class FireGolem extends Enemy {
     private static final int HEIGHT_PIXELS = 59;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.3f;
+    public static final int ATTACK_RANGE = 100;
+    public static final int ACTIVATION_RANGE = 150;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
 
     private float attackTimer;
 
@@ -94,38 +95,6 @@ public class FireGolem extends Enemy {
     public FireGolem(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         this.screen = screen;
-        chargeAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_charge_ball"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_run"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_die"),
-                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_rapid_attack"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
-
-
-        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_rapid_attack"),
-                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
-
-
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
-        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_idle"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        launchBallAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_launch_ball"),
-                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
 
 //        setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         setBounds(getX(), getY(), WIDTH_PIXELS * 1.3f / AdventureGame.PPM, HEIGHT_PIXELS * 1.3f / AdventureGame.PPM);
@@ -300,6 +269,7 @@ public class FireGolem extends Enemy {
                 disableAttackHitBox();
             }
         }
+        limitSpeed();
     }
 
     @Override
@@ -480,18 +450,6 @@ public class FireGolem extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
-    }
-
     private void jumpingAttackLeft() {
         b2body.applyLinearImpulse(new Vector2(-.5f, 2f), b2body.getWorldCenter(), true);
     }
@@ -548,4 +506,55 @@ public class FireGolem extends Enemy {
 
     }
 
+    @Override
+    protected void initializeAnimations() {
+        chargeAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_charge_ball"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+
+        walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_run"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+        walkAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        walkAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_run"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+
+        deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_die"),
+                9, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
+
+        attackAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_rapid_attack"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
+
+
+        attackAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_rapid_attack"),
+                6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
+
+
+        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        hurtAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_hurt"),
+                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+
+        idleAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_idle"),
+                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        idleAnimationDamaged = generateAnimation(screen.getAtlas().findRegion("fire_golem_idle"),
+                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
+        launchBallAnimation = generateAnimation(screen.getAtlas().findRegion("fire_golem_launch_ball"),
+                5, WIDTH_PIXELS, HEIGHT_PIXELS, 0.12f);
+
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
+    }
 }

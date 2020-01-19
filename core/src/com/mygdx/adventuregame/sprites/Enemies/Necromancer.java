@@ -28,6 +28,9 @@ public class Necromancer extends Enemy {
     private float BULLET_ANGLE_INCREMENT = 45;
     private float BULLET_SPEED = 1.25f;
     private float startingAngle = -45;
+    public static final int ATTACK_RANGE = 200;
+    public static final int ACTIVATION_RANGE = 200;
+    private static final float MAX_HORIZONTAL_SPEED = 1f;
 
     private State currentState;
     private State previousState;
@@ -101,42 +104,6 @@ public class Necromancer extends Enemy {
         //Todo overide getrame
         summonAnimation = generateAnimation(screen.getAtlas().findRegion("necromancer_summon"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-
-        initMoveAnimation(
-                MOVE_ANIMATION_FILENAME,
-                MOVE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                MOVE_ANIMATION_FPS
-        );
-        initAttackAnimation(
-                ATTACK_ANIMATION_FILENAME,
-                ATTACK_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                ATTACK_ANIMATION_FPS
-        );
-        initIdleAnimation(
-                IDLE_ANIMATION_FILENAME,
-                IDLE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                IDLE_ANIMATION_FPS
-        );
-        initHurtAnimation(
-                HURT_ANIMATION_FILENAME,
-                HURT_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                HURT_ANIMATION_FPS
-        );
-        initDeathAnimation(
-                DEATH_ANIMATION_FILENAME,
-                DEATH_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                DEATH_ANIMATION_FPS
-        );
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
         stateTimer = 0;
@@ -173,8 +140,6 @@ public class Necromancer extends Enemy {
             }
         }
         if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
-            }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
@@ -256,6 +221,7 @@ public class Necromancer extends Enemy {
         }
         if (currentState == State.ATTACKING) {
         }
+        limitSpeed();
     }
 
     @Override
@@ -470,18 +436,6 @@ public class Necromancer extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1f, b2body.getLinearVelocity().y);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1f, b2body.getLinearVelocity().y);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
-    }
-
     private void jumpingAttackLeft() {
         b2body.applyLinearImpulse(new Vector2(-.2f, 0), b2body.getWorldCenter(), true);
     }
@@ -517,4 +471,56 @@ public class Necromancer extends Enemy {
         projectileTimer = PROJECTILE_COOLDOWN;
     }
 
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+    }
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
+    }
 }

@@ -12,7 +12,6 @@ import com.mygdx.adventuregame.sprites.Projectiles.ShadeProjectile;
 
 
 public class Shade extends Enemy {
-
     private static final float[] SHADE_HITBOX = {
             -0.22f, 0.1f,
             -0.22f, -0.22f,
@@ -20,18 +19,17 @@ public class Shade extends Enemy {
             0.05f, 0.1f};
 
     private static final float ATTACK_RATE = 3.5f;
+    public static final int ATTACK_RANGE = 170;
+    public static final int ACTIVATION_RANGE = 190;
 
     private static final int WIDTH_PIXELS = 59;
     private static final int HEIGHT_PIXELS = 50;
 
     private static final float CORPSE_EXISTS_TIME = 0.9f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.4f;
-    private static final float HURT_TIME = 0.3f;
+    private static final float MAX_HORIZONTAL_SPEED = 0;
 
     private float attackTimer;
     private float attackCooldown;
-
 
     private boolean canFireProjectile = false;
 
@@ -62,42 +60,6 @@ public class Shade extends Enemy {
     public Shade(PlayScreen screen, float x, float y) {
         super(screen, x, y);
         this.specialDrop = specialDrop;
-
-        initMoveAnimation(
-                MOVE_ANIMATION_FILENAME,
-                MOVE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                MOVE_ANIMATION_FPS
-        );
-        initAttackAnimation(
-                ATTACK_ANIMATION_FILENAME,
-                ATTACK_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                ATTACK_ANIMATION_FPS
-        );
-        initIdleAnimation(
-                IDLE_ANIMATION_FILENAME,
-                IDLE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                IDLE_ANIMATION_FPS
-        );
-        initHurtAnimation(
-                HURT_ANIMATION_FILENAME,
-                HURT_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                HURT_ANIMATION_FPS
-        );
-        initDeathAnimation(
-                DEATH_ANIMATION_FILENAME,
-                DEATH_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                DEATH_ANIMATION_FPS
-        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         attackCooldown = -1f;
@@ -166,7 +128,7 @@ public class Shade extends Enemy {
 
     private void act(float dt) {
         if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer)) {
+            if (attackFinished(stateTimer)) {
                 attackTimer = -1f;
             }
         }
@@ -191,7 +153,7 @@ public class Shade extends Enemy {
             }
         }
         if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
+            if (deathFinished(stateTimer)) {
             }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
@@ -206,6 +168,7 @@ public class Shade extends Enemy {
                 }
             }
         }
+        limitSpeed();
     }
 
     private void launchFireBall() {
@@ -281,19 +244,6 @@ public class Shade extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1f, 0f);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1f, 0f);
-    }
-
-    private boolean playerInAttackRange() {
-        return (getVectorToPlayer().len() < 170 / AdventureGame.PPM);
-
-    }
-
     private void goIntoAttackState() {
         stateTimer = 0;
         attackTimer = ATTACK_RATE;
@@ -314,4 +264,55 @@ public class Shade extends Enemy {
     private boolean currentFrameIsAnAttack() {
         return (currentState == State.ATTACKING && stateTimer > 0.5f);
     }
+
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+    }
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() { return MAX_HORIZONTAL_SPEED; }
 }

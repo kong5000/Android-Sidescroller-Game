@@ -41,6 +41,8 @@ public class Ghoul extends Enemy {
     private static final float FLASH_RED_TIME = 0.4f;
     private static final float MOVE_TIME = 0.2f;
     private static final float HORIZONTAL_MOVE_TIME = 0.35f;
+    public static final int ATTACK_RANGE = 50;
+    public static final int ACTIVATION_RANGE = 150;
 
     private float attackTimer;
     private float movementTimer = 0;
@@ -74,42 +76,6 @@ public class Ghoul extends Enemy {
 
     public Ghoul(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        initMoveAnimation(
-                MOVE_ANIMATION_FILENAME,
-                MOVE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                MOVE_ANIMATION_FPS
-        );
-        initAttackAnimation(
-                ATTACK_ANIMATION_FILENAME,
-                ATTACK_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                ATTACK_ANIMATION_FPS
-        );
-        initIdleAnimation(
-                IDLE_ANIMATION_FILENAME,
-                IDLE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                IDLE_ANIMATION_FPS
-        );
-        initHurtAnimation(
-                HURT_ANIMATION_FILENAME,
-                HURT_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                HURT_ANIMATION_FPS
-        );
-        initDeathAnimation(
-                DEATH_ANIMATION_FILENAME,
-                DEATH_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                DEATH_ANIMATION_FPS
-        );
-
         walkAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_run"),
                 6, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
         deathAnimation = generateAnimation(screen.getAtlas().findRegion("ghoul_die"),
@@ -137,7 +103,7 @@ public class Ghoul extends Enemy {
     @Override
     public void update(float dt) {
         if(currentState == State.ATTACKING){
-            if(attackAnimation.isAnimationFinished(stateTimer)){
+            if(attackFinished(stateTimer)){
                 attackTimer = -1;
             }
         }
@@ -170,8 +136,6 @@ public class Ghoul extends Enemy {
             }
         }
         if (currentState == State.DYING) {
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
-            }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
@@ -268,17 +232,7 @@ public class Ghoul extends Enemy {
 
         }
     }
-    private void limitSpeed() {
-        if (b2body.getLinearVelocity().y > MAX_VERTICAL_SPEED) {
-            b2body.setLinearVelocity(b2body.getLinearVelocity().x, MAX_VERTICAL_SPEED);
-        }
-        if (b2body.getLinearVelocity().x > MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
-        if (b2body.getLinearVelocity().x < -MAX_HORIZONTAL_SPEED) {
-            b2body.setLinearVelocity(-MAX_HORIZONTAL_SPEED, b2body.getLinearVelocity().y);
-        }
-    }
+
     private void chasePlayerHorizontal() {
         if (playerIsToTheRight()) {
             runRight();
@@ -364,23 +318,6 @@ public class Ghoul extends Enemy {
 
     }
 
-    private void runRight() {
-        b2body.applyLinearImpulse(new Vector2(0.175f, 0), b2body.getWorldCenter(), true);
-
-    }
-
-    private void runLeft() {
-        b2body.applyLinearImpulse(new Vector2(-0.175f, 0), b2body.getWorldCenter(), true);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
-    }
-
-    private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
-    }
-
     private boolean playerIsBelow() {
         float y = getVectorToPlayer().y;
         return (y < -0.2);
@@ -438,5 +375,57 @@ public class Ghoul extends Enemy {
         fixtureDef.shape = hitBox;
         b2body.createFixture(fixtureDef).setUserData(this);
     }
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+    }
 
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
+    }
 }

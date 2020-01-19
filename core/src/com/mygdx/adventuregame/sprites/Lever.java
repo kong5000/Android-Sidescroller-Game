@@ -56,9 +56,7 @@ public class Lever extends Enemy implements UpdatableSprite {
         currentState = State.OFF;
         previousState = currentState;
         isClosed = true;
-        switchOpen =  new TextureRegion(screen.getAtlas().findRegion("switch_left"),0, 0, WIDTH_PIXELS, HEIGHT_PIXELS);
-        switchClosed = new TextureRegion(screen.getAtlas().findRegion("switch_right"),0, 0, WIDTH_PIXELS, HEIGHT_PIXELS);
-    }
+  }
 
     public void update(float dt) {
         if(setToDestroy && !destroyed){
@@ -138,6 +136,16 @@ public class Lever extends Enemy implements UpdatableSprite {
         setToDestroy = true;
     }
 
+    @Override
+    protected float getAttackRange() {
+        return 0;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return 0;
+    }
+
 
     @Override
     protected void defineEnemy() {
@@ -192,5 +200,16 @@ public class Lever extends Enemy implements UpdatableSprite {
     @Override
     public void dispose() {
         world.destroyBody(b2body);
+    }
+
+    @Override
+    protected void initializeAnimations() {
+        switchOpen =  new TextureRegion(screen.getAtlas().findRegion("switch_left"),0, 0, WIDTH_PIXELS, HEIGHT_PIXELS);
+        switchClosed = new TextureRegion(screen.getAtlas().findRegion("switch_right"),0, 0, WIDTH_PIXELS, HEIGHT_PIXELS);
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return 0;
     }
 }

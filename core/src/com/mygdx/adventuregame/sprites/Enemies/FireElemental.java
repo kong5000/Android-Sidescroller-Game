@@ -1,6 +1,6 @@
 package com.mygdx.adventuregame.sprites.Enemies;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
+
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -19,9 +19,9 @@ public class FireElemental extends Enemy {
     private static final int HEIGHT_PIXELS = 43;
 
     private static final float CORPSE_EXISTS_TIME = 1.1f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.4f;
-    private static final float HURT_TIME = 0.3f;
+    public static final int ATTACK_RANGE = 180;
+    public static final int ACTIVATION_RANGE = 150;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
 
     private float attackTimer;
     private float attackCooldown;
@@ -31,21 +31,29 @@ public class FireElemental extends Enemy {
 
     private boolean specialDrop = false;
 
+    private static final String MOVE_ANIMATION_FILENAME = "fire_elemental_run";
+    private static final String ATTACK_ANIMATION_FILENAME = "fire_elemental_attack";
+    private static final String IDLE_ANIMATION_FILENAME = "fire_elemental_idle";
+    private static final String HURT_ANIMATION_FILENAME = "fire_elemental_hurt";
+    private static final String DEATH_ANIMATION_FILENAME = "fire_elemental_die";
+
+    private static final int MOVE_FRAME_COUNT = 4;
+    private static final int ATTACK_FRAME_COUNT = 10;
+    private static final int IDLE_FRAME_COUNT = 4;
+    private static final int HURT_FRAME_COUNT = 3;
+    private static final int DEATH_FRAME_COUNT = 8;
+
+    private static final float MOVE_ANIMATION_FPS = 0.1f;
+    private static final float ATTACK_ANIMATION_FPS = 0.1f;
+    private static final float IDLE_ANIMATION_FPS = 0.07f;
+    private static final float HURT_ANIMATION_FPS = 0.07f;
+    private static final float DEATH_ANIMATION_FPS = 0.1f;
+
 
     public FireElemental(PlayScreen screen, float x, float y, boolean specialDrop) {
         super(screen, x, y);
         this.specialDrop = specialDrop;
-        walkAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_run"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        deathAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_die"),
-                8, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        attackAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_attack"),
-                10, WIDTH_PIXELS, HEIGHT_PIXELS, 0.1f);
-        hurtAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_hurt"),
-                3, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation = generateAnimation(screen.getAtlas().findRegion("fire_elemental_idle"),
-                4, WIDTH_PIXELS, HEIGHT_PIXELS, 0.07f);
-        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
         attackCooldown = -1f;
         stateTimer = 0;
@@ -104,7 +112,7 @@ public class FireElemental extends Enemy {
 
     private void act() {
         if (currentState == State.ATTACKING) {
-            if (attackAnimation.isAnimationFinished(stateTimer)) {
+            if (attackFinished(stateTimer)) {
                 attackTimer = -1f;
             }
         }
@@ -128,6 +136,7 @@ public class FireElemental extends Enemy {
                 canFireProjectile = false;
             }
         }
+        limitSpeed();
     }
 
     private void launchFireBall() {
@@ -200,20 +209,6 @@ public class FireElemental extends Enemy {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1f, 0f);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1f, 0f);
-    }
-
-    private boolean playerInAttackRange() {
-        return  (Math.abs(getVectorToPlayer().x )< 180 / AdventureGame.PPM &&
-                (Math.abs(getVectorToPlayer().y )< 180 / AdventureGame.PPM));
-
-    }
-
     private void goIntoAttackState() {
         attackTimer = ATTACK_RATE;
     }
@@ -228,5 +223,59 @@ public class FireElemental extends Enemy {
         CircleShape shape = new CircleShape();
         shape.setRadius(12 / AdventureGame.PPM);
         return shape;
+    }
+
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
     }
 }

@@ -149,6 +149,16 @@ public class Chest extends Enemy implements UpdatableSprite {
         setToDestroy = true;
     }
 
+    @Override
+    protected float getAttackRange() {
+        return 0;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return 0;
+    }
+
 
     @Override
     protected void defineEnemy() {
@@ -182,5 +192,14 @@ public class Chest extends Enemy implements UpdatableSprite {
         CircleShape shape = new CircleShape();
         shape.setRadius(12 / AdventureGame.PPM);
         return shape;
+    }
+
+    @Override
+    protected void initializeAnimations() {
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return 0;
     }
 }

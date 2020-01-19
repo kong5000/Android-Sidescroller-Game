@@ -46,10 +46,12 @@ public class Golem extends Enemy implements BossAttack {
     private static final int HEIGHT_PIXELS = 59;
 
     private static final float CORPSE_EXISTS_TIME = 1.5f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
     private static final float FLASH_RED_TIME = 0.3f;
     private static final float STUN_TIME = 0.5f;
     private static final float STRONG_ATTACK_COOLDOWN = 4;
+    public static final int ATTACK_RANGE = 100;
+    public static final int ACTIVATION_RANGE = 150;
+    private static final float MAX_HORIZONTAL_SPEED = 1.1f;
 
     private float attackTimer;
     private float chargeTimer;
@@ -263,6 +265,7 @@ public class Golem extends Enemy implements BossAttack {
                 spawnEnemyCounter = 0;
             }
         }
+        limitSpeed();
     }
 
     @Override
@@ -504,18 +507,6 @@ public class Golem extends Enemy implements BossAttack {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(1.1f, b2body.getLinearVelocity().y);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-1.1f, b2body.getLinearVelocity().y);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
-    }
-
     private boolean playerInChargeRange() {
         return (Math.abs(getVectorToPlayer().x) > 30 / AdventureGame.PPM);
     }
@@ -567,5 +558,23 @@ public class Golem extends Enemy implements BossAttack {
 
     }
 
+    @Override
+    protected void initializeAnimations() {
 
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
+    }
 }

@@ -18,6 +18,7 @@ import com.mygdx.adventuregame.sprites.Effects.Vortex;
 import com.mygdx.adventuregame.sprites.MonsterTile;
 
 public class Minotaur extends Enemy implements BossAttack {
+    private static final float MAX_HORIZONTAL_SPEED = 2;
     private boolean active;
     private static final float SOUND_COOLDOWN = 0.6f;
     private float soundCooldownTimer = -1f;
@@ -55,6 +56,8 @@ public class Minotaur extends Enemy implements BossAttack {
     private static final float FLASH_RED_TIME = 0.3f;
     private static final float STUN_TIME = 0.5f;
     private static final float STRONG_ATTACK_COOLDOWN = 4;
+    public static final int ATTACK_RANGE = 100;
+    public static final int ACTIVATION_RANGE = 200;
 
     private float attackTimer;
     private float chargeTimer;
@@ -532,16 +535,14 @@ public class Minotaur extends Enemy implements BossAttack {
         return getVectorToPlayer().x > 0;
     }
 
-    private void runRight() {
+    @Override
+    protected void runRight() {
         b2body.setLinearVelocity(1.1f, b2body.getLinearVelocity().y);
     }
 
-    private void runLeft() {
+    @Override
+    protected void runLeft() {
         b2body.setLinearVelocity(-1.1f, b2body.getLinearVelocity().y);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 100 / AdventureGame.PPM);
     }
 
     private boolean playerInChargeRange() {
@@ -595,7 +596,22 @@ public class Minotaur extends Enemy implements BossAttack {
 
     }
 
-    private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 200 / AdventureGame.PPM);
+    @Override
+    protected void initializeAnimations() {
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_HORIZONTAL_SPEED;
     }
 }

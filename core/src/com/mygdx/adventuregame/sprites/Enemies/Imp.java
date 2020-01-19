@@ -31,37 +31,9 @@ public class Imp extends Enemy {
             -0.19f, -0.15f,
             0.17f, -0.15f,
             0.17f, 0.1f};
-    private static final float HURT_TIME = 0.3f;
-    private static final float ATTACK_RATE = 1.75f;
 
     private static final int WIDTH_PIXELS = 50;
     private static final int HEIGHT_PIXELS = 50;
-
-    private static final float CORPSE_EXISTS_TIME = 1f;
-    private static final float INVINCIBILITY_TIME = 0.35f;
-    private static final float FLASH_RED_TIME = 0.4f;
-    private static final float MOVE_TIME = 0.2f;
-    private static final float HORIZONTAL_MOVE_TIME = 2f;
-    private static final float ATTACK_COOLDOWN_TIME = 1.5f;
-    private static final float BULLET_SPEED = 1.25f;
-    private boolean wasFlyingRight = false;
-    private float startPosition;
-    private float endPosition;
-    private float attackTimer;
-    private float movementTimer = 0;
-    private float x_movementTimer = 0;
-
-    private float deathTimer;
-    private boolean active = false;
-
-    private boolean setToDie = false;
-
-    private Fixture attackFixture;
-    private float attackCooldownTimer = 0.5f;
-    private boolean hasFireProjectile = false;
-    private static final float MAX_SPEED = 0.9f;
-    private static final float SLOW_SPEED = 0.6f;
-    private float movementSpeed = MAX_SPEED;
 
     private static final String MOVE_ANIMATION_FILENAME = "imp_move";
     private static final String ATTACK_ANIMATION_FILENAME = "imp_attack";
@@ -75,51 +47,37 @@ public class Imp extends Enemy {
     private static final int HURT_FRAME_COUNT = 3;
     private static final int DEATH_FRAME_COUNT = 10;
 
-
     private static final float MOVE_ANIMATION_FPS = 0.1f;
     private static final float ATTACK_ANIMATION_FPS = 0.1f;
     private static final float IDLE_ANIMATION_FPS = 0.1f;
     private static final float HURT_ANIMATION_FPS = 0.1f;
     private static final float DEATH_ANIMATION_FPS = 0.1f;
 
+    private static final float ATTACK_RATE = 1.75f;
+    private static final float CORPSE_EXISTS_TIME = 1f;
+    private static final float ATTACK_COOLDOWN_TIME = 1.5f;
+    private static final float BULLET_SPEED = 1.25f;
+    private static final float MAX_SPEED = 0.9f;
+    private float movementSpeed = MAX_SPEED;
+    public static final int ATTACK_RANGE = 50;
+    public static final int ACTIVATION_RANGE = 150;
+
+    private float startPosition;
+    private float endPosition;
+    private float attackTimer;
+    private float attackCooldownTimer = 0.5f;
+    private float deathTimer;
+
+    private boolean active = false;
+    private boolean setToDie = false;
+
+    private Fixture attackFixture;
+
+    private boolean hasFireProjectile = false;
+    private boolean wasFlyingRight = false;
 
     public Imp(PlayScreen screen, float x, float y) {
         super(screen, x, y);
-        initMoveAnimation(
-                MOVE_ANIMATION_FILENAME,
-                MOVE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                MOVE_ANIMATION_FPS
-        );
-        initAttackAnimation(
-                ATTACK_ANIMATION_FILENAME,
-                ATTACK_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                ATTACK_ANIMATION_FPS
-        );
-        initIdleAnimation(
-                IDLE_ANIMATION_FILENAME,
-                IDLE_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                IDLE_ANIMATION_FPS
-        );
-        initHurtAnimation(
-                HURT_ANIMATION_FILENAME,
-                HURT_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                HURT_ANIMATION_FPS
-        );
-        initDeathAnimation(
-                DEATH_ANIMATION_FILENAME,
-                DEATH_FRAME_COUNT,
-                WIDTH_PIXELS,
-                HEIGHT_PIXELS,
-                DEATH_ANIMATION_FPS
-        );
 
         setBounds(getX(), getY(), WIDTH_PIXELS / AdventureGame.PPM, HEIGHT_PIXELS / AdventureGame.PPM);
 
@@ -158,8 +116,6 @@ public class Imp extends Enemy {
         }
         if (currentState == State.DYING) {
             b2body.setLinearVelocity(b2body.getLinearVelocity().x * 0.97f, -1.5f);
-            if (deathAnimation.isAnimationFinished(stateTimer)) {
-            }
             deathTimer += dt;
             if (deathTimer > CORPSE_EXISTS_TIME) {
                 setToDestroy = true;
@@ -230,7 +186,7 @@ public class Imp extends Enemy {
             if (attackFramesOver()) {
                 disableAttackHitBox();
             }
-            if (attackAnimation.isAnimationFinished(stateTimer)) {
+            if (attackFinished(stateTimer)) {
                 attackTimer = -1f;
                 hasFireProjectile = false;
             }
@@ -240,7 +196,7 @@ public class Imp extends Enemy {
             maintainHeight();
             chasePlayerHorizontal();
         }
-
+        limitSpeed();
     }
 
     private void stopMovement() {
@@ -388,22 +344,6 @@ public class Imp extends Enemy {
         b2body.setLinearVelocity(b2body.getLinearVelocity().x, -1);
     }
 
-    private void runRight() {
-        b2body.setLinearVelocity(movementSpeed, 0);
-    }
-
-    private void runLeft() {
-        b2body.setLinearVelocity(-movementSpeed, 0);
-    }
-
-    private boolean playerInAttackRange() {
-        return (Math.abs(getVectorToPlayer().x) < 50 / AdventureGame.PPM);
-    }
-
-    private boolean playerInActivationRange() {
-        return (Math.abs(getVectorToPlayer().len()) < 150 / AdventureGame.PPM);
-    }
-
     private boolean playerIsBelow() {
         float y = getVectorToPlayer().y;
         return (y < -0.2);
@@ -476,5 +416,59 @@ public class Imp extends Enemy {
         float y = BULLET_SPEED * MathUtils.sin(angle * MathUtils.degreesToRadians);
         fireBall.setVelocity(x, y);
 
+    }
+
+    @Override
+    protected void initializeAnimations() {
+        getEnemyAnimations().initMoveAnimation(
+                MOVE_ANIMATION_FILENAME,
+                MOVE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                MOVE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initAttackAnimation(
+                ATTACK_ANIMATION_FILENAME,
+                ATTACK_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                ATTACK_ANIMATION_FPS
+        );
+        getEnemyAnimations().initIdleAnimation(
+                IDLE_ANIMATION_FILENAME,
+                IDLE_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                IDLE_ANIMATION_FPS
+        );
+        getEnemyAnimations().initHurtAnimation(
+                HURT_ANIMATION_FILENAME,
+                HURT_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                HURT_ANIMATION_FPS
+        );
+        getEnemyAnimations().initDeathAnimation(
+                DEATH_ANIMATION_FILENAME,
+                DEATH_FRAME_COUNT,
+                WIDTH_PIXELS,
+                HEIGHT_PIXELS,
+                DEATH_ANIMATION_FPS
+        );
+    }
+
+    @Override
+    protected float getAttackRange() {
+        return ATTACK_RANGE;
+    }
+
+    @Override
+    protected float getActivationRange() {
+        return ACTIVATION_RANGE;
+    }
+
+    @Override
+    protected float getMovementSpeed() {
+        return MAX_SPEED;
     }
 }
